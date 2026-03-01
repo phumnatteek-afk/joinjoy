@@ -1,0 +1,284 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+/* Reset & base */
+* {
+    font-family: 'Poppins', 'Kanit', 'Noto Sans Thai', sans-serif !important;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+html,
+body {
+  height: 100%;
+}
+body {
+    padding-bottom: 80px;
+  font-family: 'Poppins', 'Kanit', 'Noto Sans Thai', sans-serif;
+  background: #fff;
+  display: flex;
+  justify-content: center;
+  color: #222;
+  width: 100% !important;
+}
+.clearfix {
+  display: block;
+}
+.clearfix:after {
+  visibility: hidden;
+  display: block;
+  font-size: 0;
+  content: " ";
+  clear: both;
+  height: 0;
+}
+#wrapper {
+  width: 100%;
+  height: 241px;
+  background: #fff;
+  margin: 0 auto;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+.container {
+  width: 100%;
+  max-width: 390px;
+  margin: 0 auto;
+  padding: 16px;
+}
+#head{
+    height:241px;
+    display:flex;
+    align-items:center;
+    border-radius: 0 0 40px 40px;
+    justify-content:space-between;
+    padding:0 24px;
+    background: #ffff;
+    box-sizing:border-box;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+/* Responsive */
+@media (max-width: 767px) {
+  #head {
+    height: 241px;
+    border-radius: 0 0 40px 40px;
+    display: flex;
+    flex-direction: column; /* จัดเป็นแถวบน-ล่าง */
+    padding: 10px 20px;
+  }
+  .top-bar {
+    display: flex;
+    justify-content: space-between; /* โลโก้อยู่ซ้าย ไอคอนอยู่ขวา */
+    align-items: center;
+    width: 100%;
+    margin-bottom: 15px;
+}
+.right-icons {
+    display: flex;
+    align-items: center;
+    gap: 15px; /* ระยะห่างระหว่างกระดิ่งกับโปรไฟล์ */
+}
+  .logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: -50px;
+    margin-left: 70px;
+  }
+  .logo img {
+    width: 120px;
+    height: auto;
+    display: block;
+    flex-shrink: 0;
+  }
+  .Notification{
+    display: flex;
+    align-items: center;
+    margin-top: 20px;
+    margin-right: 10px;
+  }
+  .Notification svg path:hover{
+    fill: #f3cfcf; 
+    cursor: pointer;
+  }
+  .Upcom-Trip ,.Reccom-Trip , .Experience-Trip , .Schedule-Trip{
+    font-size: 16px;
+    font-weight: 600;
+    margin-left: 20px;
+  }
+:root {
+    --primary-pink: #F28695;
+    --gray-text: #A0A0A0;
+    --bg-white: #ffffff;
+}
+
+.search-container {
+    padding: 15px;
+    width: 100%;
+    box-sizing: border-box;
+    position: relative;
+}
+
+.search-box {
+    display: flex;
+    align-items: center;
+    background: #ffffff;
+    border-radius: 50px;
+    padding: 8px 15px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    width: 100%; 
+    margin: 0;   
+}
+
+/* เมื่อกดคลิกที่กล่อง ให้เงาชัดขึ้น */
+.search-box:focus-within {
+    border-color: var(--primary-pink);
+    box-shadow: 0 4px 15px rgba(242, 134, 149, 0.2);
+}
+
+.icon-search {
+    display: flex;
+    align-items: center;
+    margin-right: 10px;
+}
+
+#searchInput {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-size: 16px; /* ขนาด 16px ป้องกัน iOS Zoom เองอัตโนมัติ */
+    color: #333;
+    background: transparent;
+}
+
+#searchInput::placeholder {
+    color: var(--gray-text);
+    font-weight: 400;
+}
+
+.filter-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    padding-left: 10px;
+}
+
+/* ส่วนแสดงผลลัพธ์ */
+.search-results {
+    position: absolute; /* ให้ลอยทับเนื้อหาข้างล่าง */
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 999;
+    background: white;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    border-radius: 15px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+.result-item {
+    padding: 10px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+/* ล็อคเมนูไว้ด้านล่างจอ */
+.mainnav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 102px;
+  background-color: #ffffff;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05); 
+  padding: 10px 0;
+  z-index: 1000;
+  border-radius: 40px 40px 0 0; 
+}
+
+.mainmenu {
+  display: flex;
+  justify-content: space-around; /* กระจายเมนูให้เท่ากัน */
+  align-items: center;
+  list-style: none;
+  margin: 0;
+  padding: 0 10px;
+}
+
+.menu-item a {
+  display: flex;
+  flex-direction: column; /* ให้ไอคอนอยู่บน ตัวหนังสืออยู่ล่าง */
+  align-items: center;
+  text-decoration: none;
+  font-family: 'Poppins', 'Kanit', sans-serif !important;
+  font-size: 11px; /* ขนาดตัวหนังสือเมนู */
+  color: #747474;
+  gap: 5px; /* ระยะห่างระหว่างไอคอนกับข้อความ */
+}
+
+/* จัดการสีไอคอนและข้อความสำหรับเมนูที่กำลังเปิดอยู่ (Active) */
+.menu-item.active a {
+  color: #F28695; 
+border-radius: 40px 40px 0 0; 
+}
+.menu-item.active svg path {
+  stroke: #ffffff; 
+}
+/* กรณีที่มีวงกลมไฮไลท์เหมือนในรูปตัวอย่างคุณ */
+.menu-item.active a svg {
+  background-color: #F28695;
+  color: #ffffff;
+  padding: 5px;
+  width: 35px;
+  height: 35px;
+  stroke: white !important; /* ไอคอนข้างในเป็นสีขาว */
+}
+/* .menu-item.active a svg:hover {
+
+} */
+.menu-item.active a span {
+  font-weight: 600;
+  
+}
+.menu-item a span{
+    color: #ffffff;
+}
+.menu-item a span:hover{
+    color: #ffff;
+}
+  /* .nav-menu {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+}
+
+.nav-item {
+    color: white;
+    text-decoration: none;
+    font-size: 1em;
+    padding: 10px 15px;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+.nav-item.active {
+    background-color: #e9a347;
+    color: #58180d;
+} */
+
+  /* .profile-icon {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    border: 2px solid white;
+    background-color: white;
+} */
+}
+html,
+body,
+.main-wrapper,
+#wrapper {
+  background: linear-gradient(180deg, #f7dada 0%, #f3cfcf 50%, #eed9c4 100%);
+}
+@media (max-width: 767px) {
+}
