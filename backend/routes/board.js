@@ -1,9 +1,8 @@
 const express = require('express');
 const router = express.Router();
 // สร้างไฟล์เชื่อมต่อ DB ไว้ใน config/db
-const db = require('../config/db'); 
+const db = require('../config/db');
 
-// API สำหรับดึงข้อมูลไปแสดงหน้า Board
 router.get('/trips', async (req, res) => {
     try {
         const [rows] = await db.query(`
@@ -16,9 +15,38 @@ router.get('/trips', async (req, res) => {
             WHERE t.trip_status = 'Open'
             ORDER BY t.created_at DESC
         `);
-        res.json(rows);
+
+        // จัดการกรณีไม่มีทริป
+        if (rows.length === 0) {
+            // เพื่อให้ Frontend ไปเช็ค trips.length === 0 แล้วโชว์ข้อความ "ยังไม่มีทริป"
+            return res.status(200).json([]); 
+        }
+
+        res.status(200).json(rows);
+
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        // แยกประเภท Error
+        console.error("Board Error:", err); 
+
+        if (err.code === 'ER_NO_SUCH_TABLE') {
+            return res.status(500).json({ 
+                error: "Database configuration error", 
+                message: "ไม่พบตารางที่ระบุในฐานข้อมูล" 
+            });
+        }
+
+        if (err.code === 'ER_BAD_FIELD_ERROR') {
+            return res.status(500).json({ 
+                error: "SQL Syntax Error", 
+                message: "ชื่อ Column ใน SQL ไม่ถูกต้อง" 
+            });
+        }
+
+        res.status(500).json({ 
+            error: "Internal Server Error", 
+            message: "เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล",
+            details: err.message 
+        });
     }
 });
 

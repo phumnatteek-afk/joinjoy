@@ -1,11 +1,12 @@
 const mysql = require('mysql2');
 
 const pool = mysql.createPool({
-    host: 'localhost',
-    user: 'root',      // ใส่ Username ของ MySQL Oom
-    password: '',      // ใส่ Password ถ้ามี
-    database: 'joinjoy' // ชื่อ Database ที่ Oom สร้างไว้
+    host: 'mysql-1066d366-silpakorn-joinjoy.j.aivencloud.com', 
+    user: 'avnadmin',
+    password: 'AVNS_udpq4sPQJKS-nsh0bpM', 
+    database: 'defaultdb',
+    port: 16356, 
+    ssl: { rejectUnauthorized: false } 
 });
 
-// ใช้ promise() เพื่อให้ใช้ async/await ใน board.js ได้
 module.exports = pool.promise();
