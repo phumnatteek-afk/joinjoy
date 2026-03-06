@@ -1,0 +1,133 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
+
+    background-color: #ffffff;
+    background-image: 
+        /* วงสีชมพู F28695 มุมซ้ายบน - ปรับความเข้มเป็น 0.3 */
+        radial-gradient(at 15% 15%, rgba(242, 134, 149, 0.35) 0px, transparent 40%),
+        /* วงสีชมพูโอรส F2BFB4 มุมขวาบน - ปรับความเข้มเป็น 0.4 */
+        radial-gradient(at 85% 15%, rgba(242, 191, 180, 0.4) 0px, transparent 40%),
+        /* วงสีเหลืองนวล F2E6B8 ตรงกลาง - เน้นให้ฟุ้งรอบตัวฟอร์ม */
+        radial-gradient(at 50% 50%, rgba(242, 230, 184, 0.45) 0px, transparent 50%),
+        /* วงสีครีมส้ม F1CCA6 มุมซ้ายล่าง */
+        radial-gradient(at 20% 85%, rgba(241, 204, 166, 0.4) 0px, transparent 40%),
+        /* วงสีชมพู F28695 มุมขวาล่าง */
+        radial-gradient(at 80% 85%, rgba(242, 134, 149, 0.3) 0px, transparent 40%);
+    
+    background-attachment: fixed;
+}
+
+.login-container {
+    padding: 2.5rem;
+    width: 100%;
+    max-width: 600px;
+    margin-top: -200px;
+    text-align: center;
+}
+
+.logo {
+    width: 485px;
+}
+
+h2 {
+    color: #000;
+    margin-bottom: 2rem;
+    margin-top: -150px;
+    padding-bottom: 30px;
+    font-size: 30px;
+    font-weight: 500;
+    text-align: center;
+}
+
+.input-group {
+    text-align: left;
+    margin-bottom: 1.5rem;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #888;
+    font-size: 20px;
+    padding-left: 0.5rem;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 25px 35px;
+    border: none;
+    background-color: #F28695;
+    border-radius: 10px;
+    font-size: 20px;
+    color: #000;
+    box-sizing: border-box;
+    transition: 0.3s;
+}
+
+.input-group input::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.input-group input:focus {
+    outline: none;
+    background-color: #db5768;
+    box-shadow: 0 0 10px rgba(255, 154, 162, 0.2);
+}
+
+#login-btn {
+    width: 50%;
+    padding: 25px 35px;
+    border: none;
+    background-color: #F2CCA7;
+    color: #555;
+    border-radius: 10px;
+    font-size: 24px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: 0.3s;
+    margin-top: 40px;
+}
+
+#login-btn:hover {
+    background-color: #FFC08A;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 209, 169, 0.4);
+}
+
+.password-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.eye-icon {
+    position: absolute;
+    right: 25px; /* ปรับให้ห่างจากขอบขวาพอดีๆ */
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.9); /* ให้สีขาวนวลเข้ากับช่อง Input ชมพู */
+    font-size: 24px; /* ปรับขนาดไอคอนให้ชัดเจน */
+    z-index: 10;
+    transition: transform 0.2s ease;
+}
+
+.eye-icon:hover {
+    transform: scale(1.1);
+}
+
+/* ปรับ Padding ขวาของ Input ไม่ให้ข้อความไปทับไอคอน */
+.input-group input#admin-password {
+    padding-right: 70px !important;
+}

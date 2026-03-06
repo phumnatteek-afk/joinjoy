@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <title>Admin - login</title>
+    <link rel="stylesheet" href="../css/admin-login.css">
+</head>
+
+<body>
+    <div class="login-container">
+        <img src="../img/joinjoylogo.png" alt="JoinJoy Logo" class="logo">
+        <h2>Admin Login</h2>
+
+        <div class="input-group">
+            <label>Gmail</label>
+            <input type="email" id="admin-gmail" placeholder="example@silpakorn.edu">
+        </div>
+
+        <div class="input-group">
+            <label>Password</label>
+            <div class="password-wrapper">
+                <input type="password" id="admin-password" placeholder="••••••••">
+                <div id="toggle-password" class="eye-icon">
+                    <iconify-icon id="eye-icon-inner" icon="el:eye-close"></iconify-icon>
+                </div>
+            </div>
+        </div>
+
+        <button id="login-btn">Login</button>
+    </div>
+
+    <script src="../js/admin-login.js"></script>
+
+</body>
+
+</html>

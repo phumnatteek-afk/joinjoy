@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JoinJoy - Admin Dashboard</title>
+
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <link rel="stylesheet" href="../css/admin-dashboard.css">
+</head>
+<body>
+    <div class="dashboard-wrapper">
+        <nav class="sidebar">
+            <div class="sidebar-top">
+                <img src="../img/joinjoylogo.png" alt="Logo" class="sidebar-logo">
+                <div class="menu-items">
+                    <a href="#" class="menu-item active">
+                        <iconify-icon icon="si:dashboard-fill"></iconify-icon>
+                        Dashboard
+                    </a>
+                    <a href="admin-user-management.html" class="menu-item">
+                        <iconify-icon icon="gridicons:user"></iconify-icon>
+                        User
+                    </a>
+                </div>
+            </div>
+            <a href="admin-login.html" class="logout-btn">
+                <iconify-icon icon="material-symbols:logout-rounded"></iconify-icon>
+                Log Out
+            </a>
+        </nav>
+
+        <main class="content">
+            <div class="stats-grid">
+                <div class="stat-card active-users">
+                    <h3>Active Users</h3>
+                    <div class="stat-value" id="active-users-val">0</div>
+                    <h4>person per day</h4>
+                </div>
+                
+                <div class="stat-card trip-stats">
+                    <h3>Trip Statistics</h3>
+                    <div class="trip-grid">
+                        <div class="trip-sub">
+                            <div class="val" id="open-trips-val">0</div>
+                            <div class="lbl">New Trip</div>
+                        </div>
+                        <div class="trip-divider"></div>
+                        <div class="trip-sub">
+                            <div class="val" id="full-trips-val">0</div>
+                            <div class="lbl">Full Trip</div>
+                        </div>
+                        <div class="trip-divider"></div>
+                        <div class="trip-sub">
+                            <div class="val" id="closed-trips-val">0</div>
+                            <div class="lbl">End Trip</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="charts-grid">
+                <div class="chart-container user-growth">
+                    <h3>User Growth</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="userGrowthChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-container trip-reviews">
+                    <h3>Trip Reviews</h3>
+                    <div class="chart-wrapper-circle">
+                        <canvas id="tripReviewsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="../js/admin-dashboard.js"></script>
+</body>
+</html>
