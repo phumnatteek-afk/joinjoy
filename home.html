@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JoinJoy — Home</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Kanit:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="home.css" />
+</head>
+<body>
+
+<div class="toast" id="toast"></div>
+
+<!-- ── HEADER ── -->
+<header class="header">
+  <div class="logo-row">
+    <div class="logo">JoinJoy</div>
+    <button class="bell" id="bellBtn" style="position:absolute;right:0">
+      <svg viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+      <span class="notif-dot" id="notifDot"></span>
+    </button>
+  </div>
+  <div class="profile-row">
+    <div class="avatar" id="avatarEl">🏕️</div>
+    <div>
+      <div class="hi"  id="greetName">Hi!</div>
+      <div class="sub" id="greetSub">Faculty : —</div>
+    </div>
+  </div>
+  <div class="search-box">
+    <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+    <input id="searchInput" placeholder="Search group trip.." />
+    <button class="filter-btn">
+      <svg viewBox="0 0 24 24"><path d="M10 18h4v-2h-4v2zM3 6v2h18V6H3zm3 7h12v-2H6v2z"/></svg>
+    </button>
+  </div>
+</header>
+
+<!-- ── MAIN ── -->
+<main class="main">
+
+  <div class="chips" id="chipsRow">
+    <button class="chip active" data-cat="">All</button>
+    <button class="chip" data-cat="1-Day Trip">1-Day Trip</button>
+    <button class="chip" data-cat="Chill & Relaxed">Chill &amp; Relaxed</button>
+    <button class="chip" data-cat="Travel Group">Travel Group</button>
+    <button class="chip" data-cat="Beach Trips">Beach Trips</button>
+    <button class="chip" data-cat="Concert">Concert</button>
+    <button class="chip" data-cat="Cafe">Cafe</button>
+  </div>
+
+  <div class="sec-hd">Upcoming Trip</div>
+  <div class="grid" id="upcomingGrid">
+    <div class="loading gs"><div class="spinner"></div><span>Loading...</span></div>
+  </div>
+
+  <div class="sec-hd">Recommended <span class="sec-sub" id="recSub"></span></div>
+  <div class="grid" id="recommendedGrid">
+    <div class="loading gs"><div class="spinner"></div><span>Loading...</span></div>
+  </div>
+
+  <div class="sec-hd">Trip Experience</div>
+  <div class="exp-scroll" id="expScroll">
+    <div class="loading"><div class="spinner"></div></div>
+  </div>
+
+  <div class="sec-hd" id="schTitle" style="display:none">My Schedule</div>
+  <div class="sch-list" id="schList"></div>
+
+</main>
+
+
+<script>
+const API = 'http://localhost:3000/api';
+const MEDIA = 'http://localhost:3000'; 
+const token = localStorage.getItem('jj_token');
+
+const $ = id => document.getElementById(id);
+
+function showToast(msg, type = '') {
+  const el = $('toast');
+  el.textContent = msg; el.className = `toast ${type} show`;
+  setTimeout(() => el.classList.remove('show'), 2800);
+}
+
+// function authHeaders() {
+//   return { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` };
+// }
+function authHeaders() {
+  const headers = { 'Content-Type': 'application/json' };
+  if (token) headers.Authorization = `Bearer ${token}`;
+  return headers;
+}
+
+function formatDate(iso) {
+  if (!iso) return '';
+  const d = new Date(iso), diff = Math.round((d - new Date()) / 86400000);
+  if (diff <= 0) return 'Today';
+  if (diff === 1) return 'Tomorrow';
+  return d.toLocaleDateString('th-TH', { day: 'numeric', month: 'short' });
+}
+
+function pillInfo(daysUntil) {
+  const d = parseInt(daysUntil);
+  if (isNaN(d) || d <= 0) return { text: 'Today',    cls: 'today'  };
+  if (d === 1)             return { text: '1 Day',    cls: 'soon'   };
+  return                          { text: `${d} Day`, cls: 'normal' };
+}
+
+
+
+async function apiFetch(path, opts = {}) {
+  const res = await fetch(API + path, opts);
+  if (!res.ok) throw new Error(`${res.status}`);
+  return res.json();
+}
+
+const EMOJI = { 'Beach Trips':'🏖️','Concert':'🎵','Cafe':'☕','1-Day Trip':'🗺️','Chill & Relaxed':'🌸','Travel Group':'🚌' };
+const GRAD  = {
+  'Beach Trips':    'linear-gradient(135deg,#80DEEA,#26C6DA)',
+  'Concert':        'linear-gradient(135deg,#CE93D8,#AB47BC)',
+  'Cafe':           'linear-gradient(135deg,#FFCC80,#FFA726)',
+  '1-Day Trip':     'linear-gradient(135deg,#A5D6A7,#66BB6A)',
+  'Chill & Relaxed':'linear-gradient(135deg,#F48FB1,#EC407A)',
+  'Travel Group':   'linear-gradient(135deg,#90CAF9,#42A5F5)',
+};
+const em = cat => EMOJI[cat] || '🏕️';
+const gr = cat => GRAD[cat]  || 'linear-gradient(135deg,#FCE4EC,#F48FB1)';
+
+/* ── RENDER ── */
+function tripCard(t) {
+  const joined = t.joined_count ?? t.current_member ?? 0;
+  const full   = joined >= t.max_member;
+  return `
+  <div class="card">
+    <div class="card-top">
+      <div class="mbadge"><span class="dot"></span>Member: ${joined}/${t.max_member}</div>
+      <div class="cname">${t.trip_name}</div>
+      <div class="cmeta"><svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>${t.location_name || '—'}</div>
+      <div class="cmeta"><svg viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/></svg>${formatDate(t.start_time)}</div>
+    </div>
+    <div class="cimg-wrap">
+  ${t.cover_image 
+  ? `<img class="cimg" src="${MEDIA}/${t.cover_image}" alt="${t.trip_name}">` 
+  : `<div class="cph" style="background:${gr(t.category)}">${em(t.category)}</div>`}
+      ${t.is_matched === 1 ? `<div class="tag-badge">✦ ${t.category}</div>` : ''}
+      <div class="join-wrap">
+        <button class="join-btn${full ? ' joined' : ''}" onclick="joinTrip(${t.trip_id},this)" ${full ? 'disabled' : ''}>
+          ${full ? 'Full' : 'join'}
+        </button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function expCard(r) {
+  const avs = (r.members || []).slice(0, 3).map(m =>
+    m.profile_img
+  ? `<div class="exp-av"><img src="${MEDIA}/${m.profile_img}" alt="${m.user_name}"></div>`
+  : `<div class="exp-av">${(m.user_name||'?')[0].toUpperCase()}</div>`
+  ).join('');
+  return `
+  <div class="exp-card">
+    ${r.cover_image 
+  ? `<img class="exp-img" src="${MEDIA}/${r.cover_image}" alt="${r.trip_name}">` 
+  : `<div class="exp-ph" style="background:${gr(r.category)}">${em(r.category)}</div>`}
+    <div class="exp-overlay">
+      <div class="exp-name">${r.trip_name}</div>
+      <div class="exp-quote">❝</div>
+      <div class="exp-text">${r.review_text}</div>
+      ${avs ? `<div class="exp-avatars">${avs}</div>` : ''}
+    </div>
+  </div>`;
+}
+
+function schCard(t) {
+  const joined = t.joined_count ?? t.current_member ?? 0;
+  const dRaw   = t.days_until != null ? parseInt(t.days_until) : Math.round((new Date(t.start_time) - new Date()) / 86400000);
+  const { text, cls } = pillInfo(dRaw);
+
+  // icon: ถ้ามี cover_image ใช้รูปจริง ถ้าไม่มีใช้ emoji
+  const iconHtml = t.cover_image
+  ? `<img src="${MEDIA}/${t.cover_image}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`
+  : em(t.category);
+
+  return `
+  <div class="sch-card">
+    <div class="sch-icon" style="background:${t.cover_image ? '#eee' : gr(t.category)}">${iconHtml}</div>
+    <div class="sch-info">
+      <div class="sch-mbadge"><span class="dot"></span>Member: ${joined}/${t.max_member}</div>
+      <div class="sch-name">${t.trip_name}</div>
+      <div class="sch-meta">
+        <span class="sch-mi"><svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>${t.location_name || '—'}</span>
+        <span class="sch-mi"><svg viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/></svg>${formatDate(t.start_time)}</span>
+      </div>
+    </div>
+    <div class="day-pill ${cls}">${text}</div>
+  </div>`;
+}
+
+/* ── LOAD ── */
+// async function loadUser() {
+//   try {
+//     const { success, user: u } = await apiFetch('/user/me');
+//     // const { success, user: u } = await apiFetch('/user/me', { headers: authHeaders() });
+//     if (success && u) {
+//       $('greetName').textContent = `Hi! ${u.user_name}`;
+//       $('greetSub').textContent  = `Faculty : ${u.faculty || '—'}`;
+//       if (u.profile_img) $('avatarEl').innerHTML = `<img src="${u.profile_img}" alt="${u.user_name}">`;
+//     }
+//   } catch (e) { console.error('loadUser:', e); }
+// }
+async function loadUser() {
+  try {
+    const { success, user: u } = await apiFetch('/user/me', {
+      headers: authHeaders()
+    });
+
+    console.log('GET /user/me =>', { success, u });
+
+    if (success && u) {
+      $('greetName').textContent = `Hi! ${u.user_name || '-'}`;
+      $('greetSub').textContent  = `Faculty : ${u.faculty || '—'}`;
+
+    if (u.profile_img) {
+  $('avatarEl').innerHTML = `<img src="${MEDIA}/${u.profile_img}" alt="${u.user_name}">`;
+}
+    }
+  } catch (e) {
+    console.error('loadUser:', e);
+  }
+}
+
+
+async function loadUpcoming() {
+  try {
+    const { trips = [] } = await apiFetch('/trips/upcoming');
+    $('upcomingGrid').innerHTML = trips.length ? trips.slice(0,4).map(tripCard).join('') : '<div class="empty">ยังไม่มีทริปที่กำลังจะมาถึง 🌸</div>';
+  } catch { $('upcomingGrid').innerHTML = '<div class="empty">โหลดข้อมูลไม่ได้</div>'; }
+}
+
+async function loadRecommended() {
+  try {
+    const data = await apiFetch('/trips/recommended', { headers: authHeaders() });
+    $('recSub').textContent = data?.personalized ? '(เพื่อคุณ ✦)' : '(ยอดนิยม)';
+    const trips = data?.trips || [];
+    $('recommendedGrid').innerHTML = trips.length ? trips.slice(0,4).map(tripCard).join('') : '<div class="empty">ยังไม่มีทริปแนะนำ</div>';
+  } catch { $('recommendedGrid').innerHTML = '<div class="empty">โหลดข้อมูลไม่ได้</div>'; }
+}
+
+async function loadExp() {
+  try {
+    const { reviews = [] } = await apiFetch('/reviews/recent');
+    $('expScroll').innerHTML = reviews.length ? reviews.slice(0,5).map(expCard).join('') : '<div style="padding:16px;color:var(--text-soft);font-size:13px">ยังไม่มีรีวิว</div>';
+  } catch { $('expScroll').innerHTML = '<div style="padding:16px;color:var(--text-soft);font-size:13px">โหลดข้อมูลไม่ได้</div>'; }
+}
+
+async function loadSchedule() {
+  // if (!token) return;
+  try {
+    const { trips = [] } = await apiFetch('/trips/my-schedule', { headers: authHeaders() });
+    if (!trips.length) return;
+    $('schTitle').style.display = 'flex';
+    $('schList').innerHTML = trips.map(schCard).join('');
+  } catch (e) { console.error('loadSchedule:', e); }
+}
+
+async function loadNotif() {
+  if (!token) return;
+  try {
+    const { count = 0 } = await apiFetch('/notifications/unread-count', { headers: authHeaders() });
+    if (count > 0) $('notifDot').style.display = 'block';
+  } catch (e) { console.error('loadNotif:', e); }
+}
+
+/* ── JOIN ── */
+async function joinTrip(tripId, btn) {
+  if (!token) { showToast('กรุณาเข้าสู่ระบบก่อน', 'err'); return; }
+  btn.disabled = true; btn.textContent = '...';
+  try {
+    const data = await apiFetch(`/trip-members/join/${tripId}`, { method: 'POST', headers: authHeaders() });
+    if (data.success) {
+      btn.textContent = '✓ joined'; btn.classList.add('joined');
+      showToast('เข้าร่วมทริปสำเร็จ! 🎉', 'ok'); loadSchedule();
+    } else {
+      btn.disabled = false; btn.textContent = 'join';
+      showToast(data.message || 'เกิดข้อผิดพลาด', 'err');
+    }
+  } catch {
+    btn.disabled = false; btn.textContent = 'join';
+    showToast('เกิดข้อผิดพลาด กรุณาลองใหม่', 'err');
+  }
+}
+
+/* ── EVENTS ── */
+$('chipsRow').addEventListener('click', async e => {
+  const chip = e.target.closest('.chip'); if (!chip) return;
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  chip.classList.add('active');
+  const cat = chip.dataset.cat;
+  $('upcomingGrid').innerHTML = '<div class="loading gs"><div class="spinner"></div></div>';
+  try {
+    const path = cat ? `/trips?category=${encodeURIComponent(cat)}` : '/trips/upcoming';
+    const { trips = [] } = await apiFetch(path);
+    $('upcomingGrid').innerHTML = trips.length ? trips.slice(0,4).map(tripCard).join('') : '<div class="empty">ไม่พบทริปในหมวดนี้</div>';
+  } catch { $('upcomingGrid').innerHTML = '<div class="empty">โหลดข้อมูลไม่ได้</div>'; }
+});
+
+let st;
+$('searchInput').addEventListener('input', e => {
+  clearTimeout(st);
+  const q = e.target.value.trim();
+  st = setTimeout(async () => {
+    if (!q) { loadUpcoming(); return; }
+    $('upcomingGrid').innerHTML = '<div class="loading gs"><div class="spinner"></div></div>';
+    try {
+      const { trips = [] } = await apiFetch(`/trips?search=${encodeURIComponent(q)}`);
+      $('upcomingGrid').innerHTML = trips.length ? trips.map(tripCard).join('') : '<div class="empty">ไม่พบทริปที่ค้นหา 🔍</div>';
+    } catch { $('upcomingGrid').innerHTML = '<div class="empty">โหลดข้อมูลไม่ได้</div>'; }
+  }, 380);
+});
+
+$('bellBtn').addEventListener('click', async () => {
+  if (!token) { showToast('กรุณาเข้าสู่ระบบก่อน', 'err'); return; }
+  try {
+    await apiFetch('/notifications/read-all', { method: 'PUT', headers: authHeaders() });
+    $('notifDot').style.display = 'none';
+    showToast('อ่านการแจ้งเตือนทั้งหมดแล้ว', 'info');
+  } catch (e) { console.error('bell:', e); }
+});
+
+/* ── BOOT ── */
+Promise.all([loadUser(), loadUpcoming(), loadRecommended(), loadExp(), loadSchedule(), loadNotif()]);
+</script>
+</body>
+</html>
