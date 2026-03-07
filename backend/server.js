@@ -1,12 +1,9 @@
 const express = require('express');
 const cors = require('cors');
 const boardRoute = require('./routes/board');
-<<<<<<< HEAD
+
 const adminRoutes = require('./routes/admin');
 
-=======
-const path = require('path');
->>>>>>> 9369acf (home90% เหลือเชื่อมกับ log in)
 const app = express();
 
 const path = require('path');
