@@ -1,0 +1,323 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+
+body {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    height: 100vh;
+    background-color: #ffffff;
+    background-image:
+        radial-gradient(at 15% 15%, rgba(242, 134, 149, 0.5) 0px, transparent 50%),
+        radial-gradient(at 85% 15%, rgba(242, 191, 180, 0.55) 0px, transparent 50%),
+        radial-gradient(at 50% 50%, rgba(242, 230, 184, 0.6) 0px, transparent 60%),
+        radial-gradient(at 20% 85%, rgba(241, 204, 166, 0.5) 0px, transparent 50%),
+        radial-gradient(at 80% 85%, rgba(242, 134, 149, 0.45) 0px, transparent 50%);
+    background-attachment: fixed;
+}
+
+.dashboard-wrapper {
+    display: flex;
+    height: 100vh;
+}
+
+.sidebar {
+    width: 300px;
+    background-color: #F28695;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 30px 0;
+    flex-shrink: 0;
+}
+
+.sidebar-logo {
+    width: 250px;
+    margin: -50px 0 -40px 20px;
+    display: block;
+}
+
+.menu-item {
+    display: flex;
+    align-items: center;
+    padding: 15px 30px;
+    color: #000;
+    text-decoration: none;
+    font-size: 24px;
+    gap: 15px;
+    transition: 0.3s;
+}
+
+.menu-item iconify-icon {
+    font-size: 40px;
+}
+
+.menu-item.active {
+    background-color: #F2E6B8;
+    border-radius: 10px;
+    margin: 0 15px;
+}
+
+.logout-btn {
+    padding: 20px 30px;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    color: #000;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    font-size: 24px;
+}
+
+.logout-btn:hover {
+    background-color: rgba(102, 0, 0, 0.1);
+    transition: 0.5s;
+}
+
+.logout-btn iconify-icon {
+    font-size: 40px;
+}
+
+/* 3. Main Content Layout */
+.content {
+    flex: 1;
+    padding: 40px;
+    overflow-y: auto;
+}
+
+/* ส่วนหัว (USER + Search/Filter) */
+.user-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 25px;
+}
+
+.user-title-section h1 {
+    font-size: 48px;
+    margin: 20px 0 0 0;
+    font-weight: 600;
+}
+
+.user-title-section p {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 24px;
+    margin: 10px 0 0 0;
+}
+
+.user-title-section iconify-icon {
+    font-size: 40px;
+}
+
+.user-controls {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-top: 10px;
+}
+
+/* ปรับแต่งกล่อง Search */
+.search-box {
+    display: flex;
+    align-items: center;
+    border-radius: 10px;
+    padding: 15px 20px;
+    border: 1px solid black;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.search-box input {
+    border: none;
+    outline: none;
+    width: 350px;
+    font-size: 18px;
+    background: transparent;
+}
+
+.search-box iconify-icon {
+    font-size: 24px;
+    color: #333;
+}
+
+/* ปรับแต่ง Dropdown Status */
+.user-controls select {
+    padding: 17px 22px;
+    border-radius: 10px;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    background-color: #FAF3DB;
+    font-family: 'Inter', sans-serif;
+    font-size: 18px;
+    font-weight: 500;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 16px;
+    padding-right: 40px;
+}
+
+/* 4. Table Styling */
+.table-container {
+    background: rgba(255, 255, 255, 0.4);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.user-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.user-table th {
+    background-color: #F1BFB4;
+    padding: 25px 20px;
+    text-align: left;
+    font-weight: 500;
+    font-size: 20px;
+}
+
+.user-table td {
+    padding: 18px 15px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    font-size: 16px;
+}
+
+.user-table tr:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Status Badges */
+.badge-role {
+    background: white;
+    border: 1px solid #ddd;
+    padding: 4px 12px;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+.status-badge {
+    padding: 6px 15px;
+    border-radius: 10px;
+    font-weight: 500;
+    font-size: 14px;
+    border: none;
+    cursor: pointer;
+}
+
+.status-active {
+    background-color: #B2F2BB;
+    color: #2B8A3E;
+}
+
+.status-banned {
+    background-color: #FFC9C9;
+    color: #C92A2A;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(3px);
+    transition: 0.3s;
+}
+
+/* ตัวกล่อง Pop-up */
+.modal-content {
+    background-color: #ffffff;
+    margin: 10% auto;
+    padding: 30px;
+    border-radius: 25px;
+    width: 450px;
+    box-shadow: 0 10px 30px rgba(242, 134, 149, 0.2);
+    border: 2px solid rgba(242, 134, 149, 0.1);
+    text-align: center;
+    animation: modalFadeIn 0.4s ease-out;
+}
+
+/* หัวข้อ Pop-up */
+.modal-content h3 {
+    margin-top: 0;
+    color: #F28695;
+    font-size: 24px;
+    font-weight: 600;
+}
+
+/* ช่องพิมพ์เหตุผล */
+textarea#ban-reason-input {
+    width: 90%;
+    height: 120px;
+    margin: 20px 0;
+    padding: 15px;
+    border-radius: 15px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    background-color: #fbfbfb;
+    resize: none;
+    outline: none;
+    transition: 0.3s;
+}
+
+/* เมื่อคลิกที่ช่องพิมพ์ */
+textarea#ban-reason-input:focus {
+    border-color: #F1CCA6;
+    box-shadow: 0 0 10px rgba(241, 204, 166, 0.2);
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 10px;
+}
+
+/* สไตล์ปุ่มกดทั่วไป */
+.modal-actions button {
+    padding: 12px 30px;
+    border-radius: 12px;
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+.btn-cancel {
+    background-color: #eee;
+    color: #555;
+}
+
+.btn-cancel:hover {
+    background-color: #ddd;
+}
+
+.btn-confirm {
+    background-color: #F28695;
+    color: white;
+}
+
+.btn-confirm:hover {
+    background-color: #d16e7b;
+    transform: translateY(-2px);
+}
+
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <link rel="stylesheet" href="../css/admin-manageuser.css">
+    <title>Manage Users</title>
+</head>
+
+<body>
+    <div class="dashboard-wrapper">
+    <nav class="sidebar">
+        <div class="sidebar-top">
+            <img src="../img/joinjoylogo.png" alt="Logo" class="sidebar-logo">
+            <div class="menu-items">
+                <a href="admin-dashboard.html" class="menu-item">
+                    <iconify-icon icon="si:dashboard-fill"></iconify-icon>
+                    Dashboard
+                </a>
+                <a href="#" class="menu-item active">
+                    <iconify-icon icon="gridicons:user"></iconify-icon>
+                    User
+                </a>
+            </div>
+        </div>
+        <a href="#" class="logout-btn">
+            <iconify-icon icon="material-symbols:logout-rounded"></iconify-icon>
+            Log Out
+        </a>
+    </nav>
+
+    <main class="content">
+        <div class="user-header">
+            <div class="user-title-section">
+                <h1>USER</h1>
+                <p><iconify-icon icon="gridicons:user"></iconify-icon> Total <span id="total-users-count">0</span></p>
+            </div>
+            
+            <div class="user-controls">
+                <div class="search-box">
+                    <input type="text" id="user-search" placeholder="Search">
+                    <iconify-icon icon="tabler:search"></iconify-icon>
+                </div>
+                <select id="status-filter">
+                    <option value="">Status</option>
+                    <option value="active">Active</option>
+                    <option value="banned">Banned</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table class="user-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Password</th>
+                        <th>Role</th>
+                        <th>Status</th>
+                        <th>Reason</th>
+                    </tr>
+                </thead>
+                <tbody id="user-list">
+                    </tbody>
+            </table>
+        </div>
+    </main>
+</div>
+
+<div id="ban-modal" class="modal">
+    <div class="modal-content">
+        <h3>ระบุเหตุผลการแบนผู้ใช้นี้</h3>
+        <textarea id="ban-reason-input" placeholder="ใส่เหตุผลที่นี่..."></textarea>
+        <div class="modal-actions">
+            <button class="btn-cancel" onclick="closeModal()">ยกเลิก</button>
+            <button class="btn-confirm" id="submit-ban">ยืนยัน</button>
+        </div>
+    </div>
+</div>
+<script src="../js/admin-users.js"></script>
+</body>
+
+</html>
