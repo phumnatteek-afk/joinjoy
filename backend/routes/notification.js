@@ -46,13 +46,15 @@ router.post('/join-request', async (req, res) => {
 
     // Socket emit ไปหา Host ทันที ส่งข้อมูล User + Trip ไปด้วย
     const io = req.app.get('io')
-    io.to(`room:${trip.creator_id}`).emit('new_notification', {
-      type: 'join_request',
-      title: 'มีคนขอเข้าร่วมทริป',
-      detail: `${user.user_name} ขอเข้าร่วมทริป "${trip.trip_name}"`,
-      trip_id,
-      from_user_id: user_id
-    })
+    if (io) {
+      io.to(`room:${trip.creator_id}`).emit('new_notification', {
+        type: 'join_request',
+        title: 'มีคนขอเข้าร่วมทริป',
+        detail: `${user.user_name} ขอเข้าร่วมทริป "${trip.trip_name}"`,
+        trip_id,
+        from_user_id: user_id
+      })
+    }
 
     res.json({ success: true, message: 'ส่งคำขอแล้ว' })
 
@@ -114,6 +116,10 @@ router.patch('/respond', async (req, res) => {
       [trip_id]
     )
 
+    if (!trips.length) {
+      return res.status(404).json({ error: 'ไม่พบทริป' })
+    }
+
     const trip = trips[0]
     // กำหนดข้อความตาม status
     const isAccepted = status === 'Joined'
@@ -143,14 +149,16 @@ router.patch('/respond', async (req, res) => {
 
     // Socket emit ไปหา User ทันที ส่งข้อมูล contact Host ไปด้วยถ้า ACCEPT
     const io = req.app.get('io')
-    io.to(`room:${user_id}`).emit('new_notification', {
-      type: status,
-      title,
-      detail,
-      trip_id,
-      // ถ้า Accept ส่ง contact Host ไปด้วยเลย ถ้า Reject ส่ง null
-      host_contact: isAccepted ? trip.host_contact : null
-    })
+    if (io) {
+      io.to(`room:${user_id}`).emit('new_notification', {
+        type: status,
+        title,
+        detail,
+        trip_id,
+        // ถ้า Accept ส่ง contact Host ไปด้วยเลย ถ้า Reject ส่ง null
+        host_contact: isAccepted ? trip.host_contact : null
+      })
+    }
 
     res.json({ success: true, status })
 
@@ -227,12 +235,14 @@ router.post('/review-reminder', async (req, res) => {
       )
 
       // Socket emit ทุกคนพร้อมกัน
-      io.to(`room:${member.user_id}`).emit('new_notification', {
-        type: 'review_reminder',
-        title: '⭐ รีวิวทริปของคุณ',
-        detail: `ทริป "${member.trip_name}" จบแล้ว! มาแชร์ความรู้สึกกันเถอะ`,
-        trip_id
-      })
+      if (io) {
+        io.to(`room:${member.user_id}`).emit('new_notification', {
+          type: 'review_reminder',
+          title: '⭐ รีวิวทริปของคุณ',
+          detail: `ทริป "${member.trip_name}" จบแล้ว! มาแชร์ความรู้สึกกันเถอะ`,
+          trip_id
+        })
+      }
     }
 
     res.json({ success: true, notified: members.length })

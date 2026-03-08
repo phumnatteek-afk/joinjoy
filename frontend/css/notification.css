@@ -193,6 +193,14 @@ body {
   text-decoration: underline;
 }
 
+.notif-detail {
+  margin-top: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #5f4b50;
+  line-height: 1.35;
+}
+
 .notif-time {
   font-size: 10px;
   color: #bbb;

@@ -18,20 +18,9 @@
   </div>
 
   <div class="page-title">Notifications</div>
-  <div class="section-label">Today</div>
+  <div class="section-label" id="section-label">Today</div>
 
   <div class="notif-list" id="notif-list">
-    <div class="notif-item">
-      <div class="dot"></div>
-      <div class="notif-icon">
-        <svg viewBox="0 0 24 24"><path d="M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-9-2V8H4v2H2v2h2v2h2v-2h2v-2H6zm9 4c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-      </div>
-      <div class="notif-body">
-        <div class="notif-title">New join request!</div>
-        <a class="notif-link" href="#">View Details</a>
-      </div>
-      <div class="notif-time">Just now</div>
-    </div>
   </div>
 
   <div class="empty-state" id="empty-state">
@@ -39,12 +28,6 @@
     <p>No notifications yet.<br>Check back later!</p>
   </div>
 </div>
-<script>
-  const list = document.getElementById('notif-list');
-  if (list.querySelectorAll('.notif-item').length === 0) {
-    list.style.display = 'none';
-    document.getElementById('empty-state').style.display = 'flex';
-  }
-</script>
+<script src="../js/notification.js"></script>
 </body>
 </html>
