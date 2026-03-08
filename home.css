@@ -1,4 +1,4 @@
-
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
 :root {
   --pink:       #F06292;
   --pink-light: #FCE4EC;
@@ -18,8 +18,9 @@
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
-  font-family: 'Nunito', 'Kanit', sans-serif;
+  font-family: 'Poppins', 'Kanit', sans-serif;
   color: var(--text);
+  background: linear-gradient(180deg, #f7dada 0%, #f3cfcf 50%, #eed9c4 100%);
   max-width: 430px;
   margin: 0 auto;
   min-height: 100vh;
@@ -29,7 +30,9 @@ body {
 
 /* ── HEADER ─────────────────────────────── */
 .header {
-  background: var(--white);
+  background: #fff;
+  min-height: 241px;
+  border-radius: 0 0 40px 40px;
   padding: 18px 20px 14px;
   position: sticky; top: 0; z-index: 100;
   box-shadow: 0 2px 12px rgba(240,98,146,0.08);
@@ -38,25 +41,25 @@ body {
   display: flex; justify-content: center; align-items: center;
   position: relative; margin-bottom: 16px;
 }
-.logo {
+/* .logo {
   font-family: 'Kanit', sans-serif; font-size: 30px; font-weight: 700;
   background: linear-gradient(135deg, #F06292, #E91E8C);
   -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-}
-.logo span { font-style: italic; }
-.bell {
+} */
+/* .logo span { font-style: italic; } */
+/* .bell {
   position: absolute; right: 0;
   width: 40px; height: 40px; border-radius: 50%;
   background: var(--pink-light); border: none; cursor: pointer;
   display: flex; align-items: center; justify-content: center; transition: transform .2s;
 }
 .bell:hover { transform: scale(1.08); }
-.bell svg { width: 20px; height: 20px; fill: var(--pink); }
-.notif-dot {
+.bell svg { width: 20px; height: 20px; fill: var(--pink); } */
+/* .notif-dot {
   position: absolute; top: 7px; right: 7px;
   width: 9px; height: 9px; border-radius: 50%;
   background: var(--pink-dark); border: 2px solid white; display: none;
-}
+} */
 .profile-row { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
 .avatar {
   width: 52px; height: 52px; border-radius: 50%; flex-shrink: 0;
@@ -66,7 +69,8 @@ body {
 .avatar img { width: 100%; height: 100%; object-fit: cover; }
 .hi  { font-size: 19px; font-weight: 900; }
 .sub { font-size: 13px; color: var(--text-soft); font-weight: 500; margin-top: 2px; }
-.search-box {
+
+/* .search-box {
   display: flex; align-items: center; gap: 10px;
   background: var(--bg); border-radius: 50px;
   padding: 10px 16px; border: 1.5px solid var(--border);
@@ -78,7 +82,7 @@ body {
 }
 .search-box input::placeholder { color: var(--text-muted); }
 .filter-btn { background: none; border: none; cursor: pointer; display: flex; }
-.filter-btn svg { width: 18px; height: 18px; fill: var(--pink); }
+.filter-btn svg { width: 18px; height: 18px; fill: var(--pink); } */
 
 /* ── MAIN ───────────────────────────────── */
 .main { padding: 16px 16px 100px; }
@@ -218,7 +222,7 @@ body {
   position: fixed; top: 90px; left: 50%;
   transform: translateX(-50%) translateY(-10px);
   padding: 10px 22px; border-radius: 50px;
-  font-size: 13px; font-weight: 700; color: white;
+  font-size: 13px; font-weight: 700; color: rgb(255, 255, 255);
   background: var(--text); pointer-events: none; opacity: 0; z-index: 999;
   transition: all .28s cubic-bezier(.34,1.56,.64,1); white-space: nowrap;
 }
@@ -230,3 +234,284 @@ body {
 /* ── ANIMATIONS ─────────────────────────── */
 @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes spin   { to { transform: rotate(360deg); } }
+
+/* ส่วน frontend แก้หน้าโฮม */
+#wrapper1 {
+    width: 100%;
+    min-height: 100vh; /* ให้สูงอย่างน้อยเต็มหน้าจอเสมอ */
+    /* ใช้ Gradient เดิมที่คุณชอบ */
+    background: linear-gradient(180deg, #f7dada 0%, #f3cfcf 50%, #eed9c4 100%);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    /* เว้นระยะด้านล่างเผื่อไว้ให้ Nav bar ที่เป็น fixed */
+    padding-bottom: 120px; 
+}
+/* ถ้าอยากให้เนื้อหาอยู่ตรงกลาง (กรณีเปิดบนคอม) */
+.main {
+    width: 100%;
+    max-width: 430px; /* ปรับขนาดความกว้างแบบมือถือ */
+    margin: 0 auto;
+}
+ .logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: -50px;
+  }
+  .logo img {
+    width: 120px;
+    height: auto;
+    display: block;
+    flex-shrink: 0;
+  }
+  .right-icons {
+    position: absolute;
+    right: 0;
+    width: 40px; 
+    height: 40px; 
+    border: none; 
+    cursor: pointer;
+    justify-content: center; 
+    transition: transform .2s;
+    display: flex;
+    align-items: center;
+    gap: 15px; 
+  }
+    .Notification{
+    display: flex;
+    align-items: center;
+    margin-top: 20px;
+    margin-right: 10px;
+  }
+  .Notification svg path:hover{
+    fill: #f3cfcf; 
+    cursor: pointer;
+  }
+  .search-container {
+    padding: 15px;
+    width: 100%;
+    box-sizing: border-box;
+    position: relative;
+}
+
+.search-box {
+    display: flex;
+    align-items: center;
+    background: #ffffff;
+    border-radius: 50px;
+    padding: 8px 15px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    width: 100%; 
+    margin: 0;   
+}
+
+/* เมื่อกดคลิกที่กล่อง ให้เงาชัดขึ้น */
+.search-box:focus-within {
+    border-color: var(--primary-pink);
+    box-shadow: 0 4px 15px rgba(242, 134, 149, 0.2);
+}
+
+  .icon-search {
+    display: flex;
+    align-items: center;
+    margin-right: 10px;
+}
+
+#searchInput {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-size: 16px; /* ขนาด 16px ป้องกัน iOS Zoom เองอัตโนมัติ */
+    color: #333;
+    background: transparent;
+}
+
+#searchInput::placeholder {
+    color: var(--gray-text);
+    font-weight: 400;
+}
+
+.filter-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    padding-left: 10px;
+}
+
+/* ส่วนแสดงผลลัพธ์ */
+.search-results {
+    position: absolute; /* ให้ลอยทับเนื้อหาข้างล่าง */
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 999;
+    background: white;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    border-radius: 15px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+.result-item {
+    padding: 10px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+/* ล็อคเมนูไว้ด้านล่างจอ */
+.mainmenu .menu-item a span {
+  color: #747474 !important;
+  transition: color 0.3s ease;
+}
+.mainnav {
+  position: fixed;
+  bottom: 0;
+  left: 50%; /* ดันจุดเริ่มไปที่กึ่งกลางจอ */
+  transform: translateX(-50%); /* ดึงกลับมาครึ่งหนึ่งของความกว้างตัวเองเพื่อให้กลางเป๊ะ */
+  width: 100%;
+  max-width: 430px; /* ล็อคความกว้างให้เท่ากับหน้าแอปของคุณ */
+  height: 102px;
+  background-color: #ffffff;
+  box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.05); 
+  padding: 10px 0;
+  z-index: 1000;
+  border-radius: 40px 40px 0 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.mainmenu {
+  display: flex;
+  justify-content: space-around; 
+  align-items: center;
+  list-style: none;
+  width: 100%;
+  margin: 0 !important; /* ล้างค่า margin-left เดิมที่เคยมี */
+  padding: 0 10px;
+}
+.menu-item.active a svg {
+    background-color: #F28695 ;
+    color: #ffffff ;
+}
+/* --- สไตล์ของเมนูแต่ละปุ่ม --- */
+.menu-item a {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-decoration: none;
+  font-family: "Poppins", "Kanit", sans-serif !important;
+  color: #747474;
+  gap: 4px;
+  transition: all 0.3s ease;
+}
+
+/* ไอคอนสถานะปกติ */
+.menu-item a svg {
+    width: 38px;
+    height: 38px;
+    padding: 7px;
+    color: #747474 !important; 
+    background-color: transparent; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+  }
+  .menu-item a:hover svg {
+    color: #ffffff !important;
+  }
+  .menu-item.active a svg {
+    background-color: #f28695;
+    padding: 7px;
+    width: 38px;
+    height: 38px;
+    color: #ffffff !important; 
+    display: flex;
+    background-color: transparent;
+    align-items: center;
+    justify-content: center;
+  }
+  .menu-item a:hover span {
+    color: #f28695 !important;
+    font-weight: 600;
+  }
+  .menu-item.active a:hover svg {
+    color: #fff;
+    cursor: pointer;
+  }
+  .menu-item.active a span {
+    color: #ffffff; 
+    font-weight: 600;
+  }
+  .menu-item a span {
+    color: #747474;
+    font-size: 11px;
+    font-weight: 500;
+  }
+  .mainmenu .menu-item a:hover,
+.mainmenu .menu-item a.active {
+  background-color: #f28695 !important;
+}
+.mainmenu .menu-item a:hover span,
+.mainmenu .menu-item a.active span {
+  color: #ffffff !important;
+}
+.mainmenu,
+.menu-item a {
+  color: #747474;
+  text-decoration: none;
+  padding: 8px 12px;
+  font-weight: 700;
+  border-radius: 50px 50px 0 0;
+  font-size: 16px;
+  font-weight: normal;
+  transition: background-color 0.3s ease;
+}
+.mainmenu .menu-item a:hover {
+  background-color: #f28695;
+  color: #ffffff;
+}
+.mainmenu .menu-item a.active {
+  background: #f28695;
+  height: auto;
+}
+.menu-item a span {
+  color: #747474;
+  transition: color 0.3s ease;
+}
+.menu-item a:hover span {
+  color: #ffffff;
+}
+  /* .search-box input::placeholder { color: var(--text-muted); }
+.filter-btn { background: none; border: none; cursor: pointer; display: flex; }
+.filter-btn svg { width: 18px; height: 18px; fill: var(--pink); } */
+@media (max-width: 767px) {
+  .logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: -50px;
+  }
+  .logo img {
+    width: 120px;
+    height: auto;
+    display: block;
+    flex-shrink: 0;
+  }
+  .right-icons {
+    display: flex;
+    align-items: center;
+    gap: 15px; /* ระยะห่างระหว่างกระดิ่งกับโปรไฟล์ */
+  }
+    .Notification{
+    display: flex;
+    align-items: center;
+    margin-top: 20px;
+    margin-right: 10px;
+  }
+  .Notification svg path:hover{
+    fill: #f3cfcf; 
+    cursor: pointer;
+  }
+}
