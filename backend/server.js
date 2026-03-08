@@ -3,6 +3,7 @@ const cors = require('cors');
 const boardRoute = require('./routes/board');
 
 const adminRoutes = require('./routes/admin');
+const notificationRoutes = require('./routes/notification');
 
 const app = express();
 
@@ -15,6 +16,7 @@ app.use('/uploads', express.static('uploads'));
 
 app.use('/api/board', boardRoute);
 app.use('/api/admin', adminRoutes);
+app.use('/api/notification', notificationRoutes);
 
 // homepage
 const homepageRoute = require('./routes/homepage');
