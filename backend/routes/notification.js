@@ -1,0 +1,162 @@
+const express = require('express')
+const router = express.Router()
+const pool = require('../config/db')  // ← เปลี่ยนกลับมาใช้ DB จริง
+
+// FLOW 1: User กด JOIN
+router.post('/join-request', async (req, res) => {
+  const { trip_id, user_id } = req.body
+
+  try {
+    // ดึงข้อมูล User + Trip จาก Database จริง
+    const [users] = await pool.query(
+      'SELECT user_id, user_name FROM User WHERE user_id = ?',
+      [user_id]
+    )
+    const [trips] = await pool.query(
+      'SELECT trip_id, trip_name, creator_id FROM Trip WHERE trip_id = ?',
+      [trip_id]
+    )
+
+    if (!users.length || !trips.length) {
+      return res.status(404).json({ error: 'ไม่พบข้อมูล' })
+    }
+
+    const user = users[0]
+    const trip = trips[0]
+
+    // INSERT Trip_member สถานะ Pending
+    await pool.query(
+      `INSERT INTO Trip_member (trip_id, user_id, status, joined_at)
+       VALUES (?, ?, 'Pending', NOW())`,
+      [trip_id, user_id]
+    )
+
+    // INSERT Notification ให้ Host แจ้งว่ามีคนขอเข้าร่วมทริป
+    await pool.query(
+      `INSERT INTO Notification 
+       (trip_id, user_id, notification_title, notification_detail, create_at)
+       VALUES (?, ?, ?, ?, NOW())`,
+      [
+        trip_id,
+        trip.creator_id,
+        'มีคนขอเข้าร่วมทริป',
+        `${user.user_name} ขอเข้าร่วมทริป "${trip.trip_name}"`
+      ]
+    )
+
+    // Socket emit ไปหา Host ทันที ส่งข้อมูล User + Trip ไปด้วย
+    const io = req.app.get('io')
+    io.to(`room:${trip.creator_id}`).emit('new_notification', {
+      type: 'join_request',
+      title: 'มีคนขอเข้าร่วมทริป',
+      detail: `${user.user_name} ขอเข้าร่วมทริป "${trip.trip_name}"`,
+      trip_id,
+      from_user_id: user_id
+    })
+
+    res.json({ success: true, message: 'ส่งคำขอแล้ว' })
+
+  } catch (err) {
+    console.error('❌ Error:', err.message)
+    res.status(500).json({ error: err.message })
+  }
+})
+
+// FLOW 2: Host ดูโปรไฟล์ User ที่ขอเข้าร่วม (ดึงข้อมูลจาก Database จริง)
+router.get('/user-profile/:user_id', async (req, res) => {
+  try {
+    const [rows] = await pool.query(
+      `SELECT u.user_id, u.user_name, u.university_email,
+              up.frist_name, up.last_name, up.bio,
+              up.faculty, up.social_media, up.profile_img, up.tags
+       FROM User u
+       LEFT JOIN User_profile up ON up.user_id = u.user_id
+       WHERE u.user_id = ?`,
+      [req.params.user_id]
+    )
+
+    if (!rows.length) {
+      return res.status(404).json({ error: 'ไม่พบ user' })
+    }
+
+    res.json(rows[0])
+
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+})
+
+// FLOW 3: Host กด ACCEPT หรือ REJECT คำขอเข้าร่วม
+router.patch('/respond', async (req, res) => {
+  const { trip_id, user_id, status } = req.body
+
+  try {
+    // ดึงข้อมูล Trip + contact Host จาก Database จริง
+    const [trips] = await pool.query(
+      `SELECT t.trip_name, up.social_media AS host_contact
+       FROM Trip t
+       LEFT JOIN User_profile up ON up.user_id = t.creator_id
+       WHERE t.trip_id = ?`,
+      [trip_id]
+    )
+
+    const trip = trips[0]
+    const isAccepted = status === 'Joined'
+
+    // UPDATE Trip_member status เป็น Joined หรือ Rejected
+    await pool.query(
+      `UPDATE Trip_member SET status = ?
+       WHERE trip_id = ? AND user_id = ?`,
+      [status, trip_id, user_id]
+    )
+
+    const title = isAccepted
+      ? '🎉 ได้รับการตอบรับแล้ว!'
+      : '❌ ไม่ได้รับการตอบรับ'
+
+    const detail = isAccepted
+      ? `ได้รับการตอบรับเข้าร่วมทริป "${trip.trip_name}" ติดต่อ Host: ${trip.host_contact}`
+      : `คำขอเข้าร่วมทริป "${trip.trip_name}" ไม่ได้รับการตอบรับ กลับไป Join ใหม่ได้เลย`
+
+    // INSERT Notification ให้ User แจ้งผลการตอบรับ
+    await pool.query(
+      `INSERT INTO Notification
+       (trip_id, user_id, notification_title, notification_detail, create_at)
+       VALUES (?, ?, ?, ?, NOW())`,
+      [trip_id, user_id, title, detail]
+    )
+
+    // Socket emit ไปหา User ทันที ส่งข้อมูล contact Host ไปด้วยถ้า ACCEPT
+    const io = req.app.get('io')
+    io.to(`room:${user_id}`).emit('new_notification', {
+      type: status,
+      title,
+      detail,
+      trip_id,
+      host_contact: isAccepted ? trip.host_contact : null
+    })
+
+    res.json({ success: true, status })
+
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+})
+
+// FLOW 4: ดึง Notification List
+router.get('/:user_id', async (req, res) => {
+  try {
+    const [rows] = await pool.query(
+      `SELECT * FROM Notification
+       WHERE user_id = ?
+       ORDER BY create_at DESC`,
+      [req.params.user_id]
+    )
+    res.json(rows)
+
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+})
+
+module.exports = router
