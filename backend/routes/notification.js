@@ -253,4 +253,58 @@ router.post('/review-reminder', async (req, res) => {
   }
 })
 
+// FLOW 6: User ส่ง Review หลังทริปจบ
+// POST /api/notifications/review
+router.post('/review', async (req, res) => {
+  const { trip_id, user_id, review_text, rating } = req.body
+
+  try {
+    // INSERT ลง Reviews table
+    await pool.query(
+      `INSERT INTO Reviews 
+       (trip_id, user_id, review_text, rating, created_at)
+       VALUES (?, ?, ?, ?, NOW())`,
+      [trip_id, user_id, review_text, rating]
+    )
+
+    // ดึงข้อมูล Trip + Host
+    const [trips] = await pool.query(
+      `SELECT t.trip_name, t.creator_id, u.user_name
+       FROM Trip t
+       JOIN User u ON u.user_id = ?
+       WHERE t.trip_id = ?`,
+      [user_id, trip_id]
+    )
+    const trip = trips[0]
+
+    // INSERT Notification ให้ Host รู้ว่ามีคนรีวิว
+    await pool.query(
+      `INSERT INTO Notification
+       (trip_id, user_id, notification_title, notification_detail, create_at)
+       VALUES (?, ?, ?, ?, NOW())`,
+      [
+        trip_id,
+        trip.creator_id,
+        '⭐ มีคนรีวิวทริปของคุณ',
+        `${trip.user_name} ได้รีวิวทริป "${trip.trip_name}"`
+      ]
+    )
+
+    // Socket emit ไปหา Host ทันที
+    const io = req.app.get('io')
+    io.to(`room:${trip.creator_id}`).emit('new_notification', {
+      type: 'new_review',
+      title: '⭐ มีคนรีวิวทริปของคุณ',
+      detail: `${trip.user_name} ได้รีวิวทริป "${trip.trip_name}"`,
+      trip_id
+    })
+
+    res.json({ success: true, message: 'ส่ง Review แล้ว' })
+
+  } catch (err) {
+    console.error('❌ review error:', err.message)
+    res.status(500).json({ error: err.message })
+  }
+})
+
 module.exports = router
