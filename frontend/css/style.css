@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
 /* Reset & base */
 * {
-    font-family: 'Poppins', 'Kanit', 'Noto Sans Thai', sans-serif !important;
+  font-family: 'Poppins', 'Kanit', 'Noto Sans Thai', sans-serif !important;
   box-sizing: border-box;
   margin: 0;
   padding: 0;
