@@ -62,13 +62,22 @@ router.post('/join-request', async (req, res) => {
   }
 })
 
-// FLOW 2: Host ดูโปรไฟล์ User ที่ขอเข้าร่วม (ดึงข้อมูลจาก Database จริง)
+// FLOW 2: Host ดูโปรไฟล์ User ที่ขอเข้าร่วม ก่อนตัดสินใจ
+// ดึง User + User_profile มาแสดง Popup (ดึงข้อมูลจาก Database จริง)
 router.get('/user-profile/:user_id', async (req, res) => {
   try {
     const [rows] = await pool.query(
-      `SELECT u.user_id, u.user_name, u.university_email,
-              up.frist_name, up.last_name, up.bio,
-              up.faculty, up.social_media, up.profile_img, up.tags
+      `SELECT u.user_id, 
+              u.user_name, 
+              u.university_email,
+              up.frist_name, 
+              up.last_name, 
+              up.bio,
+              up.gender,
+              up.faculty, 
+              up.social_media, 
+              up.profile_img, 
+              up.tags
        FROM User u
        LEFT JOIN User_profile up ON up.user_id = u.user_id
        WHERE u.user_id = ?`,
@@ -79,6 +88,7 @@ router.get('/user-profile/:user_id', async (req, res) => {
       return res.status(404).json({ error: 'ไม่พบ user' })
     }
 
+    // ส่งโปรไฟล์กลับให้ Host แสดงใน Popup
     res.json(rows[0])
 
   } catch (err) {
@@ -87,6 +97,10 @@ router.get('/user-profile/:user_id', async (req, res) => {
 })
 
 // FLOW 3: Host กด ACCEPT หรือ REJECT คำขอเข้าร่วม
+// UPDATE Trip_member status
+// INSERT Notification ให้ User
+// Socket emit → User รับ real-time ทันที
+// ถ้า Accept → ส่ง contact Host ไปด้วย
 router.patch('/respond', async (req, res) => {
   const { trip_id, user_id, status } = req.body
 
@@ -101,6 +115,7 @@ router.patch('/respond', async (req, res) => {
     )
 
     const trip = trips[0]
+    // กำหนดข้อความตาม status
     const isAccepted = status === 'Joined'
 
     // UPDATE Trip_member status เป็น Joined หรือ Rejected
@@ -133,6 +148,7 @@ router.patch('/respond', async (req, res) => {
       title,
       detail,
       trip_id,
+      // ถ้า Accept ส่ง contact Host ไปด้วยเลย ถ้า Reject ส่ง null
       host_contact: isAccepted ? trip.host_contact : null
     })
 
@@ -144,17 +160,85 @@ router.patch('/respond', async (req, res) => {
 })
 
 // FLOW 4: ดึง Notification List
+// แสดงหน้า Notification (Today/Yesterday/This week)
 router.get('/:user_id', async (req, res) => {
+  const { user_id } = req.params
+
   try {
     const [rows] = await pool.query(
-      `SELECT * FROM Notification
+      `SELECT 
+         notification_id,
+         trip_id,
+         user_id,
+         notification_title,
+         notification_detail,
+         create_at,
+         CASE
+           WHEN DATE(create_at) = CURDATE() 
+             THEN 'Today'
+           WHEN DATE(create_at) = DATE_SUB(CURDATE(), INTERVAL 1 DAY) 
+             THEN 'Yesterday'
+           ELSE 'This week'
+         END AS date_group
+       FROM Notification
        WHERE user_id = ?
        ORDER BY create_at DESC`,
-      [req.params.user_id]
+      [user_id]
     )
+
     res.json(rows)
 
   } catch (err) {
+    console.error('❌ get notifications error:', err.message)
+    res.status(500).json({ error: err.message })
+  }
+})
+
+// FLOW 5: หลังทริปจบ → แจ้งเตือนให้ Review
+// เรียกใช้เมื่อ trip_status = 'Closed'
+router.post('/review-reminder', async (req, res) => {
+  const { trip_id } = req.body
+
+  try {
+    // ดึง members ทุกคนที่ status = Joined
+    const [members] = await pool.query(
+      `SELECT tm.user_id, t.trip_name
+       FROM Trip_member tm
+       JOIN Trip t ON t.trip_id = tm.trip_id
+       WHERE tm.trip_id = ? AND tm.status = 'Joined'`,
+      [trip_id]
+    )
+
+    const io = req.app.get('io')
+
+    // แจ้งเตือนทุกคนพร้อมกัน
+    for (const member of members) {
+      // INSERT Notification ให้ทุกคน
+      await pool.query(
+        `INSERT INTO Notification
+         (trip_id, user_id, notification_title, notification_detail, create_at)
+         VALUES (?, ?, ?, ?, NOW())`,
+        [
+          trip_id,
+          member.user_id,
+          '⭐ รีวิวทริปของคุณ',
+          `ทริป "${member.trip_name}" จบแล้ว! มาแชร์ความรู้สึกกันเถอะ`
+        ]
+      )
+
+      // Socket emit ทุกคนพร้อมกัน
+      io.to(`room:${member.user_id}`).emit('new_notification', {
+        type: 'review_reminder',
+        title: '⭐ รีวิวทริปของคุณ',
+        detail: `ทริป "${member.trip_name}" จบแล้ว! มาแชร์ความรู้สึกกันเถอะ`,
+        trip_id
+      })
+    }
+
+    res.json({ success: true, notified: members.length })
+
+  } catch (err) {
+    console.error('❌ review-reminder error:', err.message)
     res.status(500).json({ error: err.message })
   }
 })
