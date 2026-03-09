@@ -4,6 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>JoinJoy — Home</title>
+     <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Kanit:wght@400;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="home.css" />
 </head>
@@ -15,7 +19,7 @@
 <header class="header">
   <div class="logo-row">
     <div class="logo">
-        <a href="index.html"
+        <a href="home.html"
         ><img src="frontend/img/joinjoylogo.png" alt=""
         /></a>
         </div>
@@ -302,8 +306,11 @@ function tripCard(t) {
     <div class="card-top">
       <div class="mbadge"><span class="dot"></span>Member: ${joined}/${t.max_member}</div>
       <div class="cname">${t.trip_name}</div>
+
+      <div class="cmeta-group">
       <div class="cmeta"><svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>${t.location_name || '—'}</div>
       <div class="cmeta"><svg viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/></svg>${formatDate(t.start_time)}</div>
+    </div>
     </div>
     <div class="cimg-wrap">
   ${t.cover_image 
