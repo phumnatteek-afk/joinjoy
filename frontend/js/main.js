@@ -6,7 +6,7 @@
         let currentPage = currentPath.substring(currentPath.lastIndexOf('/') + 1); 
 
         // จัดการกรณีที่อยู่หน้าหลักและ URL อาจเป็นแค่ /
-        if (currentPage === '' || currentPage.toUpperCase() === 'HOME.HTML') {
+        if (currentPage === '' || currentPage.toUpperCase() === 'INDEX.HTML') {
              currentPage = 'home.html';
         }
         
@@ -23,7 +23,7 @@
         });
     })();
     
-  // 1. ข้อมูลสมมติ (ในอนาคตส่วนนี้จะถูกแทนที่ด้วยการเรียก API)
+
 // === 2. หน้า Home: เลือก Chip ได้อันเดียว (เช็คก่อนรัน) ===
 const homeChips = document.querySelectorAll('.chip');
 if (homeChips.length > 0) {
