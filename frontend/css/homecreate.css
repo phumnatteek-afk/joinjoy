@@ -1,85 +1,253 @@
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:Arial, sans-serif;
-    }
-    
-    body{
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    height:100vh;
-    background:#eee;
-    }
-    
-    .mobile{
-    width:390px;
-    height:844px;
-    border-radius:30px;
-    overflow:hidden;
-    background:linear-gradient(180deg,#f49aa3,#f6b6b6,#f7cfa6);
-    position:relative;
-    }
-    
-    .card{
-    position:absolute;
-    bottom:0;
-    width:100%;
-    height:75%;
-    background:#f3f3f3;
-    border-radius:40px 40px 0 0;
-    padding:40px 25px;
-    text-align:center;
-    }
-    
-    h1{
-    color:#f08090;
-    margin-bottom:10px;
-    }
-    
-    p{
-    color:#f08090;
-    font-size:14px;
-    margin-bottom:20px;
-    }
-    
-    input{
-    width:100%;
-    padding:14px;
-    border-radius:15px;
-    border:1px solid #ccc;
-    margin-bottom:15px;
-    }
-    
-    button{
-    width:100%;
-    padding:14px;
-    border-radius:30px;
-    border:none;
-    background:linear-gradient(90deg,#f08090,#f7b6a6);
-    color:white;
-    font-weight:bold;
-    margin:20px 0;
-    }
-    
-    .divider{
-    margin:20px 0;
-    color:#999;
-    }
-    
-    .google{
-    width:40px;
-    margin:10px 0;
-    }
-    
-    .bottom{
-    font-size:14px;
-    color:#999;
-    }
-    
-    .bottom a{
-    color:#f08090;
-    font-weight:bold;
-    text-decoration:none;
-    }
+/* ── Reset ── */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --pink:      #F28695;
+  --blush:     #F2BFB4;
+  --peach:     #F1CCA6;
+  --cream:     #F2E6B8;
+  --white:     #ffffff;
+  --card-bg:   #f8f8f8;
+  --text-pink: #e06070;
+  --text-sub:  #e07888;
+  --input-bg:  #ffffff;
+  --border:    #ecdcdc;
+  --font:      'Poppins', sans-serif;
+}
+
+body {
+  font-family: var(--font);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: #f0e8e0;
+}
+
+/* ── Phone shell ── */
+.phone {
+  width: 390px;
+  height: 844px;
+  border-radius: 48px;
+  overflow: hidden;
+  position: relative;
+  background: linear-gradient(160deg, #f9c0c0 0%, #F2BFB4 40%, #F1CCA6 100%);
+  box-shadow: 0 30px 80px rgba(242,134,149,0.35), 0 8px 24px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Top gradient area ── */
+.top-area {
+  flex: 0 0 220px;
+  position: relative;
+  overflow: hidden;
+}
+
+.bg-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(50px);
+  pointer-events: none;
+}
+.blob1 {
+  width: 260px; height: 260px;
+  background: rgba(242,134,149,0.5);
+  top: -80px; left: -40px;
+}
+.blob2 {
+  width: 200px; height: 200px;
+  background: rgba(241,204,166,0.4);
+  top: -40px; right: -40px;
+}
+
+/* ── White card ── */
+.card {
+  flex: 1;
+  background: var(--card-bg);
+  border-radius: 40px 40px 0 0;
+  padding: 36px 28px 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow-y: auto;
+  animation: slideCard 0.5s cubic-bezier(0.22,0.61,0.36,1) both;
+}
+
+@keyframes slideCard {
+  from { transform: translateY(40px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+.card-title {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text-pink);
+  text-align: center;
+  margin-bottom: 8px;
+  letter-spacing: -0.3px;
+}
+
+.card-sub {
+  font-size: 13px;
+  color: var(--text-sub);
+  text-align: center;
+  line-height: 1.65;
+  margin-bottom: 24px;
+}
+
+.card-sub strong {
+  font-weight: 700;
+  color: var(--text-pink);
+}
+
+/* ── Error ── */
+.error-msg {
+  display: none;
+  width: 100%;
+  background: #fff0f1;
+  border: 1px solid #f8c0c4;
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-size: 12px;
+  color: #c0392b;
+  margin-bottom: 14px;
+  text-align: left;
+}
+.error-msg.show { display: block; }
+
+/* ── Fields ── */
+.field-group {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 8px;
+}
+
+.field {
+  position: relative;
+  width: 100%;
+}
+
+.field input {
+  width: 100%;
+  padding: 15px 18px;
+  border-radius: 50px;
+  border: 1.5px solid var(--border);
+  background: var(--input-bg);
+  font-family: var(--font);
+  font-size: 14px;
+  color: #555;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.field input::placeholder { color: #bbb; }
+
+.field input:focus {
+  border-color: var(--pink);
+  box-shadow: 0 0 0 3px rgba(242,134,149,0.15);
+}
+
+.eye-btn {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+}
+
+/* ── Get Started button ── */
+.btn-primary {
+  width: 100%;
+  padding: 15px;
+  margin: 20px 0 4px;
+  border-radius: 50px;
+  border: none;
+  background: linear-gradient(90deg, var(--pink), var(--peach));
+  color: var(--white);
+  font-family: var(--font);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(242,134,149,0.4);
+  transition: transform 0.18s, box-shadow 0.18s, opacity 0.18s;
+  letter-spacing: 0.3px;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgba(242,134,149,0.45);
+}
+
+.btn-primary:active { transform: scale(0.97); }
+
+/* ── Divider ── */
+.divider {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 20px 0 16px;
+  font-size: 12px;
+  color: #bbb;
+  font-weight: 500;
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: #e8e0e0;
+}
+
+/* ── Google button ── */
+.google-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--white);
+  border: 1.5px solid var(--border);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform 0.18s, box-shadow 0.18s;
+  margin-bottom: 20px;
+}
+
+.google-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+}
+
+.google-btn:active { transform: scale(0.95); }
+
+.google-icon {
+  width: 26px;
+  height: 26px;
+}
+
+/* ── Bottom text ── */
+.bottom-text {
+  font-size: 13px;
+  color: #aaa;
+  text-align: center;
+}
+
+.link {
+  color: var(--text-pink);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.link:hover { text-decoration: underline; }

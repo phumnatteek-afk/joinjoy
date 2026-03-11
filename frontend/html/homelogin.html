@@ -1,34 +1,85 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Login</title>
-<link rel="stylesheet" href="../css/homelogin.css">
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>JoinJoy — Log In</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="../css/homelogin.css"/>
 </head>
 <body>
-<div class="mobile">
-    <div class="card">
-        <h1>Welcome Back</h1>
-        <p>Ready to continue your trip?<br>
-        <b>Your path is right here.</b></p>
+  <div class="phone">
 
-        <input type="email" placeholder="Enter email">
-        <input type="password" placeholder="Password">
-
-        <div class="row">
-            <label><input type="checkbox"> Remember me</label>
-            <span>Forgot password?</span>
-        </div>
-
-        <button>Log in</button>
-
-        <div class="divider">Sign in With</div>
-
-        <img src="https://cdn-icons-png.flaticon.com/512/300/300221.png" class="google">
-
-        <p class="bottom">Don’t have an account?
-        <a href="homecreate.html">Sign Up</a></p>
+    <!-- Pink top gradient area -->
+    <div class="top-area">
+      <div class="bg-blob blob1"></div>
+      <div class="bg-blob blob2"></div>
     </div>
-</div>
+
+    <!-- White card -->
+    <div class="card">
+      <h1 class="card-title">Welcome Back</h1>
+      <p class="card-sub">
+        Ready to continue your trip?<br/>
+        <strong>Your path is right here.</strong>
+      </p>
+
+      <!-- Error message -->
+      <div class="error-msg" id="errorMsg"></div>
+
+      <!-- Form fields -->
+      <div class="field-group">
+        <div class="field">
+          <input type="email" id="email" placeholder="Enter email" autocomplete="email"/>
+        </div>
+        <div class="field">
+          <input type="password" id="password" placeholder="Password" autocomplete="current-password"/>
+          <button class="eye-btn" id="eyeBtn" type="button" aria-label="Toggle password">
+            <svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+              fill="none" stroke="#bbb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Remember me + Forgot password -->
+      <div class="row-options">
+        <label class="remember">
+          <input type="checkbox" id="rememberMe"/>
+          <span class="checkbox-custom"></span>
+          Remember me
+        </label>
+        <a href="#" class="forgot">Forgot password?</a>
+      </div>
+
+      <!-- Login button -->
+      <button class="btn-primary" id="btnLogin">Log in</button>
+
+      <!-- Divider -->
+      <div class="divider"><span>Sign in With</span></div>
+
+      <!-- Google OAuth -->
+      <a href="/auth/google" class="google-btn" id="googleBtn">
+        <svg class="google-icon" viewBox="0 0 48 48">
+          <path fill="#EA4335" d="M24 9.5c3.14 0 5.95 1.08 8.16 2.86l6.08-6.08C34.33 3.04 29.46 1 24 1 14.97 1 7.27 6.37 3.88 14.08l7.1 5.52C12.74 13.57 17.97 9.5 24 9.5z"/>
+          <path fill="#4285F4" d="M46.52 24.5c0-1.64-.15-3.22-.42-4.74H24v8.98h12.67c-.55 2.93-2.2 5.41-4.67 7.08l7.19 5.58C43.22 37.44 46.52 31.44 46.52 24.5z"/>
+          <path fill="#FBBC05" d="M10.98 28.6A14.5 14.5 0 0 1 9.5 24c0-1.6.27-3.14.75-4.6l-7.1-5.52A23.96 23.96 0 0 0 0 24c0 3.88.93 7.55 2.58 10.78l8.4-6.18z"/>
+          <path fill="#34A853" d="M24 47c5.46 0 10.04-1.81 13.38-4.88l-7.19-5.58c-1.89 1.27-4.3 2.02-6.19 2.02-6.03 0-11.26-4.07-13.02-9.59l-8.4 6.18C7.27 42.63 14.97 47 24 47z"/>
+        </svg>
+      </a>
+
+      <p class="bottom-text">
+        Don't have an account?
+        <a href="homecreate.html" class="link">Sign Up</a>
+      </p>
+    </div>
+
+  </div>
+
+  <script src="../js/homelogin.js"></script>
 </body>
 </html>
