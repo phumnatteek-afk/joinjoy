@@ -1,28 +1,47 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Home</title>
-<link rel="stylesheet" href="../css/home.css">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>JoinJoy — Welcome</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="../css/home.css"/>
 </head>
 <body>
-<div class="mobile">
-    
+  <div class="phone">
+
+    <!-- Background gradient blobs -->
+    <div class="bg-blob blob1"></div>
+    <div class="bg-blob blob2"></div>
+    <div class="bg-blob blob3"></div>
+
+    <!-- Content -->
     <div class="content">
+
+      <div class="text-section">
+        <h1 class="welcome-title">Welcome <span class="wave">:)</span></h1>
+        <p class="welcome-sub">
+          Hi there!<br/>
+          We're here to help you<br/>
+          The choice your <strong>Login</strong> or <strong>Create an account.</strong>
+        </p>
+      </div>
+      <div class="mascot-wrap">
+        <img src="../img/logo.png" alt="">
+      </div>
+      <div class="btn-group">
+        <button class="btn btn-primary" id="btnCreate" href = "homecreate.html">Create Account</button>
+        <button class="btn btn-outline" id="btnLogin" href = "homelogin.html">Log in</button>
+      </div>
+
         <!-- ส่วน welcome jaaaaa -->
-        <h1>Welcome :</h1>
-        <p>Hi there!<br>
-        We’re here to help you<br>
-        The choice your <b>Login</b> or <b>Create on account.</b></p>
 
-        <img src=".../img/joinjoylogo.png" class="main-img">
-
-        <button class="btn-white" onclick="location.href='.../html/homecreate.html'">Create Account</button>
-        <button class="btn-outline" onclick="location.href='homelogin.html'">Log in</button>
     </div>
-</div>
+
+  </div>
+
+  <script src="../js/home.js"></script>
 </body>
 </html>
