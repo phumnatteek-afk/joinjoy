@@ -1,5 +1,5 @@
 // home.js — navigation for the welcome page
-
+// update
 document.getElementById('btnCreate').addEventListener('click', function () {
     // Add a quick scale-out animation before navigating
     this.style.transform = 'scale(0.95)';
