@@ -1,6 +1,6 @@
 // homelogin.js
 
-// ── Password toggle ──
+// ── Password toggle ──────────────────────────────────────────
 const eyeBtn    = document.getElementById('eyeBtn');
 const passInput = document.getElementById('password');
 
@@ -10,15 +10,17 @@ eyeBtn.addEventListener('click', () => {
   document.getElementById('eyeIcon').setAttribute('stroke', isHidden ? '#F28695' : '#bbb');
 });
 
-// ── Google button loading state ──
-document.getElementById('googleBtn').addEventListener('click', function () {
-  this.style.opacity = '0.6';
-  this.style.pointerEvents = 'none';
-});
+// ── Error helper ─────────────────────────────────────────────
+const errEl = document.getElementById('errorMsg');
 
-// ── Show OAuth error messages ──
-const errors = {
-  invalid_email:   'Only @su.ac.th university emails are allowed.',
+function showError(msg) {
+  errEl.textContent = msg;
+  errEl.classList.add('show');
+}
+
+// ── Show OAuth error from redirect ───────────────────────────
+const oauthErrors = {
+  invalid_email:   'Only @silpakorn.edu university emails are allowed.',
   banned:          'Your account has been suspended.',
   auth_failed:     'Sign-in failed. Please try again.',
   access_denied:   'Google sign-in was cancelled.',
@@ -27,27 +29,48 @@ const errors = {
 
 const params = new URLSearchParams(window.location.search);
 const errKey = params.get('error');
-const errEl  = document.getElementById('errorMsg');
+if (errKey && oauthErrors[errKey]) showError(oauthErrors[errKey]);
 
-if (errKey && errors[errKey]) {
-  errEl.textContent = errors[errKey];
-  errEl.classList.add('show');
-}
+// ── Google button loading state ───────────────────────────────
+document.getElementById('googleBtn').addEventListener('click', function () {
+  this.style.opacity = '0.6';
+  this.style.pointerEvents = 'none';
+});
 
-// ── Log in button (frontend validation) ──
-document.getElementById('btnLogin').addEventListener('click', () => {
-  const email = document.getElementById('email').value.trim();
-  const pass  = document.getElementById('password').value;
+// ── Log in — POST to API ──────────────────────────────────────
+document.getElementById('btnLogin').addEventListener('click', async () => {
+  const email    = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+  const btn      = document.getElementById('btnLogin');
 
-  if (!email || !pass) {
-    errEl.textContent = 'Please enter your email and password.';
-    errEl.classList.add('show');
-    return;
+  if (!email || !password) {
+    return showError('Please enter your email and password.');
   }
 
+  // Loading state
+  btn.textContent = 'Logging in…';
+  btn.disabled = true;
   errEl.classList.remove('show');
 
-  // TODO: call your backend login API here
-  // fetch('/api/login', { method:'POST', body: JSON.stringify({ email, pass }) })
-  console.log('Login:', { email });
+  try {
+    const res  = await fetch('/api/auth/login', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ email, password }),
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      // Redirect to the page the server tells us
+      window.location.href = data.redirect || '/html/home.html';
+    } else {
+      showError(data.message || 'Login failed.');
+    }
+  } catch (err) {
+    showError('Network error. Please try again.');
+  } finally {
+    btn.textContent = 'Log in';
+    btn.disabled = false;
+  }
 });
