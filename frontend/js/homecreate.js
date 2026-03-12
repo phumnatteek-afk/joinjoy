@@ -1,3 +1,4 @@
+
 // homecreate.js
 
 // ── Password toggle ──────────────────────────────────────────
@@ -71,7 +72,8 @@ document.getElementById('btnGetStarted').addEventListener('click', async () => {
   errEl.classList.remove('show');
 
   try {
-    const res  = await fetch('http:/localhost:3000/api/auth/register', {
+    // ✅ แก้ไข: URL ที่ถูกต้อง (เพิ่ม / ที่หายไป) + ใช้ relative path
+    const res = await fetch('/api/auth/register', {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
       body:    JSON.stringify({ fullname, email, password }),
@@ -80,10 +82,26 @@ document.getElementById('btnGetStarted').addEventListener('click', async () => {
     const data = await res.json();
 
     if (data.success) {
-      showSuccess('Account created! Redirecting to login…');
+      showSuccess('Account created! Signing you in…');
+
+      // ✅ Auto-login หลัง register สำเร็จ
+      const loginRes = await fetch('/api/auth/login', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ email, password }),
+      });
+
+      const loginData = await loginRes.json();
+
       setTimeout(() => {
-        window.location.href = 'homelogin.html';
-      }, 1500);
+        if (loginData.success) {
+          // ✅ เข้า home.html โดยตรง (root level)
+          window.location.href = loginData.redirect || '/frontend/html/homepage.html';
+        } else {
+          // ถ้า auto-login ไม่ได้ ให้ไปหน้า login แทน
+          window.location.href = '/frontend/html/homelogin.html';
+        }
+      }, 1000);
     } else {
       showError(data.message || 'Something went wrong.');
     }

@@ -117,7 +117,7 @@ router.post("/login", async (req, res) => {
       success: true,
       message: "Login successful!",
       role:    user.role,
-      redirect: user.role === "admin" ? "/html/admin.html" : "/html/home.html",
+      redirect: user.role === "admin" ? "/html/admin.html" : "/frontend/html/homepage.html",
     });
 
   } catch (err) {

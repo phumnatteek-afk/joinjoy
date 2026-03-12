@@ -9,7 +9,10 @@ const session  = require('express-session');
 const app = express();
 
 // ── Middleware ──────────────────────────────────────────────
-app.use(cors({ origin: '*' }));
+app.use(cors({
+  origin: ['http://localhost:3000', 'http://127.0.0.1:5501', 'http://localhost:5501'],
+  credentials: true
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, '../frontend')));
@@ -32,27 +35,21 @@ const boardRoute         = require('./routes/board');
 const adminRoutes        = require('./routes/admin');
 const notificationRoutes = require('./routes/notification');
 const homepageRoute      = require('./routes/homepage');
-const loginRoute         = require('./routes/login');       // ✅ register + login
-const googleAuth         = require('./routes/googleAuth');  // ✅ Google OAuth
+const loginRoute         = require('./routes/login');
+const googleAuth         = require('./routes/googleAuth');
 
-app.use('/api/board',        boardRoute);
-app.use('/api/admin',        adminRoutes);
-app.use('/api/notification', notificationRoutes);
-app.use('/api/user',         homepageRoute);
-app.use('/api/trips',        homepageRoute);
-app.use('/api/reviews',      homepageRoute);
-app.use('/api/auth',         loginRoute);   // POST /api/auth/register  &  POST /api/auth/login
-app.use('/auth',             googleAuth);   // GET  /auth/google  &  GET /auth/google/callback
+app.use('/api/board',         boardRoute);
+app.use('/api/admin',         adminRoutes);
+app.use('/api/notification',  notificationRoutes);
+app.use('/api/user',          homepageRoute);   // GET /api/user/me
+app.use('/api/trips',         homepageRoute);   // GET /api/trips/upcoming ฯลฯ
+app.use('/api/reviews',       homepageRoute);   // GET /api/reviews/recent
+app.use('/api/auth',          loginRoute);      // POST /api/auth/login, /api/auth/register
+app.use('/auth',              googleAuth);      // GET /auth/google, /auth/google/callback
 
-
-app.get("/", (req, res) => {
-    res.redirect("/html/home.html");
+app.get('/', (req, res) => {
+  res.redirect('/html/homepage.html');          // ✅ frontend serve จาก /frontend → path คือ /html/...
 });
-
-app.use(passport.initialize());
-app.use(passport.session());
-
-app.use("/auth", googleAuth);  // ← this line MUST exist
 
 // ── Start ────────────────────────────────────────────────────
 const PORT = process.env.PORT || 3000;

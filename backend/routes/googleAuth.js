@@ -152,9 +152,9 @@ router.get(
     console.log("[Google OAuth] Login success, redirecting user_id:", req.user.user_id);
 
     if (req.user.role === "admin") {
-      return res.redirect("/html/admin.html");
+      return res.redirect("/html/admin-dashboard.html");
     }
-    res.redirect("/html/homelogin.html"); // ← change to your actual main page
+    res.redirect("/html/homepage.html");
   }
 );
 
