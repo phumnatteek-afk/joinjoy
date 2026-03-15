@@ -1,3 +1,4 @@
+
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
 :root {
   --pink:       #F06292;
@@ -29,18 +30,35 @@ body {
 }
 
 /* ── HEADER ─────────────────────────────── */
-.header {
-  background: #fff;
-  min-height: 200px;
-  border-radius: 0 0 40px 40px;
-  padding: 18px 20px 14px;
-  position: sticky; top: 0; z-index: 100;
-  box-shadow: 0 2px 12px rgba(240,98,146,0.08);
+.header{
+  background: transparent;   /* เอาพื้นขาวออก */
+  min-height: auto;          /* ไม่ให้กินพื้นที่ */
+  border-radius: 0;          /* เอาความโค้งออก */
+  padding: 20px 20px 10px;
+  position: relative;
+  box-shadow: none;
 }
-.logo-row {
-  display: flex; justify-content: center; align-items: center;
-  position: relative; margin-bottom: 16px;
+.logo-row{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  position:relative;
 }
+
+.header-icon{
+  position:absolute;
+  right:15px;
+  top:50%;
+  transform:translateY(-50%);
+}
+
+.header-icon iconify-icon{
+  font-size:32px;
+  color:#F28695;
+  cursor:pointer;
+}
+
+
 /* .logo {
   font-family: 'Kanit', sans-serif; font-size: 30px; font-weight: 700;
   background: linear-gradient(135deg, #F06292, #E91E8C);
@@ -73,7 +91,7 @@ body {
 .hi  { font-size: 20px; font-weight: 900; }
 .sub { font-size: 16px; color: var(--text-soft); font-weight: 500; margin-top: 2px; }
 
-/* .search-box {
+.search-box {
   display: flex; align-items: center; gap: 10px;
   background: var(--bg); border-radius: 50px;
   padding: 10px 16px; border: 1.5px solid var(--border);
@@ -85,7 +103,7 @@ body {
 }
 .search-box input::placeholder { color: var(--text-muted); }
 .filter-btn { background: none; border: none; cursor: pointer; display: flex; }
-.filter-btn svg { width: 18px; height: 18px; fill: var(--pink); } */
+.filter-btn svg { width: 18px; height: 18px; fill: var(--pink); }
 
 /* ── MAIN ───────────────────────────────── */
 .main { padding: 16px 16px 100px; }
@@ -152,20 +170,17 @@ body {
 /* ── EXPERIENCE ─────────────────────────── */
 .exp-scroll { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 28px; scrollbar-width: none; }
 .exp-scroll::-webkit-scrollbar { display: none; }
-.exp-card { flex-shrink: 0; height: 130px; width: 130px; border-radius: 12px; overflow: hidden; position: relative; cursor: pointer; box-shadow: var(--shadow); }
-.exp-img  { width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block; }
+.exp-card { flex-shrink: 0; width: 130px; border-radius: 12px; overflow: hidden; position: relative; cursor: pointer; box-shadow: var(--shadow); }
+.exp-img  { width: 100%; height: 108px; object-fit: cover; display: block; }
 .exp-ph   { width: 100%; height: 108px; display: flex; align-items: center; justify-content: center; font-size: 28px; }
 .exp-overlay {
   position: absolute; inset: 0;
   background: linear-gradient(to top, rgba(0,0,0,.75) 55%, transparent);
   display: flex; flex-direction: column; justify-content: flex-end; padding: 10px 9px;
 }
-.exp-name  { font-size: 12px; font-weight: 600; color: white; margin-bottom: 3px; }
+.exp-name  { font-size: 12px; font-weight: 500; color: white; margin-bottom: 3px; }
 .exp-quote { font-size: 14px; color: rgba(255,255,255,.6); line-height: 1; margin-bottom: 2px; }
-.exp-text  { font-size: 8px; color: rgba(255,255,255,.88);font-weight: 100; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.exp-text  { font-size: 10px; color: rgba(255,255,255,.88);font-weight: 100; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; line-clamp: 3; overflow: hidden; }
 .exp-avatars { display: flex; margin-top: 6px; }
 .exp-av {
   width: 20px; height: 20px; border-radius: 50%;
@@ -307,6 +322,9 @@ body {
     position: relative;
 }
 
+.container{
+  padding:20px 16px 100px;
+}
 .search-box {
     display: flex;
     align-items: center;
@@ -955,4 +973,214 @@ textarea {
 .main-input1{
   font-size: 12px;
 }
+}
+
+
+
+/* Search */
+
+.search input{
+  width:100%;
+  padding:12px;
+  border:none;
+  border-radius:20px;
+  margin:15px 0;
+  background:#eee;
+}
+
+/* Post */
+.post{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  margin-bottom:30px;
+}
+
+.post-header{
+  display:flex;
+  align-items:flex-start;
+  gap:12px;
+  width:100%;
+}
+
+.avatar{
+  width:44px;
+  height:44px;
+  border-radius:50%;
+  object-fit:cover;
+
+}
+
+.post-info{
+  flex:1;
+}
+
+.name{
+  font-size:18px;
+  font-weight:700;
+  color:#2d1f26;
+}
+
+.time{
+  font-size:15px;
+  color:#9a8a92;
+  margin-left:6px;
+  font-weight: 600;
+}
+
+.caption{
+  font-size:18px;
+  color:#555;
+  margin-top:4px;
+}
+
+.dots{
+  font-size:22px;
+  color:#656565;
+  cursor:pointer;
+  margin-left:8px;
+  margin-right:25px;   /* ดันเข้ามาจากขอบขวา */
+}
+
+.dots:hover{
+  color:#F28695;
+  transform:scale(1.1);
+}
+/* Trip Card */
+
+.trip-card{
+  background:white;
+  border-radius:20px;
+  padding:20px;
+
+  width:90%;
+  max-width:330px;
+
+  margin:10px auto;
+
+  box-shadow:0 10px 25px rgba(0,0,0,0.08);
+  text-align:center;
+
+  transition:all .25s ease;
+}
+
+.trip-card:hover{
+  transform:translateY(-4px);
+  box-shadow:0 16px 35px rgba(0,0,0,0.12);
+}
+.trip-card h2{
+  margin:5px 0;
+}
+
+.location{
+  color:#ff7a8a;
+}
+
+.trip-info{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:16px;
+
+  background:#f5f5f5;
+  padding:10px 16px;
+  border-radius:30px;
+
+  width:fit-content;
+  margin:12px auto;
+}
+
+.trip-info span{
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+
+/* สร้างเส้นคั่น */
+.trip-info span + span::before{
+  content:"";
+  width:1px;
+  height:14px;
+  background:#ccc;
+  margin-right:12px;
+}
+
+.info{
+  display:flex;
+  align-items:center;
+  gap:5px;
+  font-size:14px;
+  color:#666;
+}
+
+.info iconify-icon{
+  color:#ff6b81;
+  font-size:18px;
+}
+
+.divider{
+  width:1px;
+  height:14px;
+  background:#ddd;
+}
+.joy-btn{
+  display:block;
+  margin:18px auto 0;
+  background:#ff7a8a;
+  color:white;
+  border:none;
+  padding:11px 34px;
+  border-radius:25px;
+  cursor:pointer;
+  font-family:'Poppins';
+  font-weight:600;
+  font-size:14px;
+
+  box-shadow:0 4px 10px rgba(255,122,138,0.35);
+  transition:all .2s;
+}
+
+.joy-btn:hover{
+  transform:scale(1.05);
+}
+
+.trip-extra{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:18px;
+  padding:10px 18px;
+  border-radius:30px;
+
+  width:fit-content;
+  margin:10px auto 0;
+}
+
+.trip-time iconify-icon,
+.trip-budget iconify-icon{
+  color:#000;
+  font-size:18px;
+}
+.trip-time,
+.trip-budget{
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.trip-header{
+  text-align:center;
+  margin-top:18px;
+  margin-bottom:10px;
+}
+.trip-header h2{
+  font-family:'Poppins', 'Kanit', sans-serif;
+  font-size:22px;
+  font-weight:700;
+
+  color:#2d1f26;
+
+  margin:0;
+  line-height:1.3;
+
+  word-break:break-word;   /* กันชื่อยาวล้น */
 }

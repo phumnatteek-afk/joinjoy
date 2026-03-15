@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const db = require('./db'); // เรียกไฟล์ที่เราเพิ่งแก้ตะกี้
+const db = require('./db'); 
 
 const app = express();
 app.use(cors());
@@ -20,7 +20,7 @@ app.get('/api/create-trip', async(req, res) => {
 // ตรงส่วนดึงข้อมูล
 app.get('/api/review', async(req, res) => {
     try {
-        const [rows] = await db.query('SELECT * FROM Reviews'); // แก้เป็น R ใหญ่
+        const [rows] = await db.query('SELECT * FROM Reviews'); 
         res.json(rows);
     } catch (err) {
         console.error(err);
@@ -51,7 +51,7 @@ app.get('/api/trip-detail/:id', async(req, res) => {
         res.status(500).json({ error: "ดึงข้อมูลล้มเหลว ตรวจสอบ SQL ใน Terminal" });
     }
 });
-// เพิ่มบรรทัดนี้เพื่อรองรับการดึงข้อมูลจากหน้าแอป (JSON Body)
+
 app.post('/api/trip', async(req, res) => {
     // รับค่า category_id เพิ่มเข้ามาด้วย
     const { group_name, location, budget_range, max_members, description, category_id } = req.body;
@@ -92,8 +92,7 @@ app.use('/uploads', express.static('uploads'));
 // 3. API สำหรับบันทึกรีวิวพร้อมรูปภาพ
 app.post('/api/review', upload.single('image'), async(req, res) => {
     const { trip_id, rating, comment } = req.body;
-    const image_url = req.file ? `/uploads/${req.file.filename}` : null; // เก็บ Path รูป
-
+    const image_url = req.file ? `/uploads/${req.file.filename}` : null; 
     try {
         const sql = `INSERT INTO Reviews (trip_id, rating, comment, image_url) 
                      VALUES (?, ?, ?, ?)`;
@@ -110,7 +109,6 @@ app.post('/api/review', upload.single('image'), async(req, res) => {
     }
 });
 
-// แก้จาก 3000 เป็นแบบนี้
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 Server is running on port ${PORT}`);
