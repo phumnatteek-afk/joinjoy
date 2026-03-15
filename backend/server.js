@@ -23,6 +23,7 @@ app.use(express.static(path.join(__dirname, '../frontend')));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/userprofile', express.static(path.join(__dirname, 'userprofile')));
 
+
 // ── Session (must come BEFORE passport) ────────────────────
 app.use(session({
     secret: process.env.SESSION_SECRET || 'joinjoy_session_secret',
