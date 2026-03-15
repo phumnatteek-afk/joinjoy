@@ -49,6 +49,17 @@ async function fetchTrips() {
                                 ${trip.current_member} / ${trip.max_member} members
                             </span>
                         </div>
+                    <div class="trip-extra">
+                        <span class="trip-time">
+                            <iconify-icon icon="mdi:clock-outline"></iconify-icon>
+                            ${trip.start_time} - ${trip.end_time}
+                        </span>
+
+                        <span class="trip-budget">
+                            <iconify-icon icon="mdi:cash"></iconify-icon>
+                            ${trip.budget} ฿
+                        </span>
+                    </div>
                         
                         <button class="joy-btn" onclick="joinTrip(${trip.trip_id})">ขอไปด้วย</button>
                     </div>
