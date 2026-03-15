@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>JoinJoy — Review Trip</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/review-page.css" />
+</head>
+<body>
+<div class="phone">
+
+  <!-- HEADER -->
+  <header class="topbar">
+    <!-- [BACKEND] แทนด้วย <img src="../img/joinjoylogo.png" class="logo"> -->
+    <a href="../html/homepage.html">
+      <img src="../img/joinjoylogo.png" class="logo" alt="JoinJoy"
+        onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" />
+      <span class="logo-text" style="display:none;">JoinJoy</span>
+    </a>
+    <button class="icon-btn" aria-label="settings">⚙️</button>
+  </header>
+
+  <!-- CONTENT -->
+  <main class="content">
+    <h2 class="page-head">Tell Us about Your Trip</h2>
+
+    <!-- ─────────────────────────────────────────────
+         [BACKEND] Trip Card
+         GET → trip.cover_image → ใส่ใน <img> ข้างใน .trip-img
+         GET → trip.title       → แทนข้อความใน .trip-title
+         GET → trip.category    → แทนข้อความใน .trip-sub
+    ───────────────────────────────────────────────── -->
+    <section class="trip-card">
+      <div class="trip-img">
+        <img id="trip-cover" src="" alt="" style="display:none;" />
+        <div class="trip-overlay">
+          <div class="trip-title" id="trip-title"></div>
+          <div class="trip-sub" id="trip-category"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─────────────────────────────────────────────
+         [BACKEND] Review Text
+         POST → /api/review  → ส่ง field "review_text"
+    ───────────────────────────────────────────────── -->
+    <section class="section">
+      <div class="subhead">Your Review</div>
+      <textarea
+        class="textarea"
+        id="review-text"
+        placeholder="เขียนรีวิวทริปของคุณที่นี่..."
+      ></textarea>
+    </section>
+
+    <!-- ─────────────────────────────────────────────
+         [BACKEND] Photo Upload
+         POST → /api/review/photos → ส่ง FormData (array of images)
+         GET  → แสดงรูปที่อัปโหลดแล้วใน .photo-box
+    ───────────────────────────────────────────────── -->
+    <section class="section">
+      <div class="subhead">Add Photos</div>
+      <div class="photo-row" id="photo-row">
+        <!-- รูปที่อัปโหลดจะ append เข้ามาที่นี่ด้วย JS -->
+        <button class="photo-add" type="button" id="photo-add-btn" aria-label="add photo">+</button>
+        <input type="file" id="photo-file-input" accept="image/*" multiple style="display:none;" />
+      </div>
+    </section>
+
+    <!-- [BACKEND] กด Submit → POST /api/review ส่ง { trip_id, review_text, photos[] } -->
+    <button class="cta" type="button" id="submit-btn">Submit</button>
+
+  </main>
+
+  <!-- NAVBAR -->
+  <nav class="mainnav" aria-label="Main navigation">
+    <ul class="mainmenu">
+      <li class="menu-item">
+        <a href="../html/homepage.html">
+          <svg width="22" height="24" viewBox="0 0 24 27" fill="none">
+            <path d="M3.93 25.75C2.31 25.75 1 24.4 1 22.74V10.64C1 9.72 1.41 8.86 2.1 8.29L10.17 1.66C10.68 1.23 11.33 1 12 1s1.32.23 1.83.66L21.9 8.29C22.59 8.86 23 9.72 23 10.64V22.74C23 24.4 21.69 25.75 20.07 25.75H3.93Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M8.56 25.75V18.19C8.56 17.46 8.85 16.76 9.37 16.24C9.88 15.73 10.58 15.44 11.31 15.44H12.69C13.42 15.44 14.12 15.73 14.63 16.24C15.15 16.76 15.44 17.46 15.44 18.19V25.75" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span>Home</span>
+        </a>
+      </li>
+      <li class="menu-item">
+        <a href="../html/Board.html">
+          <svg width="24" height="20" viewBox="0 0 27 23" fill="none">
+            <path d="M9.93 1H4.57C3.59 1 2.79 1.8 2.79 2.79V15.29H24.21V2.79C24.21 1.8 23.41 1 22.43 1H17.07M1 15.29H26M13.5 15.29V21.54M9.04 15.29L6.36 21.54M17.96 15.29L20.64 21.54" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span>Board</span>
+        </a>
+      </li>
+      <li class="menu-item">
+        <a href="../html/CreateTrip.html">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <path d="M11.74 22.56V11.91L22.24 11.91M11.74 1.26L11.74 11.91L1.24 11.91" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span>Create</span>
+        </a>
+      </li>
+      <li class="menu-item">
+        <a href="../html/Profile.html">
+          <svg width="20" height="24" viewBox="0 0 22 27" fill="none">
+            <path d="M11 11C13.76 11 16 8.76 16 6S13.76 1 11 1 6 3.24 6 6s2.24 5 5 5Z" stroke="currentColor" stroke-width="2"/>
+            <path d="M21 20.38C21 23.48 21 26 11 26S1 23.48 1 20.38C1 17.27 5.48 14.75 11 14.75S21 17.27 21 20.38Z" stroke="currentColor" stroke-width="2"/>
+          </svg>
+          <span>Profile</span>
+        </a>
+      </li>
+    </ul>
+  </nav>
+
+</div><!-- /.phone -->
+
+<script>
+  // ── Photo preview ──────────────────────────────────
+  // [BACKEND] ตอน submit จริง ให้ส่ง FormData ไปที่ POST /api/review/photos แทน
+  const photoInput = document.getElementById('photo-file-input');
+  const photoAddBtn = document.getElementById('photo-add-btn');
+  const photoRow = document.getElementById('photo-row');
+
+  photoAddBtn.addEventListener('click', () => photoInput.click());
+
+  photoInput.addEventListener('change', () => {
+    Array.from(photoInput.files).forEach(file => {
+      const reader = new FileReader();
+      reader.onload = e => {
+        const box = document.createElement('div');
+        box.className = 'photo-box';
+        const img = document.createElement('img');
+        img.src = e.target.result;
+        box.appendChild(img);
+        photoRow.insertBefore(box, photoAddBtn);
+      };
+      reader.readAsDataURL(file);
+    });
+    photoInput.value = '';
+  });
+
+  // ── Submit ─────────────────────────────────────────
+  // [BACKEND] แทน alert ด้วย fetch POST /api/review
+  document.getElementById('submit-btn').addEventListener('click', () => {
+    const text = document.getElementById('review-text').value.trim();
+    if (!text) {
+      alert('กรุณาเขียนรีวิวก่อนนะคะ');
+      return;
+    }
+    // TODO [BACKEND]: ส่งข้อมูลไปที่ API
+    alert('ส่งรีวิวเรียบร้อยแล้ว!');
+  });
+</script>
+
+</body>
+</html>
