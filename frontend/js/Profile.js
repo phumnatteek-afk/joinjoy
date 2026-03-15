@@ -30,7 +30,7 @@ function renderProfile(p) {
     document.getElementById('birthday').textContent = '—';
   }
 
-  // Avatar
+  // Avatar (หน้าหลัก)
   const avatarEl = document.getElementById('profileAvatar');
   if (p.profile_img) {
     avatarEl.src           = p.profile_img;
@@ -82,18 +82,42 @@ function getSelectedTags() {
 
 function setSelectedTags(tags) {
   document.querySelectorAll('.tag-chip-option').forEach(el => {
-    const val = el.querySelector('input').value;
+    const val    = el.querySelector('input').value;
     const active = tags.some(t => t.toLowerCase() === val.toLowerCase());
     el.classList.toggle('selected', active);
   });
 }
 
-// Toggle on click — attach to each chip individually to avoid double-fire from label+checkbox
 document.querySelectorAll('.tag-chip-option').forEach(chip => {
   chip.addEventListener('click', e => {
-    e.preventDefault(); // stop checkbox default toggle
+    e.preventDefault();
     chip.classList.toggle('selected');
   });
+});
+
+// ── Avatar file picker ────────────────────────────────────────
+const avatarFileInput   = document.getElementById('avatarFileInput');
+const btnPickAvatar     = document.getElementById('btnPickAvatar');
+const avatarPreview     = document.getElementById('avatarPreview');
+const avatarPlaceholder = document.getElementById('avatarPlaceholder');
+const avatarFileName    = document.getElementById('avatarFileName');
+
+btnPickAvatar.addEventListener('click', () => avatarFileInput.click());
+
+avatarFileInput.addEventListener('change', () => {
+  const file = avatarFileInput.files[0];
+  if (!file) return;
+
+  // แสดง preview ทันที
+  const reader = new FileReader();
+  reader.onload = e => {
+    avatarPreview.src           = e.target.result;
+    avatarPreview.style.display = 'block';
+    avatarPlaceholder.style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+
+  avatarFileName.textContent = file.name;
 });
 
 // ── Open edit modal ───────────────────────────────────────────
@@ -109,6 +133,18 @@ document.getElementById('btnOpenEdit').addEventListener('click', () => {
   document.getElementById('editBirthDate').value   = p.birth_date
     ? p.birth_date.split('T')[0] : '';
 
+  // แสดงรูปปัจจุบันใน modal preview
+  if (p.profile_img) {
+    avatarPreview.src           = p.profile_img;
+    avatarPreview.style.display = 'block';
+    avatarPlaceholder.style.display = 'none';
+  } else {
+    avatarPreview.style.display = 'none';
+    avatarPlaceholder.style.display = 'flex';
+  }
+  avatarFileName.textContent = '';
+  avatarFileInput.value      = ''; // reset file input
+
   // Pre-select saved tags
   const savedTags = Array.isArray(p.tags)
     ? p.tags
@@ -116,7 +152,6 @@ document.getElementById('btnOpenEdit').addEventListener('click', () => {
   setSelectedTags(savedTags);
 
   editModal.classList.add('open');
-  // Scroll modal back to top
   const scrollArea = editModal.querySelector('.modal-scroll-area');
   if (scrollArea) scrollArea.scrollTop = 0;
 });
@@ -129,24 +164,57 @@ editModal.addEventListener('click', e => {
   if (e.target === editModal) editModal.classList.remove('open');
 });
 
-// ── Save profile ──────────────────────────────────────────────
+// ── Save profile (text fields + avatar แยก request) ──────────
 document.getElementById('btnSaveEdit').addEventListener('click', async () => {
   const btn       = document.getElementById('btnSaveEdit');
   btn.disabled    = true;
   btn.textContent = 'Saving…';
 
-  const payload = {
-    first_name:   document.getElementById('editFirstName').value.trim()   || null,
-    last_name:    document.getElementById('editLastName').value.trim()    || null,
-    bio:          document.getElementById('editBio').value.trim()         || null,
-    birth_date:   document.getElementById('editBirthDate').value          || null,
-    gender:       document.getElementById('editGender').value             || null,
-    faculty:      document.getElementById('editFaculty').value.trim()     || null,
-    social_media: document.getElementById('editSocialMedia').value.trim() || null,
-    tags:         getSelectedTags(),
-  };
-
   try {
+    // 1) อัปโหลดรูปก่อน (ถ้ามีไฟล์ใหม่)
+    const file = avatarFileInput.files[0];
+    let newProfileImg = null;
+
+    if (file) {
+      const formData = new FormData();
+      formData.append('avatar', file);
+
+      const avatarRes = await fetch('/api/profile/me/avatar', {
+        method:      'POST',
+        body:        formData,
+        credentials: 'include',
+      });
+
+      if (avatarRes.status === 401) {
+        window.location.href = '/html/homelogin.html';
+        return;
+      }
+
+      const avatarData = await avatarRes.json();
+      if (avatarData.success) {
+        newProfileImg = avatarData.profile_img; // path ที่ backend return มา
+        // อัปเดตรูปในหน้าหลักทันที
+        const mainAvatar = document.getElementById('profileAvatar');
+        mainAvatar.src           = newProfileImg;
+        mainAvatar.style.display = 'block';
+      } else {
+        showToast(avatarData.message || 'Upload photo failed.', false);
+        return;
+      }
+    }
+
+    // 2) บันทึก text fields
+    const payload = {
+      first_name:   document.getElementById('editFirstName').value.trim()   || null,
+      last_name:    document.getElementById('editLastName').value.trim()    || null,
+      bio:          document.getElementById('editBio').value.trim()         || null,
+      birth_date:   document.getElementById('editBirthDate').value          || null,
+      gender:       document.getElementById('editGender').value             || null,
+      faculty:      document.getElementById('editFaculty').value.trim()     || null,
+      social_media: document.getElementById('editSocialMedia').value.trim() || null,
+      tags:         getSelectedTags(),
+    };
+
     const res  = await fetch('/api/profile/me', {
       method:      'PUT',
       headers:     { 'Content-Type': 'application/json' },
@@ -162,13 +230,17 @@ document.getElementById('btnSaveEdit').addEventListener('click', async () => {
     const data = await res.json();
 
     if (data.success) {
-      // Update localStorage and re-render
+      // อัปเดต localStorage
       const cached  = JSON.parse(localStorage.getItem('joinjoy_user') || '{}');
-      const updated = { ...cached, ...payload };
+      const updated = {
+        ...cached,
+        ...payload,
+        ...(newProfileImg ? { profile_img: newProfileImg } : {}),
+      };
       localStorage.setItem('joinjoy_user', JSON.stringify(updated));
       renderProfile(updated);
       editModal.classList.remove('open');
-      showToast('Profile saved! ✅ Recommendations updated.');
+      showToast('Profile saved! ✅');
     } else {
       showToast(data.message || 'Save failed.', false);
     }
