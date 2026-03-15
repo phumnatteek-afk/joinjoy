@@ -3,10 +3,10 @@ const router = express.Router();
 const db = require('../db');
 
 function getUserId(req) {
-    // ลบของเก่าออก แล้วใช้แบบนี้แทนครับ
     const sessionUserId = (req.session && req.session.userId) ? req.session.userId : null;
-    const userUserId = (req.user && req.user.user_id) ? req.user.user_id : null;
-    return sessionUserId || userUserId || null;
+    const userUserId    = (req.user && req.user.user_id) ? req.user.user_id : null;
+    const queryUserId   = (req.query && req.query.user_id) ? Number(req.query.user_id) : null;
+    return sessionUserId || userUserId || queryUserId || null;
 }
 
 // ── GET /api/user/me ──────────────────────────────────────────
@@ -36,17 +36,21 @@ router.get('/me', async(req, res) => {
 
 // ── GET /api/trips/upcoming ───────────────────────────────────
 router.get('/upcoming', async(req, res) => {
+    const uid = getUserId(req) || 0;
     try {
         const [trips] = await db.query(`
       SELECT t.*, u.user_name AS creator_name, up.faculty AS creator_faculty,
              (SELECT COUNT(*) FROM Trip_member tm
-              WHERE tm.trip_id = t.trip_id AND tm.status = 'Joined') AS joined_count
+              WHERE tm.trip_id = t.trip_id AND tm.status = 'Joined') AS joined_count,
+             CASE WHEN t.creator_id = ? THEN 1 ELSE 0 END AS is_host,
+             (SELECT tm2.status FROM Trip_member tm2
+              WHERE tm2.trip_id = t.trip_id AND tm2.user_id = ? LIMIT 1) AS my_join_status
       FROM Trip t
       JOIN User u ON t.creator_id = u.user_id
       LEFT JOIN User_profile up ON up.user_id = u.user_id
       WHERE t.trip_status = 'Open' AND t.start_time >= NOW()
       ORDER BY t.start_time ASC LIMIT 6
-    `);
+    `, [uid, uid]);
         res.json({ success: true, trips });
     } catch (err) {
         console.error(err);
@@ -76,11 +80,14 @@ router.get('/recommended', async(req, res) => {
       SELECT t.*, u.user_name AS creator_name,
         (SELECT COUNT(*) FROM Trip_member tm
          WHERE tm.trip_id = t.trip_id AND tm.status = 'Joined') AS joined_count,
-        1 AS is_matched
+        1 AS is_matched,
+        CASE WHEN t.creator_id = ? THEN 1 ELSE 0 END AS is_host,
+        (SELECT tm2.status FROM Trip_member tm2
+         WHERE tm2.trip_id = t.trip_id AND tm2.user_id = ? LIMIT 1) AS my_join_status
       FROM Trip t JOIN User u ON t.creator_id = u.user_id
       WHERE t.trip_status = 'Open' AND (${conditions})
       ORDER BY joined_count DESC, t.created_at DESC LIMIT 6
-    `, likeParams);
+    `, [userId, userId, ...likeParams]);
         res.json({ success: true, trips, personalized: true });
     } catch (err) {
         console.error('GET /api/trips/recommended error:', err);
@@ -113,13 +120,17 @@ router.get('/my-schedule', async(req, res) => {
 router.get('/', async(req, res) => {
     try {
         const { category, search } = req.query;
+        const uid2 = getUserId(req) || 0;
         let query = `
       SELECT t.*, u.user_name AS creator_name,
-        (SELECT COUNT(*) FROM Trip_member tm WHERE tm.trip_id = t.trip_id AND tm.status = 'Joined') AS joined_count
+        (SELECT COUNT(*) FROM Trip_member tm WHERE tm.trip_id = t.trip_id AND tm.status = 'Joined') AS joined_count,
+        CASE WHEN t.creator_id = ? THEN 1 ELSE 0 END AS is_host,
+        (SELECT tm2.status FROM Trip_member tm2
+         WHERE tm2.trip_id = t.trip_id AND tm2.user_id = ? LIMIT 1) AS my_join_status
       FROM Trip t JOIN User u ON t.creator_id = u.user_id
       WHERE t.trip_status = 'Open'
     `;
-        const params = [];
+        const params = [uid2, uid2];
         if (category) {
             query += ' AND t.category = ?';
             params.push(category);
