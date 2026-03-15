@@ -1,31 +1,24 @@
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>JoinJoy — CreateTrip</title>
-     <link
-      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Kanit:wght@400;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="../css/homepage.css" />
-  <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>JoinJoy — CreateTrip</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Kanit:wght@400;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="../css/homepage.css" />
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
 </head>
+
 <body>
 
-<div class="toast" id="toast"></div>
+    <div class="toast" id="toast"></div>
 
-<!-- ── HEADER ── -->
-<header class="header1">
-    <div class="top-bar">
-            <svg
-              width="23"
-              height="20"
-              viewBox="0 0 23 20"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
+    <!-- ── HEADER ── -->
+    <header class="header1">
+        <div class="top-bar">
+            <svg width="23" height="20" viewBox="0 0 23 20" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path
                 d="M1.25 18.25L11.25 9.75L21.25 18.25M21.25 1.25L11.2481 9.75L1.25 1.25"
                 stroke="currentColor"
@@ -36,14 +29,14 @@
             </svg>
             <span>Create Trips</span>
             <button class="saver">save</button>
-          </div>
-</header>
+        </div>
+    </header>
 
-          <!-- ส่วนกล่องทริป -->
-          <main class="create-content">
-            <div class="upload-section">
-              <input type="file" id="cover-photo" accept="image/*" hidden />
-              <label for="cover-photo" class="upload-box" id="drop-area">
+    <!-- ส่วนกล่องทริป -->
+    <main class="create-content">
+        <div class="upload-section">
+            <input type="file" id="cover-photo" accept="image/*" hidden />
+            <label for="cover-photo" class="upload-box" id="drop-area">
                 <div id="preview-content">
                   <div class="camera-icon-circle">
                     <iconify-icon icon="solar:camera-add-bold"></iconify-icon>
@@ -51,123 +44,90 @@
                   <p>Add Cover Photo</p>
                 </div>
               </label>
-            </div>
-            <!-- ส่วนกรอก title trip -->
-            <div class="form-container">
-              <div class="input-group">
+        </div>
+        <!-- ส่วนกรอก title trip -->
+        <div class="form-container">
+            <div class="input-group">
                 <label>Create Trip Title</label>
-                <input
-                  type="text"
-                  placeholder="Enter trip title"
-                  class="main-input"
-                />
-              </div>
+                <input type="text" placeholder="Enter trip title" class="main-input" />
+            </div>
 
-              <!-- ส่วนกรอก category -->
+            <!-- ส่วนกรอก category -->
 
-              <div class="category-selection-section">
+            <div class="category-selection-section">
                 <div class="category-header-row">
-                  <h3 class="category-label">Category</h3>
-                  <!-- <span class="char-count">0/50</span> -->
+                    <h3 class="category-label">Category</h3>
+                    <!-- <span class="char-count">0/50</span> -->
                 </div>
                 <p class="category-subtitle">
-                  Select your desired trip category.
+                    Select your desired trip category.
                 </p>
 
                 <div class="category-chips-wrapper">
-                  <button type="button" class="tag-chip">1-Day Trip</button>
-                  <button type="button" class="tag-chip">
+                    <button type="button" class="tag-chip">1-Day Trip</button>
+                    <button type="button" class="tag-chip">
                     Chill & Relaxed
                   </button>
-                  <button type="button" class="tag-chip">Travel Group</button>
-                  <button type="button" class="tag-chip">Beach Trips</button>
-                  <button type="button" class="tag-chip">Café Hopping</button>
-                  <button type="button" class="tag-chip">
+                    <button type="button" class="tag-chip">Travel Group</button>
+                    <button type="button" class="tag-chip">Beach Trips</button>
+                    <button type="button" class="tag-chip">Café Hopping</button>
+                    <button type="button" class="tag-chip">
                     Nightlife / Party
                   </button>
-                  <button type="button" class="tag-chip">Short Getaway</button>
-                  <button type="button" class="tag-chip">Food</button>
-                  <button type="button" class="tag-chip">Events</button>
-                  <button type="button" class="tag-chip">Concert</button>
-                  <button type="button" class="tag-chip">Healing</button>
-                  <button type="button" class="tag-chip">Backpacking</button>
-                  <button type="button" class="tag-chip">Camping</button>
+                    <button type="button" class="tag-chip">Short Getaway</button>
+                    <button type="button" class="tag-chip">Food</button>
+                    <button type="button" class="tag-chip">Events</button>
+                    <button type="button" class="tag-chip">Concert</button>
+                    <button type="button" class="tag-chip">Healing</button>
+                    <button type="button" class="tag-chip">Backpacking</button>
+                    <button type="button" class="tag-chip">Camping</button>
                 </div>
-              </div>
+            </div>
 
-              <!-- กรอก location -->
-              <div class="form-list">
+            <!-- กรอก location -->
+            <div class="form-list">
                 <div class="list-item">
-                  <iconify-icon
-                    icon="solar:map-point-bold"
-                    class="list-icon pink"
-                  ></iconify-icon>
-                  <div class="list-text">
-                    <label>Location <span class="required">*</span></label>
-                    <input type="text" placeholder="Enter location" />
-                  </div>
-                  <iconify-icon
-                    icon="solar:alt-arrow-right-outline"
-                    class="arrow"
-                  ></iconify-icon>
+                    <iconify-icon icon="solar:map-point-bold" class="list-icon pink"></iconify-icon>
+                    <div class="list-text">
+                        <label>Location <span class="required">*</span></label>
+                        <input type="text" placeholder="Enter location" />
+                    </div>
+                    <iconify-icon icon="solar:alt-arrow-right-outline" class="arrow"></iconify-icon>
                 </div>
 
                 <div class="form-row-grid">
-                  <div class="list-item no-border">
-                    <iconify-icon
-                      icon="solar:banknote-2-bold"
-                      class="list-icon pink"
-                    ></iconify-icon>
-                    <div class="list-text select-wrapper">
-                      <label>Budget</label>
-                      <input
-                        type="text"
-                        list="budget-options"
-                        class="select-input"
-                        placeholder="Enter or Select"
-                      />
-                      <datalist id="budget-options">
+                    <div class="list-item no-border">
+                        <iconify-icon icon="solar:banknote-2-bold" class="list-icon pink"></iconify-icon>
+                        <div class="list-text select-wrapper">
+                            <label>Budget</label>
+                            <input type="text" list="budget-options" class="select-input" placeholder="Enter or Select" />
+                            <datalist id="budget-options">
                         <option value="500-1,000"></option>
                         <option value="1,001-3,000"></option>
                         <option value="3,001-5,000"></option>
                       </datalist>
-                      <iconify-icon
-                        icon="solar:alt-arrow-down-outline"
-                        class="dropdown-icon"
-                      ></iconify-icon>
+                            <iconify-icon icon="solar:alt-arrow-down-outline" class="dropdown-icon"></iconify-icon>
+                        </div>
                     </div>
-                  </div>
 
-                  <div class="list-item no-border">
-                    <iconify-icon
-                      icon="solar:users-group-rounded-bold"
-                      class="list-icon pink"
-                    ></iconify-icon>
-                    <div class="list-text select-wrapper">
-                      <label>Member <span class="required">*</span></label>
-                      <input
-                        type="text"
-                        list="member-options"
-                        class="select-input"
-                        placeholder="Enter or Select"
-                      />
-                      <datalist id="member-options">
+                    <div class="list-item no-border">
+                        <iconify-icon icon="solar:users-group-rounded-bold" class="list-icon pink"></iconify-icon>
+                        <div class="list-text select-wrapper">
+                            <label>Member <span class="required">*</span></label>
+                            <input type="text" list="member-options" class="select-input" placeholder="Enter or Select" />
+                            <datalist id="member-options">
                         <option value="5"></option>
                         <option value="10"></option>
                         <option value="15"></option>
                         <option value="20"></option>
                       </datalist>
-                      <iconify-icon
-                        icon="solar:alt-arrow-down-outline"
-                        class="dropdown-icon"
-                      ></iconify-icon>
+                            <iconify-icon icon="solar:alt-arrow-down-outline" class="dropdown-icon"></iconify-icon>
+                        </div>
                     </div>
-                  </div>
                 </div>
 
                 <div class="datetime-range-section">
-                  <label class="section-label"
-                    >Date & Time <span class="required">*</span></label
+                    <label class="section-label">Date & Time <span class="required">*</span></label
                   >
                   <div class="range-container">
                     <div class="range-box">
@@ -204,41 +164,28 @@
                 <div class="icon-contact">
 <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" viewBox="0 0 20 20"><path fill="currentColor" d="M10 20a10 10 0 1 1 0-20a10 10 0 0 1 0 20m7.75-8a8 8 0 0 0 0-4h-3.82a29 29 0 0 1 0 4zm-.82 2h-3.22a14.4 14.4 0 0 1-.95 3.51A8.03 8.03 0 0 0 16.93 14m-8.85-2h3.84a24.6 24.6 0 0 0 0-4H8.08a24.6 24.6 0 0 0 0 4m.25 2c.41 2.4 1.13 4 1.67 4s1.26-1.6 1.67-4zm-6.08-2h3.82a29 29 0 0 1 0-4H2.25a8 8 0 0 0 0 4m.82 2a8.03 8.03 0 0 0 4.17 3.51c-.42-.96-.74-2.16-.95-3.51zm13.86-8a8.03 8.03 0 0 0-4.17-3.51c.42.96.74 2.16.95 3.51zm-8.6 0h3.34c-.41-2.4-1.13-4-1.67-4S8.74 3.6 8.33 6M3.07 6h3.22c.2-1.35.53-2.55.95-3.51A8.03 8.03 0 0 0 3.07 6"/></svg>                </div>
                 <label>Social Media</label>
-                <input
-                  type="text"
-                  placeholder="Enter Your Social Media"
-                  class="main-input1"
-                />
-              </div>
+                    <input type="text" placeholder="Enter Your Social Media" class="main-input1" />
+                </div>
 
-              <!-- description -->
-              <div class="input-group">
-                <label>Description</label>
-                <textarea
-                  placeholder="Add trip description..."
-                  rows="4"
-                ></textarea>
-              </div>
+                <!-- description -->
+                <div class="input-group">
+                    <label>Description</label>
+                    <textarea placeholder="Add trip description..." rows="4"></textarea>
+                </div>
 
                 <button type="submit" class="btn-create-trip">
                   Create Trip
                 </button>
-              </main>
-              <!-- <button type="submit" class="btn-create-trip">Create Trip</button> -->
-            </div>
-          </main>
-<!-- เมนู -->
-        <nav id="mainnav" class="mainnav" aria-label="Main navigation">
-          <ul class="mainmenu">
+    </main>
+    <!-- <button type="submit" class="btn-create-trip">Create Trip</button> -->
+    </div>
+    </main>
+    <!-- เมนู -->
+    <nav id="mainnav" class="mainnav" aria-label="Main navigation">
+        <ul class="mainmenu">
             <li class="menu-item">
-              <a href="homepage.html">
-                <svg
-                  width="24"
-                  height="27"
-                  viewBox="0 0 24 27"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
+                <a href="homepage.html">
+                    <svg width="24" height="27" viewBox="0 0 24 27" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path
                     d="M3.93287 25.7504C2.31312 25.7504 1 24.4029 1 22.7391V10.6364C1 9.72201 1.40563 8.85576 2.1 8.28513L10.1671 1.66038C10.6826 1.23356 11.3308 1 12 1C12.6692 1 13.3174 1.23356 13.8329 1.66038L21.8986 8.28513C22.5944 8.85576 23 9.72201 23 10.6364V22.7391C23 24.4029 21.6869 25.7504 20.0671 25.7504H3.93287Z"
                     stroke="currentColor"
@@ -254,19 +201,13 @@
                     stroke-linejoin="round"
                   />
                 </svg>
-                <span>Home</span>
-              </a>
+                    <span>Home</span>
+                </a>
             </li>
 
             <li class="menu-item">
-              <a href="Board.html">
-                <svg
-                  width="27"
-                  height="23"
-                  viewBox="0 0 27 23"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
+                <a href="Board.html">
+                    <svg width="27" height="23" viewBox="0 0 27 23" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path
                     d="M9.92857 1H4.57143C3.58519 1 2.78571 1.79947 2.78571 2.78571V15.2857H24.2143V2.78571C24.2143 1.79947 23.4148 1 22.4286 1H17.0714M1 15.2857H26M13.5 15.2857V21.5357M9.03571 15.2857L6.35714 21.5357M17.9643 15.2857L20.6429 21.5357"
                     stroke="currentColor"
@@ -275,19 +216,13 @@
                     stroke-linejoin="round"
                   />
                 </svg>
-                <span>Board</span>
-              </a>
+                    <span>Board</span>
+                </a>
             </li>
 
             <li class="menu-item active">
-              <a href="CreateTrip.html">
-                <svg
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
+                <a href="CreateTrip.html">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path
                     d="M11.7399 22.56L11.7399 11.9094L22.2389 11.9094M11.7399 1.25887L11.7389 11.9104L1.24097 11.9094"
                     stroke="currentColor"
@@ -296,19 +231,13 @@
                     stroke-linejoin="round"
                   />
                 </svg>
-                <span>Create</span>
-              </a>
+                    <span>Create</span>
+                </a>
             </li>
 
             <li class="menu-item">
-              <a href="Profile.html">
-                <svg
-                  width="22"
-                  height="27"
-                  viewBox="0 0 22 27"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
+                <a href="Profile.html">
+                    <svg width="22" height="27" viewBox="0 0 22 27" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path
                     d="M11.0002 11C13.7617 11 16.0002 8.76142 16.0002 6C16.0002 3.23858 13.7617 1 11.0002 1C8.23882 1 6.00024 3.23858 6.00024 6C6.00024 8.76142 8.23882 11 11.0002 11Z"
                     stroke="currentColor"
@@ -320,12 +249,13 @@
                     stroke-width="2"
                   />
                 </svg>
-                <span>Profile</span>
-              </a>
+                    <span>Profile</span>
+                </a>
             </li>
-          </ul>
-        </nav>
-        <!-- จบเมนู -->
-<script src="../js/main.js"></script>
+        </ul>
+    </nav>
+    <!-- จบเมนู -->
+    <script src="../js/main.js"></script>
 </body>
+
 </html>
