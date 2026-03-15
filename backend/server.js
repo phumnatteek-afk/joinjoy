@@ -14,9 +14,11 @@ const app = express();
 
 // ── Middleware ──────────────────────────────────────────────
 app.use(cors({
-origin: true,
-    credentials: true
-}));
+  origin: function(origin, callback) {
+    callback(null, true); 
+  },
+  credentials: true
+}))
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, '../frontend')));
@@ -26,10 +28,14 @@ app.use('/userprofile', express.static(path.join(__dirname, 'userprofile')));
 
 // ── Session (must come BEFORE passport) ────────────────────
 app.use(session({
-    secret: process.env.SESSION_SECRET || 'joinjoy_session_secret',
-    resave: false,
-    saveUninitialized: false,
-    cookie: { maxAge: 7 * 24 * 60 * 60 * 1000 } // 7 days
+  secret: process.env.SESSION_SECRET || 'joinjoy_secret',
+  resave: false,
+  saveUninitialized: false,
+  cookie: { 
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+    sameSite: 'lax',   // ← เพิ่มบรรทัดนี้
+    secure: false      // ← false เพราะยังเป็น http (dev)
+  }
 }));
 
 app.use(passport.initialize());
