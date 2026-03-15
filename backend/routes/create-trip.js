@@ -6,9 +6,9 @@ const path = require('path');
 
 // ตั้งค่า multer สำหรับอัปโหลดรูปภาพ
 const storage = multer.diskStorage({
-   destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, '../uploads'));
-},
+    destination: (req, file, cb) => {
+        cb(null, path.join(__dirname, '../uploads'));
+    },
     filename: (req, file, cb) => {
         const unique = Date.now() + '-' + Math.round(Math.random() * 1e9);
         cb(null, 'cover-' + unique + path.extname(file.originalname));
@@ -71,26 +71,26 @@ router.post('/trips', requireLogin, upload.single('cover_image'), async (req, re
 
     try {
         const sql = `
-            INSERT INTO Trip
-                (creator_id, trip_name, category, location_name,
-                 budget_min, budget_max, max_member, current_member,
-                 start_time, end_time, description, trip_detail,
-                 cover_image, trip_status)
-            VALUES (?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?, 'open')
-        `;
+    INSERT INTO Trip
+        (creator_id, trip_name, category, location_name,
+         budget_min, budget_max, max_member, current_member,
+         start_time, end_time, description, trip_detail,
+         cover_image, trip_status, created_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?, 'open', NOW())
+`;
 
         const values = [
             creator_id,
             trip_name,
-            category      || null,
+            category || null,
             location_name,
-            budget_min    || null,
-            budget_max    || null,
+            budget_min || null,
+            budget_max || null,
             max_member,
             start_time,
             end_time,
-            description   || null,
-            trip_detail   || null,
+            description || null,
+            trip_detail || null,
             cover_image
         ];
 
