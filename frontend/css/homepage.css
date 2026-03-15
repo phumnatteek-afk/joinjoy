@@ -908,6 +908,9 @@ textarea {
 .filter-btn { background: none; border: none; cursor: pointer; display: flex; }
 .filter-btn svg { width: 18px; height: 18px; fill: var(--pink); } */
 @media (max-width: 767px) {
+  .hi{
+    font-size: 17px;
+  }
   .logo {
     display: flex;
     align-items: center;
