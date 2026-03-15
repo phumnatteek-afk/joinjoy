@@ -67,6 +67,13 @@ document.getElementById('btnLogin').addEventListener('click', async () => {
       // without an extra API call.  Always kept in sync by profile.js.
       if (data.user) {
         localStorage.setItem('joinjoy_user', JSON.stringify(data.user));
+        // ── Save user_id separately so other pages can pass it to API ──
+        const uid = data.user.user_id || data.user.id || null;
+        if (uid) {
+          localStorage.setItem('userId', String(uid));
+          localStorage.setItem('user_id', String(uid));
+          localStorage.setItem('currentUserId', String(uid));
+        }
       }
 
       window.location.href = data.redirect || '/html/homepage.html';

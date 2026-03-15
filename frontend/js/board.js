@@ -1,17 +1,93 @@
 let allTrips = [];
+let currentUserId = null;
+let currentUserName = null;
+
+function getStoredUser() {
+    try {
+        const raw = localStorage.getItem('joinjoy_user');
+        return raw ? JSON.parse(raw) : null;
+    } catch {
+        return null;
+    }
+}
+
+function normalizeName(value) {
+    return String(value || '').trim().toLowerCase();
+}
+
+function getStoredUserId() {
+    const direct = localStorage.getItem('userId') ||
+                                 localStorage.getItem('user_id') ||
+                                 localStorage.getItem('currentUserId');
+    if (direct) return direct;
+
+    const user = getStoredUser();
+    const fallbackId = user && (user.user_id || user.id);
+    return fallbackId ? String(fallbackId) : null;
+}
+
+function setStoredUserId(userId) {
+    if (!userId) return;
+    localStorage.setItem('userId', String(userId));
+    localStorage.setItem('user_id', String(userId));
+    localStorage.setItem('currentUserId', String(userId));
+}
+
+async function loadCurrentUser() {
+    const storedId = getStoredUserId();
+    const storedUser = getStoredUser();
+    if (storedId) {
+        currentUserId = storedId;
+    }
+    if (storedUser && storedUser.user_name) {
+        currentUserName = storedUser.user_name;
+    }
+
+    try {
+        const meUrl = storedId
+            ? `http://localhost:3000/api/user/me?user_id=${encodeURIComponent(storedId)}`
+            : 'http://localhost:3000/api/user/me';
+        const response = await fetch(meUrl, { credentials: 'include' });
+        if (!response.ok) return;
+        const data = await response.json();
+        const apiUserId = data && data.user ? data.user.user_id : null;
+        const apiUserName = data && data.user ? data.user.user_name : null;
+        if (apiUserId) {
+            currentUserId = String(apiUserId);
+            setStoredUserId(apiUserId);
+        }
+        if (apiUserName) {
+            currentUserName = apiUserName;
+        }
+    } catch (error) {
+        console.warn('loadCurrentUser failed:', error);
+    }
+}
 
 async function fetchTrips() {
     const postContainer = document.getElementById('postContainer');
-
     try {
-        const response = await fetch('http://localhost:3000/api/board/trips');
+        const uid = currentUserId || getStoredUserId();
+        const url = uid
+            ? `http://localhost:3000/api/board/trips?user_id=${encodeURIComponent(uid)}`
+            : 'http://localhost:3000/api/board/trips';
+        const response = await fetch(url, { credentials: 'include' });
         const trips = await response.json();
 
         postContainer.innerHTML = '';
         allTrips = trips;
-
+        if (Array.isArray(trips) && trips.length) {
+            console.table(trips.slice(0, 8).map(t => ({
+                trip_id: t.trip_id,
+                creator_id: t.creator_id,
+                user_name: t.user_name,
+                is_host: t.is_host,
+                me_user_id: t.me_user_id,
+                currentUserId,
+                currentUserName
+            })));
+        }
         renderTrips(allTrips);
-
     } catch (error) {
         console.error('Error:', error);
         postContainer.innerHTML = '<p>ขออภัย เกิดข้อผิดพลาดในการโหลดข้อมูล</p>';
@@ -49,6 +125,24 @@ function renderTrips(trips) {
             ? `${Number(trip.budget_min).toLocaleString()} - ${Number(trip.budget_max).toLocaleString()}`
             : 'ไม่ระบุ';
 
+        const isFull = Number(trip.current_member || 0) >= Number(trip.max_member || 0);
+        const effectiveUserId = currentUserId || getStoredUserId() || trip.me_user_id || null;
+        const effectiveUserName = currentUserName || (getStoredUser() && getStoredUser().user_name) || null;
+        const isHostById = Number(trip.is_host) === 1 || (effectiveUserId && Number(trip.creator_id) === Number(effectiveUserId));
+        const isHostByName = effectiveUserName && normalizeName(trip.user_name) === normalizeName(effectiveUserName);
+        const isHost = isHostById || isHostByName;
+        let joinButtonHtml = `<button class="joy-btn" onclick="joinTrip(${trip.trip_id}, this, ${trip.creator_id}, ${trip.me_user_id || 'null'})">Join</button>`;
+
+        if (isHost) {
+            joinButtonHtml = `<button class="joy-btn" disabled>Host</button>`;
+        } else if (trip.my_join_status === 'Pending') {
+            joinButtonHtml = `<button class="joy-btn" disabled>⏳ Pending</button>`;
+        } else if (trip.my_join_status === 'Joined') {
+            joinButtonHtml = `<button class="joy-btn" disabled>✅ Joined</button>`;
+        } else if (isFull) {
+            joinButtonHtml = `<button class="joy-btn" disabled>Full</button>`;
+        }
+
         const postHTML = `
         <div class="post-card">
             <div class="post-header">
@@ -85,10 +179,9 @@ function renderTrips(trips) {
                 </div>
 
                 <div class="trip-info-pills">
-                    <span>
-                        <iconify-icon icon="mdi:map-marker"></iconify-icon>
-                        ${trip.category}
-                    </span>
+                   <span>
+    <iconify-icon icon="mdi:map-marker"></iconify-icon>
+    ${trip.location_name || 'ไม่ระบุสถานที่'}  </span>
                     <span>
                         <iconify-icon icon="mdi:account-group"></iconify-icon>
                         ${trip.current_member}/${trip.max_member}
@@ -106,9 +199,7 @@ function renderTrips(trips) {
                     </div>
                 </div>
 
-                <button class="joy-btn" onclick="joinTrip(${trip.trip_id})">
-                    Join
-                </button>
+                ${joinButtonHtml}
             </div>
         </div>
         `;
@@ -136,6 +227,44 @@ function searchTrips(query) {
     renderTrips(filtered);
 }
 
+async function joinTrip(tripId, btn, creatorId, meUserIdFromTrip) {
+    const uid = currentUserId || getStoredUserId() || meUserIdFromTrip;
+    const trip = allTrips.find(item => Number(item.trip_id) === Number(tripId));
+    const isHostByName = currentUserName && trip && normalizeName(trip.user_name) === normalizeName(currentUserName);
+    if (!uid) {
+        alert('กรุณาล็อกอินก่อน');
+        return;
+    }
+    if (Number(uid) === Number(creatorId) || isHostByName) {
+        btn.disabled = true;
+        btn.textContent = 'Host';
+        return;
+    }
+    btn.disabled = true;
+    btn.textContent = '...';
+    try {
+        const res = await fetch('http://localhost:3000/api/notification/join-request', {
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ trip_id: tripId, user_id: uid })
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+            btn.textContent = '⏳ Pending';
+            btn.style.opacity = '0.7';
+        } else {
+            btn.disabled = false;
+            btn.textContent = 'Join';
+            alert(data.error || data.message || 'เกิดข้อผิดพลาด');
+        }
+    } catch (err) {
+        btn.disabled = false;
+        btn.textContent = 'Join';
+        console.error(err);
+    }
+}
+
 function calculateTime(dateString) {
 
     const diff = new Date() - new Date(dateString);
@@ -151,7 +280,7 @@ function calculateTime(dateString) {
 
 document.addEventListener('DOMContentLoaded', () => {
 
-    fetchTrips();
+    loadCurrentUser().then(() => fetchTrips());
 
     document.getElementById('searchInput')
         .addEventListener('input', (e) => {
