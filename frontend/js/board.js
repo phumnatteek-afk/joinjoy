@@ -85,10 +85,9 @@ function renderTrips(trips) {
                 </div>
 
                 <div class="trip-info-pills">
-                    <span>
-                        <iconify-icon icon="mdi:map-marker"></iconify-icon>
-                        ${trip.category}
-                    </span>
+                   <span>
+    <iconify-icon icon="mdi:map-marker"></iconify-icon>
+    ${trip.location_name || 'ไม่ระบุสถานที่'}  </span>
                     <span>
                         <iconify-icon icon="mdi:account-group"></iconify-icon>
                         ${trip.current_member}/${trip.max_member}
@@ -119,9 +118,7 @@ function renderTrips(trips) {
 }
 
 function searchTrips(query) {
-
     const keyword = query.toLowerCase().trim();
-
     if (!keyword) {
         renderTrips(allTrips);
         return;
@@ -129,7 +126,7 @@ function searchTrips(query) {
 
     const filtered = allTrips.filter(trip =>
         trip.trip_name?.toLowerCase().includes(keyword) ||
-        trip.category?.toLowerCase().includes(keyword) ||
+        trip.location_name?.toLowerCase().includes(keyword) ||
         trip.description?.toLowerCase().includes(keyword)
     );
 
