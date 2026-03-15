@@ -2,6 +2,30 @@ const express = require('express')
 const router = express.Router()
 const pool = require('../db') // ← เปลี่ยนกลับมาใช้ DB จริง
 
+let ensureNotificationSeenTablePromise = null
+
+function ensureNotificationSeenTable() {
+    if (!ensureNotificationSeenTablePromise) {
+        ensureNotificationSeenTablePromise = pool.query(`
+            CREATE TABLE IF NOT EXISTS Notification_seen (
+                notification_id INT NOT NULL,
+                user_id INT NOT NULL,
+                seen_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY (notification_id, user_id),
+                INDEX idx_notification_seen_user (user_id),
+                CONSTRAINT fk_notification_seen_notification
+                    FOREIGN KEY (notification_id) REFERENCES Notification(notification_id)
+                    ON DELETE CASCADE
+            )
+        `).catch((err) => {
+            ensureNotificationSeenTablePromise = null
+            throw err
+        })
+    }
+
+    return ensureNotificationSeenTablePromise
+}
+
 function getActorUserId(req) {
     const sessionUserId = (req.session && req.session.userId) ? Number(req.session.userId) : null
     const passportUserId = (req.user && req.user.user_id) ? Number(req.user.user_id) : null
@@ -230,10 +254,65 @@ router.get('/resolve-user', async(req, res) => {
     }
 })
 
+router.get('/unread-count', async(req, res) => {
+        const actorUserId = getActorUserId(req)
+
+        if (!actorUserId) {
+                return res.status(401).json({ error: 'กรุณาล็อกอินก่อนดูจำนวนการแจ้งเตือน' })
+        }
+
+        try {
+                await ensureNotificationSeenTable()
+
+                const [rows] = await pool.query(
+                        `SELECT COUNT(*) AS unread_count
+                         FROM Notification n
+                         LEFT JOIN Notification_seen ns
+                             ON ns.notification_id = n.notification_id
+                            AND ns.user_id = n.user_id
+                         WHERE n.user_id = ?
+                             AND ns.notification_id IS NULL`,
+                        [actorUserId]
+                )
+
+                return res.json({ count: Number(rows[0]?.unread_count || 0) })
+        } catch (err) {
+                console.error('❌ unread-count error:', err.message)
+                return res.status(500).json({ error: err.message })
+        }
+})
+
+router.put('/read-all', async(req, res) => {
+        const actorUserId = getActorUserId(req)
+
+        if (!actorUserId) {
+                return res.status(401).json({ error: 'กรุณาล็อกอินก่อนอ่านการแจ้งเตือน' })
+        }
+
+        try {
+                await ensureNotificationSeenTable()
+
+                await pool.query(
+                        `INSERT IGNORE INTO Notification_seen (notification_id, user_id, seen_at)
+                         SELECT n.notification_id, n.user_id, NOW()
+                         FROM Notification n
+                         WHERE n.user_id = ?`,
+                        [actorUserId]
+                )
+
+                return res.json({ success: true })
+        } catch (err) {
+                console.error('❌ read-all error:', err.message)
+                return res.status(500).json({ error: err.message })
+        }
+})
+
 router.get('/:user_id', async(req, res) => {
     const { user_id } = req.params
 
     try {
+                await ensureNotificationSeenTable()
+
         const [rows] = await pool.query(
             `SELECT 
          notification_id,
@@ -242,6 +321,10 @@ router.get('/:user_id', async(req, res) => {
          notification_title,
          notification_detail,
          create_at,
+                 CASE
+                     WHEN ns.notification_id IS NULL THEN 1
+                     ELSE 0
+                 END AS is_unread,
          CASE
            WHEN DATE(create_at) = CURDATE() 
              THEN 'Today'
@@ -249,20 +332,27 @@ router.get('/:user_id', async(req, res) => {
              THEN 'Yesterday'
            ELSE 'This week'
          END AS date_group
-       FROM Notification
-       WHERE user_id = ?
+             FROM Notification n
+             LEFT JOIN Notification_seen ns
+                 ON ns.notification_id = n.notification_id
+                AND ns.user_id = n.user_id
+             WHERE n.user_id = ?
        ORDER BY create_at DESC`, [user_id]
         )
 
         const enrichedRows = []
 
         for (const row of rows) {
+            const notificationTitle = String(row.notification_title || '')
             const detail = String(row.notification_detail || '')
             const markerMatch = detail.match(/\[REQ_USER_ID:(\d+)\]/i)
             let fromUserId = markerMatch ? Number(markerMatch[1]) : null
-            const cleanedDetail = detail.replace(/\s*\[REQ_USER_ID:\d+\]/gi, '').trim()
+            const cleanedDetail = detail
+                .replace(/\s*\[REQ_USER_ID:\d+\]/gi, '')
+                .replace(/\s*กลับไป Join ใหม่ได้เลย/gi, '')
+                .trim()
 
-            if (!fromUserId && String(row.notification_title || '').includes('มีคนขอเข้าร่วมทริป')) {
+            if (!fromUserId && notificationTitle.includes('มีคนขอเข้าร่วมทริป')) {
                 const nameMatch = cleanedDetail.match(/^(.+?)\s*ขอเข้าร่วมทริป/)
                 const requesterName = nameMatch ? String(nameMatch[1] || '').trim() : ''
 
@@ -277,8 +367,11 @@ router.get('/:user_id', async(req, res) => {
             }
 
             let memberStatus = null
+            let fromUserProfileImg = null
+            let hostContact = null
+            let hostProfileImg = null
             if (fromUserId && Number(row.trip_id) > 0 &&
-                String(row.notification_title || '').includes('มีคนขอเข้าร่วมทริป')) {
+                notificationTitle.includes('มีคนขอเข้าร่วมทริป')) {
                 const [memberRows] = await pool.query(
                     'SELECT status FROM Trip_member WHERE trip_id = ? AND user_id = ? LIMIT 1',
                     [row.trip_id, fromUserId]
@@ -286,11 +379,39 @@ router.get('/:user_id', async(req, res) => {
                 memberStatus = memberRows.length ? memberRows[0].status : null
             }
 
+            if (fromUserId) {
+                const [profileRows] = await pool.query(
+                    'SELECT profile_img FROM User_profile WHERE user_id = ? LIMIT 1',
+                    [fromUserId]
+                )
+                fromUserProfileImg = profileRows.length ? profileRows[0].profile_img : null
+            }
+
+            if (Number(row.trip_id) > 0 && notificationTitle.includes('ได้รับการตอบรับแล้ว')) {
+                const [hostRows] = await pool.query(
+                    `SELECT up.social_media AS host_contact, up.profile_img AS host_profile_img
+                     FROM Trip t
+                     LEFT JOIN User_profile up ON up.user_id = t.creator_id
+                     WHERE t.trip_id = ?
+                     LIMIT 1`,
+                    [row.trip_id]
+                )
+
+                if (hostRows.length) {
+                    hostContact = hostRows[0].host_contact || null
+                    hostProfileImg = hostRows[0].host_profile_img || null
+                }
+            }
+
             enrichedRows.push({
                 ...row,
                 notification_detail: cleanedDetail,
+                is_unread: Number(row.is_unread) === 1,
                 from_user_id: fromUserId,
-                member_status: memberStatus
+                from_user_profile_img: fromUserProfileImg,
+                member_status: memberStatus,
+                host_contact: hostContact,
+                host_profile_img: hostProfileImg
             })
         }
 
