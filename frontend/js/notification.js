@@ -132,18 +132,30 @@
         const tripLink = item.trip_id ? `Board.html?trip_id=${encodeURIComponent(item.trip_id)}` : '#';
         const requesterName = extractRequesterName(item.notification_detail);
         const isRequest = isJoinRequest(item);
+        const memberStatus = item.member_status || null;
+
         const detailLinkHtml = isRequest
           ? `<button class="notif-link notif-link-btn" data-action="profile" data-user-id="${item.from_user_id || ''}" data-requester-name="${escapeHtml(requesterName)}" data-target-id="${item.notification_id}">View Profile</button>`
           : `<a class="notif-link" href="${tripLink}">View Details</a>`;
-        const actionHtml = isJoinRequest(item)
-          ? `
-            <div class="notif-actions" data-actions-for="${item.notification_id}">
-              <button class="notif-btn accept" data-action="accept" data-trip-id="${item.trip_id}" data-user-id="${item.from_user_id || ''}" data-requester-name="${escapeHtml(requesterName)}">Accept</button>
-              <button class="notif-btn reject" data-action="reject" data-trip-id="${item.trip_id}" data-user-id="${item.from_user_id || ''}" data-requester-name="${escapeHtml(requesterName)}">Reject</button>
-            </div>
-            <div class="notif-inline-profile" id="profile-${item.notification_id}"></div>
-          `
-          : '';
+
+        let actionHtml = '';
+        if (isRequest) {
+          if (!memberStatus || memberStatus === 'Pending') {
+            actionHtml = `
+              <div class="notif-actions" data-actions-for="${item.notification_id}">
+                <button class="notif-btn accept" data-action="accept" data-trip-id="${item.trip_id}" data-user-id="${item.from_user_id || ''}" data-requester-name="${escapeHtml(requesterName)}">Accept</button>
+                <button class="notif-btn reject" data-action="reject" data-trip-id="${item.trip_id}" data-user-id="${item.from_user_id || ''}" data-requester-name="${escapeHtml(requesterName)}">Reject</button>
+              </div>
+              <div class="notif-inline-profile" id="profile-${item.notification_id}"></div>
+            `;
+          } else if (memberStatus === 'Joined') {
+            actionHtml = `<div class="notif-status-done accepted">✓ ยืนยันแล้ว</div>`;
+          } else if (memberStatus === 'Cancelled') {
+            actionHtml = `<div class="notif-status-done rejected">✕ ปฏิเสธแล้ว</div>`;
+          } else {
+            actionHtml = `<div class="notif-status-done">${escapeHtml(memberStatus)}</div>`;
+          }
+        }
 
         htmlParts.push(`
           <div class="notif-item">
@@ -226,10 +238,16 @@
 
       if (action === 'accept' || action === 'reject') {
         if (!userId) throw new Error('ไม่พบข้อมูลผู้ขอเข้าร่วม');
-        const selectedStatus = action === 'accept' ? 'Joined' : 'Rejected';
+        const selectedStatus = action === 'accept' ? 'Joined' : 'Cancelled';
         button.disabled = true;
 
-        const response = await fetch('/api/notification/respond', {
+        // ส่ง actor (โฮสที่ login อยู่) ผ่าน query param เพื่อให้ backend ตรวจสิทธิ์ได้
+        const hostId = getUserId();
+        const respondUrl = hostId
+          ? `/api/notification/respond?user_id=${encodeURIComponent(hostId)}`
+          : '/api/notification/respond';
+
+        const response = await fetch(respondUrl, {
           method: 'PATCH',
           credentials: 'include',
           headers: { 'Content-Type': 'application/json' },

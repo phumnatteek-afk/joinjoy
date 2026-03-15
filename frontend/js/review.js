@@ -1,8 +1,8 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const submitBtn = document.getElementById('submit-btn');
 
     if (submitBtn) {
-        submitBtn.onclick = async function(e) {
+        submitBtn.onclick = async function (e) {
             e.preventDefault();
 
             const reviewTextEl = document.getElementById('review-text');
@@ -30,13 +30,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 if (result.success) {
                     alert("บันทึกรีวิวเรียบร้อยแล้ว!");
-                    window.location.href = 'Board.html';
+
+                    window.location.href = '../html/homepage.html';
+
                 } else {
-                    // จะโชว์ Error จริงๆ จาก MySQL เช่น "Foreign key constraint fails"
                     alert("บันทึกไม่สำเร็จ: " + result.error);
                 }
             } catch (err) {
-                alert("ไม่สามารถติดต่อ Server ได้ กรุณาเช็คการรัน node server.js");
+                alert("ไม่สามารถติดต่อ Server ได้");
             }
         };
     }
