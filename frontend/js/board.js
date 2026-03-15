@@ -38,17 +38,17 @@ async function fetchTrips() {
                             <h2>${trip.trip_name}</h2>
                             </div>
                         
-                        <div class="trip-info">
-                            <span>
-                                <iconify-icon icon="mdi:map-marker"></iconify-icon>
-                                ${trip.category}
-                            </span>
-                            <span class="divider">|</span>
-                            <span>
-                                <iconify-icon icon="mdi:account-group"></iconify-icon>
-                                ${trip.current_member} / ${trip.max_member} members
-                            </span>
-                        </div>
+                     <div class="trip-info">
+    <span>
+        <iconify-icon icon="mdi:map-marker"></iconify-icon>
+        ${trip.category}
+    </span>
+
+    <span>
+        <iconify-icon icon="mdi:account-group"></iconify-icon>
+        ${trip.current_member} / ${trip.max_member} members
+    </span>
+</div>
                     <div class="trip-extra">
                         <span class="trip-time">
                             <iconify-icon icon="mdi:clock-outline"></iconify-icon>
