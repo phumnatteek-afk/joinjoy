@@ -33,6 +33,14 @@
 
   const iconSvg = `<svg viewBox="0 0 24 24"><path d="M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-9-2V8H4v2H2v2h2v2h2v-2h2v-2H6zm9 4c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`;
 
+  const resolveProfileImage = (imagePath) => {
+    const value = String(imagePath || '').trim();
+    if (!value) return '';
+    if (/^https?:\/\//i.test(value)) return value;
+    if (value.startsWith('/')) return `http://localhost:3000${value}`;
+    return `http://localhost:3000/${value}`;
+  };
+
   const isJoinRequest = (item) =>
     String(item.notification_title || '').includes('มีคนขอเข้าร่วมทริป') &&
     Number(item.trip_id) > 0;
@@ -45,23 +53,50 @@
 
   const enrichMissingRequesterId = async (item) => {
     if (!String(item.notification_title || '').includes('มีคนขอเข้าร่วมทริป')) return item;
-    if (Number(item.from_user_id) > 0) return item;
 
-    const requesterName = extractRequesterName(item.notification_detail);
-    if (!requesterName) return item;
+    let resolved = item;
+    if (resolved.from_user_profile_img && Number(resolved.from_user_id) > 0) return resolved;
+
+    if (Number(resolved.from_user_id) <= 0) {
+      const requesterName = extractRequesterName(resolved.notification_detail);
+      if (!requesterName) return resolved;
+
+      try {
+        const response = await fetch(`/api/notification/resolve-user?username=${encodeURIComponent(requesterName)}`, {
+          credentials: 'include'
+        });
+        if (response.ok) {
+          const payload = await response.json();
+          const resolvedUserId = Number(payload.user_id || 0);
+          if (resolvedUserId) {
+            resolved = { ...resolved, from_user_id: resolvedUserId };
+          }
+        }
+      } catch {
+        return resolved;
+      }
+    }
+
+    if (resolved.from_user_profile_img || Number(resolved.from_user_id) <= 0) return resolved;
 
     try {
-      const response = await fetch(`/api/notification/resolve-user?username=${encodeURIComponent(requesterName)}`, {
+      const response = await fetch(`/api/notification/user-profile/${encodeURIComponent(resolved.from_user_id)}`, {
         credentials: 'include'
       });
-      if (!response.ok) return item;
+      if (!response.ok) return resolved;
       const payload = await response.json();
-      const resolvedUserId = Number(payload.user_id || 0);
-      if (!resolvedUserId) return item;
-      return { ...item, from_user_id: resolvedUserId };
+      return { ...resolved, from_user_profile_img: payload.profile_img || '' };
     } catch {
-      return item;
+      return resolved;
     }
+  };
+
+  const extractHostContact = (item) => {
+    const direct = String(item.host_contact || '').trim();
+    if (direct) return direct;
+    const detail = String(item.notification_detail || '');
+    const matched = detail.match(/ติดต่อ\s*Host\s*:\s*(.+)$/i);
+    return matched ? String(matched[1] || '').trim() : '';
   };
 
   const resolveRequesterIdByName = async (requesterName) => {
@@ -95,9 +130,7 @@
     return `
       <div class="notif-profile-card">
         <div><strong>Name:</strong> ${escapeHtml(fullName)}</div>
-        <div><strong>Username:</strong> ${escapeHtml(profile.user_name || '-')}</div>
         <div><strong>Faculty:</strong> ${escapeHtml(profile.faculty || '-')}</div>
-        <div><strong>Email:</strong> ${escapeHtml(profile.university_email || '-')}</div>
         <div><strong>Bio:</strong> ${escapeHtml(profile.bio || '-')}</div>
         <div><strong>Tags:</strong> ${escapeHtml(tags)}</div>
       </div>
@@ -129,24 +162,38 @@
       htmlParts.push(`<div class="section-label">${escapeHtml(groupName)}</div>`);
 
       items.forEach((item) => {
-        const tripLink = item.trip_id ? `Board.html?trip_id=${encodeURIComponent(item.trip_id)}` : '#';
         const requesterName = extractRequesterName(item.notification_detail);
         const isRequest = isJoinRequest(item);
+        const isAccepted = String(item.notification_title || '').includes('ได้รับการตอบรับแล้ว');
+        const isUnread = Boolean(item.is_unread);
         const memberStatus = item.member_status || null;
+        const canOpenProfile = isRequest && (Number(item.from_user_id) > 0 || requesterName);
+        const profileTargetId = item.notification_id;
+        const profileImageSource = isAccepted ? (item.host_profile_img || '') : (item.from_user_profile_img || '');
+        const profileImage = resolveProfileImage(profileImageSource);
+        const iconContent = profileImage
+          ? `<img class="notif-avatar-img" src="${escapeHtml(profileImage)}" alt="profile">`
+          : iconSvg;
+        const iconHtml = canOpenProfile
+          ? `<button class="notif-icon notif-icon-btn" type="button" data-action="profile" data-user-id="${item.from_user_id || ''}" data-requester-name="${escapeHtml(requesterName)}" data-target-id="${profileTargetId}" aria-label="Open profile">${iconContent}</button>`
+          : `<div class="notif-icon">${iconContent}</div>`;
 
-        const detailLinkHtml = isRequest
-          ? `<button class="notif-link notif-link-btn" data-action="profile" data-user-id="${item.from_user_id || ''}" data-requester-name="${escapeHtml(requesterName)}" data-target-id="${item.notification_id}">View Profile</button>`
-          : `<a class="notif-link" href="${tripLink}">View Details</a>`;
+        const hostContact = extractHostContact(item);
+        const detailCleaned = isAccepted
+          ? String(item.notification_detail || '').replace(/\s*ติดต่อ\s*Host\s*:\s*.+$/i, '').trim()
+          : String(item.notification_detail || '');
+        const hostContactHtml = isAccepted && hostContact
+          ? `<div class="notif-host-contact">คอนแทค: ${escapeHtml(hostContact)}</div>`
+          : '';
 
         let actionHtml = '';
         if (isRequest) {
           if (!memberStatus || memberStatus === 'Pending') {
             actionHtml = `
               <div class="notif-actions" data-actions-for="${item.notification_id}">
-                <button class="notif-btn accept" data-action="accept" data-trip-id="${item.trip_id}" data-user-id="${item.from_user_id || ''}" data-requester-name="${escapeHtml(requesterName)}">Accept</button>
-                <button class="notif-btn reject" data-action="reject" data-trip-id="${item.trip_id}" data-user-id="${item.from_user_id || ''}" data-requester-name="${escapeHtml(requesterName)}">Reject</button>
+                <button class="notif-btn accept" data-action="accept" data-trip-id="${item.trip_id}" data-user-id="${item.from_user_id || ''}" data-requester-name="${escapeHtml(requesterName)}">ยอมรับ</button>
+                <button class="notif-btn reject" data-action="reject" data-trip-id="${item.trip_id}" data-user-id="${item.from_user_id || ''}" data-requester-name="${escapeHtml(requesterName)}">ปฏิเสธ</button>
               </div>
-              <div class="notif-inline-profile" id="profile-${item.notification_id}"></div>
             `;
           } else if (memberStatus === 'Joined') {
             actionHtml = `<div class="notif-status-done accepted">✓ ยืนยันแล้ว</div>`;
@@ -158,14 +205,15 @@
         }
 
         htmlParts.push(`
-          <div class="notif-item">
-            <div class="dot"></div>
-            <div class="notif-icon">${iconSvg}</div>
+          <div class="notif-item ${isUnread ? 'is-unread' : 'is-read'}">
+            <div class="dot${isUnread ? '' : ' read'}"></div>
+            ${iconHtml}
             <div class="notif-body">
               <div class="notif-title">${escapeHtml(item.notification_title)}</div>
-              ${detailLinkHtml}
-              <div class="notif-detail">${escapeHtml(item.notification_detail)}</div>
+              <div class="notif-detail">${escapeHtml(detailCleaned)}</div>
+              ${hostContactHtml}
               ${actionHtml}
+              ${canOpenProfile ? `<div class="notif-inline-profile" id="profile-${profileTargetId}"></div>` : ''}
             </div>
             <div class="notif-time">${escapeHtml(formatTime(item.create_at))}</div>
           </div>
@@ -190,8 +238,25 @@
     renderList();
   };
 
+  const markAllAsRead = async () => {
+    const userId = getUserId();
+    await fetch(`/api/notification/read-all?user_id=${encodeURIComponent(userId)}`, {
+      method: 'PUT',
+      credentials: 'include'
+    });
+
+    localStorage.setItem('joinjoy_notif_unread', '0');
+
+    state.notifications = (state.notifications || []).map((item) => ({
+      ...item,
+      is_unread: false
+    }));
+
+    renderList();
+  };
+
   listEl.addEventListener('click', async (event) => {
-    const button = event.target.closest('.notif-btn');
+    const button = event.target.closest('.notif-btn, .notif-icon-btn');
     if (!button) return;
 
     const action = button.dataset.action;
@@ -214,12 +279,13 @@
         if (!container) return;
         if (container.dataset.loaded === '1') {
           const isVisible = container.classList.toggle('show');
-          button.textContent = isVisible ? 'Hide Profile' : 'View Profile';
+          button.classList.toggle('is-open', isVisible);
+          button.setAttribute('aria-pressed', isVisible ? 'true' : 'false');
           return;
         }
 
         button.disabled = true;
-        button.textContent = 'Loading...';
+        button.classList.add('is-loading');
 
         const response = await fetch(`/api/notification/user-profile/${encodeURIComponent(userId)}`, {
           credentials: 'include'
@@ -231,7 +297,9 @@
         container.dataset.loaded = '1';
         container.classList.add('show');
 
-        button.textContent = 'Hide Profile';
+        button.classList.add('is-open');
+        button.setAttribute('aria-pressed', 'true');
+        button.classList.remove('is-loading');
         button.disabled = false;
         return;
       }
@@ -266,15 +334,18 @@
     } catch (error) {
       console.error('Notification action error:', error);
       alert(error.message || 'เกิดข้อผิดพลาด');
+      button.classList.remove('is-loading');
       button.disabled = false;
       if (action === 'profile') {
-        button.textContent = 'View Profile';
+        button.classList.remove('is-open');
+        button.setAttribute('aria-pressed', 'false');
       }
     }
   });
 
   try {
     await loadNotifications();
+    await markAllAsRead();
   } catch (error) {
     console.error('Notification load error:', error);
     listEl.style.display = 'none';

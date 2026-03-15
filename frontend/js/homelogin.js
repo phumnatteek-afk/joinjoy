@@ -1,5 +1,8 @@
 // homelogin.js
 
+const BACKEND_ORIGIN = 'http://localhost:3000';
+const API_BASE = window.location.origin.includes('3000') ? '' : BACKEND_ORIGIN;
+
 // ── Password toggle ──────────────────────────────────────────
 const eyeBtn    = document.getElementById('eyeBtn');
 const passInput = document.getElementById('password');
@@ -32,7 +35,11 @@ const errKey = params.get('error');
 if (errKey && oauthErrors[errKey]) showError(oauthErrors[errKey]);
 
 // ── Google button loading state ───────────────────────────────
-document.getElementById('googleBtn').addEventListener('click', function () {
+const googleBtn = document.getElementById('googleBtn');
+if (API_BASE) {
+  googleBtn.href = `${BACKEND_ORIGIN}/auth/google`;
+}
+googleBtn.addEventListener('click', function () {
   this.style.opacity = '0.6';
   this.style.pointerEvents = 'none';
 });
@@ -52,7 +59,7 @@ document.getElementById('btnLogin').addEventListener('click', async () => {
   errEl.classList.remove('show');
 
   try {
-    const res  = await fetch('/api/auth/login', {
+    const res  = await fetch(`${API_BASE}/api/auth/login`, {
       method:      'POST',
       headers:     { 'Content-Type': 'application/json' },
       credentials: 'include',           // send/receive session cookie
@@ -76,7 +83,8 @@ document.getElementById('btnLogin').addEventListener('click', async () => {
         }
       }
 
-      window.location.href = data.redirect || '/html/homepage.html';
+      const redirectPath = data.redirect || '/html/homepage.html';
+      window.location.href = API_BASE ? `${BACKEND_ORIGIN}${redirectPath}` : redirectPath;
     } else {
       showError(data.message || 'Login failed.');
     }
