@@ -1,6 +1,10 @@
-/* ── BASE ── */
+/* ══════════════════════════════════════════════════════════
+   profile-page.css  —  JoinJoy Profile Page
+══════════════════════════════════════════════════════════ */
+
 *, *::before, *::after { box-sizing: border-box; }
 
+<<<<<<< HEAD
 /* ── MOBILE SHELL — จำกัดหน้าจอไว้ที่ 390px และ center กลางจอ ── */
 body.profile-screen {
   margin: 0;
@@ -8,6 +12,11 @@ body.profile-screen {
   font-family: 'Poppins', 'Nunito', sans-serif;
   /* พื้นหลังทั้งหน้าจอ (ส่วนที่เกิน 390px) */
   background: #d6b8be;
+=======
+/* Full-screen background on html so it fills behind centered body */
+html:has(body.profile-screen) {
+  background: linear-gradient(160deg, #f8dde4 0%, #f0cfd5 40%, #e8c5b0 100%);
+>>>>>>> 4b86eb6 (profile.html profil-page.css profile.js)
   min-height: 100vh;
   display: flex;
   justify-content: center;
@@ -29,6 +38,7 @@ body.profile-screen > * {
   flex-shrink: 0;
 }
 
+<<<<<<< HEAD
 /* ── TOAST ── */
 .toast {
   position: absolute;
@@ -36,16 +46,47 @@ body.profile-screen > * {
   left: 50%;
   transform: translateX(-50%);
   z-index: 999;
+=======
+body.profile-screen {
+  margin: 0 auto;
+  padding: 0;
+  font-family: 'Poppins', 'Nunito', sans-serif;
+  background: transparent;
+  min-height: 100vh;
+  max-width: 430px;
+  width: 100%;
+  display: block;
+>>>>>>> 4b86eb6 (profile.html profil-page.css profile.js)
 }
 
-/* ── HEADER ── */
+/* ── TOAST ─────────────────────────────────────────────── */
+.toast {
+  position: fixed;
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  padding: 10px 24px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: 'Poppins', sans-serif;
+  color: #fff;
+  background: #2ecc71;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+  white-space: nowrap;
+}
+.toast.show { opacity: 1; }
+
+/* ── HEADER ─────────────────────────────────────────────── */
 .profile-screen .header {
-  width: calc(100% - 32px);
+  width: 100%;
   height: 215px;
-  margin: 0 auto;
-  background: #ffffff;
+  background: #fff;
   border-radius: 0 0 42px 42px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.04);
   position: relative;
   z-index: 1;
 }
@@ -75,7 +116,6 @@ body.profile-screen > * {
   display: block;
 }
 
-/* Fallback logo text if image not found */
 .profile-screen .logo-text {
   font-family: 'Nunito', sans-serif;
   font-weight: 900;
@@ -84,25 +124,24 @@ body.profile-screen > * {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  text-decoration: none;
 }
 
-/* ── MAIN WRAP ── */
+/* ── MAIN CONTENT WRAP ──────────────────────────────────── */
 .profile-screen .profile-page-wrap {
-  width: calc(100% - 32px);
-  margin: -118px auto 0;
-  padding: 0 0 120px;
+  width: 100%;
+  padding: 0 16px 120px;
+  margin-top: -118px;
   position: relative;
   z-index: 2;
 }
 
-/* ── PROFILE CARD ── */
+/* ── PROFILE CARD ───────────────────────────────────────── */
 .profile-screen .profile-card-box {
   width: 100%;
-  background: #ffffff;
+  background: #fff;
   border-radius: 34px;
-  padding: 96px 16px 22px;
-  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.07);
+  padding: 96px 16px 24px;
+  box-shadow: 0 14px 30px rgba(0,0,0,0.07);
   position: relative;
 }
 
@@ -116,7 +155,7 @@ body.profile-screen > * {
   background: #f7f7f7;
 }
 
-/* ── HERO ── */
+/* ── HERO (avatar + name + bio) ─────────────────────────── */
 .profile-screen .profile-hero-box {
   position: relative;
   z-index: 2;
@@ -133,7 +172,7 @@ body.profile-screen > * {
   overflow: hidden;
   background: #b8dfd6;
   border: 10px solid #f8e4ea;
-  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.10);
+  box-shadow: 0 10px 22px rgba(0,0,0,0.10);
   margin-top: -72px;
 }
 
@@ -164,7 +203,7 @@ body.profile-screen > * {
   height: 24px;
   border-radius: 50%;
   background: #3b82f6;
-  color: #ffffff;
+  color: #fff;
   display: grid;
   place-items: center;
   font-size: 13px;
@@ -181,7 +220,7 @@ body.profile-screen > * {
   max-width: 280px;
 }
 
-/* ── INFO GRID ── */
+/* ── INFO GRID ──────────────────────────────────────────── */
 .profile-screen .profile-info-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -190,10 +229,10 @@ body.profile-screen > * {
 }
 
 .profile-screen .profile-info-card {
-  background: #ffffff;
+  background: #fff;
   border-radius: 16px;
   padding: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
 }
 
 .profile-screen .profile-info-card-full {
@@ -203,7 +242,7 @@ body.profile-screen > * {
 .profile-screen .profile-info-label {
   font-size: 12px;
   font-weight: 700;
-  color: #222222;
+  color: #222;
 }
 
 .profile-screen .profile-info-value {
@@ -213,7 +252,7 @@ body.profile-screen > * {
   color: #ff7d96;
 }
 
-/* ── TAGS ── */
+/* ── TAGS DISPLAY ───────────────────────────────────────── */
 .profile-screen .profile-tags-section {
   margin-top: 16px;
 }
@@ -221,7 +260,7 @@ body.profile-screen > * {
 .profile-screen .profile-tags-title {
   font-size: 12px;
   font-weight: 700;
-  color: #222222;
+  color: #222;
 }
 
 .profile-screen .profile-tags-list {
@@ -232,15 +271,219 @@ body.profile-screen > * {
 }
 
 .profile-screen .profile-tag-chip {
-  padding: 6px 10px;
+  padding: 6px 12px;
   border-radius: 999px;
   border: 1px solid #ffc6d1;
   color: #ff7d96;
   font-size: 12px;
-  background: #ffffff;
   font-weight: 600;
+  background: #fff;
 }
 
+/* ── EDIT PROFILE BUTTON ────────────────────────────────── */
+.btn-edit-profile {
+  display: block;
+  width: 100%;
+  margin-top: 22px;
+  padding: 14px;
+  border: none;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #ff6f8f, #ffb347);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  font-family: 'Poppins', sans-serif;
+  cursor: pointer;
+  letter-spacing: 0.3px;
+  transition: opacity 0.2s;
+}
+.btn-edit-profile:hover { opacity: 0.85; }
+
+/* ══════════════════════════════════════════════════════════
+   EDIT MODAL
+══════════════════════════════════════════════════════════ */
+
+/* Dark overlay covers whole screen */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 500;
+}
+.modal-overlay.open { display: block; }
+
+/* Sheet is anchored to bottom, centered, fixed height */
+.modal-sheet {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 430px;
+  height: 88vh;
+  background: #fff;
+  border-radius: 28px 28px 0 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ── Scrollable form area ── */
+.modal-scroll-area {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 24px 20px 12px;
+}
+
+/* ── Save button footer — always visible ── */
+.modal-footer {
+  flex-shrink: 0;
+  display: flex;
+  gap: 10px;
+  padding: 14px 20px 32px;
+  background: #fff;
+  border-top: 1.5px solid #ffeef1;
+}
+
+/* ── Modal title ── */
+.modal-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: #ff6f8f;
+  text-align: center;
+  margin: 0 0 20px;
+}
+
+/* ── Two-column row ── */
+.modal-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+/* ── Form fields ── */
+.modal-field {
+  margin-bottom: 16px;
+}
+
+.modal-field label {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 6px;
+}
+
+.modal-field input,
+.modal-field select,
+.modal-field textarea {
+  width: 100%;
+  padding: 11px 14px;
+  border: 1.5px solid #ffd6de;
+  border-radius: 12px;
+  font-size: 14px;
+  font-family: 'Poppins', sans-serif;
+  color: #333;
+  outline: none;
+  box-sizing: border-box;
+  background: #fff;
+}
+.modal-field input:focus,
+.modal-field select:focus,
+.modal-field textarea:focus {
+  border-color: #ff6f8f;
+}
+.modal-field textarea {
+  resize: vertical;
+  min-height: 72px;
+}
+
+/* ── Tag chip selector ── */
+.tag-chips-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tag-chip-option {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 16px;
+  border: 1.5px solid #ffd6de;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #aaa;
+  background: #fff;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: 'Poppins', sans-serif;
+  user-select: none;
+}
+
+/* Hide the actual checkbox */
+.tag-chip-option input[type="checkbox"] {
+  display: none;
+}
+
+.tag-chip-option:hover {
+  border-color: #ff6f8f;
+  color: #ff6f8f;
+}
+
+/* Selected state */
+.tag-chip-option.selected {
+  background: linear-gradient(90deg, #ff6f8f, #ffb347);
+  border-color: transparent;
+  color: #fff;
+}
+
+/* ── Cancel / Save buttons ── */
+.btn-cancel {
+  flex: 1;
+  padding: 13px;
+  border: 1.5px solid #ffd6de;
+  border-radius: 999px;
+  background: #fff;
+  color: #ff6f8f;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: 'Poppins', sans-serif;
+  cursor: pointer;
+}
+.btn-cancel:hover { background: #fff5f7; }
+
+.btn-save {
+  flex: 2;
+  padding: 13px;
+  border: none;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #ff6f8f, #ffb347);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: 'Poppins', sans-serif;
+  cursor: pointer;
+}
+.btn-save:hover { opacity: 0.88; }
+.btn-save:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ══════════════════════════════════════════════════════════
+   BOTTOM NAV
+══════════════════════════════════════════════════════════ */
+.profile-screen .mainnav {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 430px;
+  z-index: 200;
+}
+
+<<<<<<< HEAD
 /* ── BOTTOM NAV ── */
 .mainnav {
   position: sticky;
@@ -267,37 +510,52 @@ body.profile-screen > * {
     padding: 10px 0 !important;
     margin: 0 auto !important;
     transition: none !important;
+=======
+.profile-screen .mainmenu .menu-item a {
+  position: relative;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  width: 65px !important;
+  height: 80px !important;
+  background: transparent !important;
+  padding: 10px 0 !important;
+  margin: 0 auto !important;
+  transition: none !important;
+>>>>>>> 4b86eb6 (profile.html profil-page.css profile.js)
 }
 
 .profile-screen .menu-item a svg {
-    width: 38px !important;
-    height: 38px !important;
-    padding: 7px !important;
-    z-index: 2;
-    color: #747474; 
+  width: 38px !important;
+  height: 38px !important;
+  padding: 7px !important;
+  z-index: 2;
+  color: #747474;
 }
 
 .profile-screen .menu-item a span {
-    font-size: 11px !important;
-    font-weight: 500 !important;
-    z-index: 2;
-    color: #747474;
+  font-size: 11px !important;
+  font-weight: 500 !important;
+  z-index: 2;
+  color: #747474;
 }
 
 .profile-screen .menu-item.active a,
 .profile-screen .menu-item a:hover {
-    background-color: #F28695 !important; 
-    border-radius: 40px 40px 0 0 !important; 
+  background-color: #F28695 !important;
+  border-radius: 40px 40px 0 0 !important;
 }
 
 .profile-screen .menu-item.active a svg,
 .profile-screen .menu-item a:hover svg,
 .profile-screen .menu-item.active a span,
 .profile-screen .menu-item a:hover span {
-    color: #ffffff !important;
+  color: #fff !important;
 }
 
 .profile-screen .menu-item.active a svg {
+<<<<<<< HEAD
     background-color: transparent !important;
 }
 
@@ -659,3 +917,7 @@ body.edit-mode .add-tag-row {
 
 
 
+=======
+  background-color: transparent !important;
+}
+>>>>>>> 4b86eb6 (profile.html profil-page.css profile.js)
