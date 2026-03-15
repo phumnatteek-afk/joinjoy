@@ -24,7 +24,7 @@ async function loadUserProfile() {
 
     // ถ้ายังไม่ได้ login → redirect ไปหน้า login
     if (res.status === 401) {
-      window.location.href = '/frontend/html/homelogin.html';
+      window.location.href = '../frontend/html/homelogin.html';
       return;
     }
 
@@ -70,7 +70,7 @@ const btnLogout = document.getElementById('btnLogout');
 if (btnCreate) {
   btnCreate.addEventListener('click', function () {
     this.style.transform = 'scale(0.95)';
-    setTimeout(() => { window.location.href = '/html/homecreate.html'; }, 150);
+    setTimeout(() => { window.location.href = '/frontend/html/homecreate.html'; }, 150);
   });
 }
 
