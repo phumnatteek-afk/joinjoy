@@ -14,7 +14,11 @@ const app = express();
 
 // ── Middleware ──────────────────────────────────────────────
 app.use(cors({
+<<<<<<< HEAD
 origin: true,credentials: true,
+=======
+    origin: ['http://localhost:3000', 'http://127.0.0.1:5501', 'http://localhost:5501'],
+>>>>>>> cbabdf1fef06b8d0ffb0e3368a0e95828db133df
     credentials: true
 }));
 app.use(express.json());

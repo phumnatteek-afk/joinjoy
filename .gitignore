@@ -13,4 +13,5 @@ yarn-error.log*
 
 # OS metadata
 .DS_Store
-Thumbs.db
+Thumbs.dbbackend/.env
+.env
