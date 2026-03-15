@@ -47,27 +47,29 @@ document.getElementById('btnLogin').addEventListener('click', async () => {
     return showError('Please enter your email and password.');
   }
 
-  // Loading state
   btn.textContent = 'Logging in…';
   btn.disabled = true;
   errEl.classList.remove('show');
 
   try {
     const res  = await fetch('/api/auth/login', {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ email, password }),
+      method:      'POST',
+      headers:     { 'Content-Type': 'application/json' },
+      credentials: 'include',           // send/receive session cookie
+      body:        JSON.stringify({ email, password }),
     });
 
     const data = await res.json();
 
     if (data.success) {
-      // Redirect to the page the server tells us
-<<<<<<< HEAD
-      window.location.href = data.redirect || '/html/home.html';
-=======
-      window.location.href = data.redirect || '/frontend/html/homepage.html';
->>>>>>> fd8d4db284e1c92779ca5498e45fa7076d49f898
+      // ── Cache the full profile in localStorage ──────────────
+      // Profile.html (and other pages) can read this immediately
+      // without an extra API call.  Always kept in sync by profile.js.
+      if (data.user) {
+        localStorage.setItem('joinjoy_user', JSON.stringify(data.user));
+      }
+
+      window.location.href = data.redirect || '/html/homepage.html';
     } else {
       showError(data.message || 'Login failed.');
     }
