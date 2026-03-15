@@ -11,6 +11,7 @@ router.get('/trips', async(req, res) => {
                 t.trip_name, 
                 t.description, 
                 t.category, 
+                t.location_name,
                 t.cover_image, 
                 t.max_member,
                 t.start_time,      
