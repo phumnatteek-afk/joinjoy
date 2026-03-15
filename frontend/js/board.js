@@ -109,9 +109,22 @@ function renderTrips(trips) {
             ? `http://localhost:3000/${trip.cover_image}` 
             : '../img/default-trip.jpg';
 
-        const userAvatar = trip.user_avatar 
-            ? `http://localhost:3000/${trip.user_avatar}` 
-            : '../img/default-avatar.png';
+        const hasAvatar = trip.user_avatar && trip.user_avatar !== 'null';
+const imgSrc = hasAvatar
+    ? (trip.user_avatar.startsWith('http')
+        ? trip.user_avatar
+        : `http://localhost:3000${trip.user_avatar}`)
+    : null;
+
+const avatarHtml = imgSrc
+    ? `<img class="avatar" src="${imgSrc}" alt="avatar" 
+         onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+       <div class="avatar" style="display:none;background:#F28695;align-items:center;justify-content:center;color:#fff;font-weight:500;font-size:16px;">
+         ${(trip.user_name || '?')[0].toUpperCase()}
+       </div>`
+    : `<div class="avatar" style="background:#F28695;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:500;font-size:16px;">
+         ${(trip.user_name || '?')[0].toUpperCase()}
+       </div>`;
 
         const startTime = trip.start_time
             ? new Date(trip.start_time).toLocaleString('th-TH')
@@ -146,7 +159,7 @@ function renderTrips(trips) {
         const postHTML = `
         <div class="post-card">
             <div class="post-header">
-                <img class="avatar" src="${userAvatar}" alt="avatar">
+               ${avatarHtml}
 
                 <div class="post-info">
                     <div class="name-wrapper">
