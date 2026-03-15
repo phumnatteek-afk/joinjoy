@@ -63,7 +63,11 @@ document.getElementById('btnLogin').addEventListener('click', async () => {
 
     if (data.success) {
       // Redirect to the page the server tells us
+<<<<<<< HEAD
       window.location.href = data.redirect || '/html/home.html';
+=======
+      window.location.href = data.redirect || '/frontend/html/homepage.html';
+>>>>>>> fd8d4db284e1c92779ca5498e45fa7076d49f898
     } else {
       showError(data.message || 'Login failed.');
     }
