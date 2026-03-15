@@ -7,7 +7,7 @@ const router = express.Router();
 // ═══════════════════════════════════════════════════════════
 //  POST /api/auth/register  — Create a new account
 // ═══════════════════════════════════════════════════════════
-router.post("/api/auth/register", async (req, res) => {
+router.post("/register", async (req, res) => {
     const { fullname, email, password } = req.body;
     if (!fullname || !email || !password) {
         return res.status(400).json({ success: false, message: "Please fill in all fields." });

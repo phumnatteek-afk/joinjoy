@@ -21,11 +21,8 @@
     <div class="logo-row">
       <div class="logo">
         <a href="../html/homepage.html">
-          <img
-            src="../img/joinjoylogo.png"
-            alt="JoinJoy"
-            onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';"
-          />
+          <img src="../img/joinjoylogo.png" alt="JoinJoy"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='inline';"/>
           <span class="logo-text" style="display:none;">JoinJoy</span>
         </a>
       </div>
@@ -33,10 +30,11 @@
   </header>
 
   <!-- CONTENT -->
-<main class="profile-page-wrap">
-  <section class="profile-card-box">
-    <div class="profile-card-top-bg"></div>
+  <main class="profile-page-wrap">
+    <section class="profile-card-box">
+      <div class="profile-card-top-bg"></div>
 
+<<<<<<< HEAD
 <<<<<<< HEAD
       <!-- ปุ่ม Edit / Save -->
       <button class="profile-edit-btn" id="edit-btn" onclick="toggleEdit()">Edit</button>
@@ -139,65 +137,136 @@
     <div class="profile-hero-box">
       <div class="profile-avatar-box">
         <img id="profileAvatar" src="../img/default-avatar.png" alt="avatar">
+=======
+      <div class="profile-hero-box">
+        <div class="profile-avatar-box">
+          <img id="profileAvatar" class="profile-avatar-img"
+               src="" alt="avatar" style="display:none;"
+               onerror="this.style.display='none';"/>
+        </div>
+        <div class="profile-name-row">
+          <h2 class="profile-user-name" id="profileName">—</h2>
+          <span class="profile-verified-badge">✔</span>
+        </div>
+        <p class="profile-user-bio" id="profileBio"></p>
+>>>>>>> 4b86eb6 (profile.html profil-page.css profile.js)
       </div>
 
-      <div class="profile-name-row">
-        <h2 class="profile-user-name" id="profileName"></h2>
-        <span class="profile-verified-badge">✔</span>
+      <div class="profile-info-grid">
+        <div class="profile-info-card">
+          <div class="profile-info-label">First name:</div>
+          <div class="profile-info-value" id="firstName">—</div>
+        </div>
+        <div class="profile-info-card">
+          <div class="profile-info-label">Last name:</div>
+          <div class="profile-info-value" id="lastName">—</div>
+        </div>
+        <div class="profile-info-card">
+          <div class="profile-info-label">Birthday date:</div>
+          <div class="profile-info-value" id="birthday">—</div>
+        </div>
+        <div class="profile-info-card">
+          <div class="profile-info-label">Gender:</div>
+          <div class="profile-info-value" id="gender">—</div>
+        </div>
+        <div class="profile-info-card profile-info-card-full">
+          <div class="profile-info-label">Faculty:</div>
+          <div class="profile-info-value" id="faculty">—</div>
+        </div>
+        <div class="profile-info-card profile-info-card-full">
+          <div class="profile-info-label">Social Media:</div>
+          <div class="profile-info-value" id="social">—</div>
+        </div>
       </div>
-
-      <p class="profile-user-bio" id="profileBio"></p>
-    </div>
-
-    <div class="profile-info-grid">
-
-      <div class="profile-info-card">
-        <div class="profile-info-label">First name:</div>
-        <div class="profile-info-value" id="firstName"></div>
-      </div>
-
-      <div class="profile-info-card">
-        <div class="profile-info-label">Last name:</div>
-        <div class="profile-info-value" id="lastName"></div>
-      </div>
-
-      <div class="profile-info-card">
-        <div class="profile-info-label">Birthday date:</div>
-        <div class="profile-info-value" id="birthday"></div>
-      </div>
-
-      <div class="profile-info-card">
-        <div class="profile-info-label">Gender:</div>
-        <div class="profile-info-value" id="gender"></div>
-      </div>
-
-      <div class="profile-info-card profile-info-card-full">
-        <div class="profile-info-label">Faculty:</div>
-        <div class="profile-info-value" id="faculty"></div>
-      </div>
-
-      <div class="profile-info-card profile-info-card-full">
-        <div class="profile-info-label">Social Media:</div>
-        <div class="profile-info-value" id="social"></div>
-      </div>
-
-    </div>
 
       <div class="profile-tags-section">
         <div class="profile-tags-title">Tags:</div>
-        <div class="profile-tags-list">
-          <span class="profile-tag-chip">#CafeHopping</span>
-          <span class="profile-tag-chip">#PhotoEnthusiast</span>
-          <span class="profile-tag-chip">#ShortGetaway</span>
-          <span class="profile-tag-chip">#Events</span>
-          <span class="profile-tag-chip">#Concert</span>
-          <span class="profile-tag-chip">#Healing</span>
-          <span class="profile-tag-chip">#No Alcohol</span>
-        </div>
+        <div class="profile-tags-list" id="tagList"></div>
       </div>
+<<<<<<< HEAD
 >>>>>>> 069143fec69ca8318eba2c3de5a61f02a022ec19
+=======
+
+      <!-- Edit Profile button -->
+      <button class="btn-edit-profile" id="btnOpenEdit">Edit Profile</button>
+>>>>>>> 4b86eb6 (profile.html profil-page.css profile.js)
     </section>
   </main>
+
+  <!-- EDIT MODAL -->
+  <div class="modal-overlay" id="editModal">
+    <div class="modal-sheet">
+      <div class="modal-scroll-area">
+      <p class="modal-title">Edit Profile</p>
+
+      <div class="modal-row">
+        <div class="modal-field">
+          <label>First name</label>
+          <input type="text" id="editFirstName" placeholder="First name"/>
+        </div>
+        <div class="modal-field">
+          <label>Last name</label>
+          <input type="text" id="editLastName" placeholder="Last name"/>
+        </div>
+      </div>
+
+      <div class="modal-field">
+        <label>Bio</label>
+        <textarea id="editBio" placeholder="Tell us about yourself…"></textarea>
+      </div>
+
+      <div class="modal-row">
+        <div class="modal-field">
+          <label>Birthday date</label>
+          <input type="date" id="editBirthDate"/>
+        </div>
+        <div class="modal-field">
+          <label>Gender</label>
+          <select id="editGender">
+            <option value="">— select —</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="modal-field">
+        <label>Faculty</label>
+        <input type="text" id="editFaculty" placeholder="e.g. ICT"/>
+      </div>
+
+      <div class="modal-field">
+        <label>Social Media</label>
+        <input type="text" id="editSocialMedia" placeholder="e.g. @username"/>
+      </div>
+
+      <div class="modal-field">
+        <label>Tags <span style="font-weight:400;color:#bbb;font-size:11px;">select all that apply</span></label>
+        <div class="tag-chips-grid" id="tagsEditor">
+          <label class="tag-chip-option"><input type="checkbox" value="Beach"/> Beach</label>
+          <label class="tag-chip-option"><input type="checkbox" value="Cafe"/>Cafe</label>
+          <label class="tag-chip-option"><input type="checkbox" value="Pet"/>Pet</label>
+          <label class="tag-chip-option"><input type="checkbox" value="Concert"/>Concert</label>
+          <label class="tag-chip-option"><input type="checkbox" value="1-Day Trip"/>1-Day Trip</label>
+          <label class="tag-chip-option"><input type="checkbox" value="Sport"/>Sport</label>
+          <label class="tag-chip-option"><input type="checkbox" value="Mall"/>Mall</label>
+          <label class="tag-chip-option"><input type="checkbox" value="Market"/>Market</label>
+          <label class="tag-chip-option"><input type="checkbox" value="Restaurant"/>Restaurant</label>
+          <label class="tag-chip-option"><input type="checkbox" value="Buffet"/>Buffet</label>
+          <label class="tag-chip-option"><input type="checkbox" value="Party"/>Party</label>
+          <label class="tag-chip-option"><input type="checkbox" value="Shopping"/>Shopping</label>
+          <label class="tag-chip-option"><input type="checkbox" value="Board game"/>Board game</label>
+        </div>
+      </div>
+    </div><!-- end modal-scroll-area -->
+
+      <div class="modal-footer">
+        <button class="btn-cancel" id="btnCancelEdit">Cancel</button>
+        <button class="btn-save"   id="btnSaveEdit">Save Changes</button>
+      </div>
+    </div><!-- end modal-sheet -->
+  </div><!-- end modal-overlay -->
 
   <!-- NAVBAR -->
   <nav id="mainnav" class="mainnav" aria-label="Main navigation">
@@ -240,6 +309,7 @@
   </nav>
 
   <script src="../js/main.js"></script>
+<<<<<<< HEAD
 
   <script>
     // ═══════════════════════════════════════════════════════════
@@ -386,5 +456,8 @@
   </script>
 
 </div><!-- /.mobile-shell -->
+=======
+  <script src="../js/Profile.js"></script>
+>>>>>>> 4b86eb6 (profile.html profil-page.css profile.js)
 </body>
 </html>
