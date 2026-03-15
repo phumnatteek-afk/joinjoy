@@ -150,7 +150,7 @@
             `;
           } else if (memberStatus === 'Joined') {
             actionHtml = `<div class="notif-status-done accepted">✓ ยืนยันแล้ว</div>`;
-          } else if (memberStatus === 'Rejected') {
+          } else if (memberStatus === 'Cancelled') {
             actionHtml = `<div class="notif-status-done rejected">✕ ปฏิเสธแล้ว</div>`;
           } else {
             actionHtml = `<div class="notif-status-done">${escapeHtml(memberStatus)}</div>`;
@@ -238,7 +238,7 @@
 
       if (action === 'accept' || action === 'reject') {
         if (!userId) throw new Error('ไม่พบข้อมูลผู้ขอเข้าร่วม');
-        const selectedStatus = action === 'accept' ? 'Joined' : 'Rejected';
+        const selectedStatus = action === 'accept' ? 'Joined' : 'Cancelled';
         button.disabled = true;
 
         // ส่ง actor (โฮสที่ login อยู่) ผ่าน query param เพื่อให้ backend ตรวจสิทธิ์ได้
