@@ -1,32 +1,31 @@
 const express = require('express');
 const router = express.Router();
-const db = require('../config/db');
+const db = require('../db');
 
-router.post('/login', async (req, res) => {
+router.post('/login', async(req, res) => {
     const { gmail, password } = req.body;
 
     try {
         const [rows] = await db.query(
-            "SELECT * FROM User WHERE university_email = ? AND user_password = ? AND role = 'admin'", 
-            [gmail, password]
+            "SELECT * FROM User WHERE university_email = ? AND user_password = ? AND role = 'admin'", [gmail, password]
         );
 
         if (rows.length > 0) {
-            res.status(200).json({ 
-                message: "Login Successful", 
+            res.status(200).json({
+                message: "Login Successful",
                 admin: rows[0],
-                token: 'mock-admin-token' 
+                token: 'mock-admin-token'
             });
         } else {
             res.status(401).json({ message: "ข้อมูลไม่ถูกต้อง หรือคุณไม่มีสิทธิ์เข้าถึงส่วนนี้" });
         }
     } catch (err) {
-        console.error("Login Error:", err); 
+        console.error("Login Error:", err);
         res.status(500).json({ message: "เกิดข้อผิดพลาดที่เซิร์ฟเวอร์", error: err.message });
     }
 });
 
-router.get('/stats', async (req, res) => {
+router.get('/stats', async(req, res) => {
     try {
         // นับผู้ใช้ที่เข้ามาใช้งานในวันนี้ (อิงตาม last_login)
         // DATE(last_login) จะดึงเฉพาะส่วนวันที่มาเทียบกับวันที่ปัจจุบัน
@@ -36,7 +35,7 @@ router.get('/stats', async (req, res) => {
             WHERE role = 'user' 
             AND DATE(last_login) = CURDATE()
         `);
-        
+
         // นับทริปแยกตามสถานะ
         const [trips] = await db.query(`
             SELECT 
@@ -58,7 +57,7 @@ router.get('/stats', async (req, res) => {
     }
 });
 
-router.get('/user-growth', async (req, res) => {
+router.get('/user-growth', async(req, res) => {
     try {
         const [rows] = await db.query(`
             SELECT 
@@ -79,7 +78,7 @@ router.get('/user-growth', async (req, res) => {
                 cumulative_count: cumulativeTotal
             };
         });
-        
+
         res.status(200).json(cumulativeData);
     } catch (err) {
         console.error("User Growth Detailed Error:", err);
@@ -87,11 +86,11 @@ router.get('/user-growth', async (req, res) => {
     }
 });
 
-router.get('/review-stats', async (req, res) => {
+router.get('/review-stats', async(req, res) => {
     try {
         // นับทริปที่จบแล้ว (Closed) ทั้งหมด
         const [totalClosed] = await db.query("SELECT COUNT(*) as count FROM Trip WHERE trip_status = 'Closed'");
-        
+
         // นับทริปที่มีการรีวิวแล้ว
         const [reviewedTrips] = await db.query(`
             SELECT COUNT(DISTINCT trip_id) as count 
@@ -114,7 +113,7 @@ router.get('/review-stats', async (req, res) => {
 });
 
 // ดึงรายชื่อผู้ใช้ทั้งหมด พร้อมค้นหาและกรอง
-router.get('/users', async (req, res) => {
+router.get('/users', async(req, res) => {
     const { search, role, status } = req.query;
     try {
         let query = `
@@ -144,9 +143,9 @@ router.get('/users', async (req, res) => {
 });
 
 // ฟังก์ชันแบนผู้ใช้ (บันทึกลง banned_logs และอัปเดตสถานะ User)
-router.post('/ban-user', async (req, res) => {
+router.post('/ban-user', async(req, res) => {
     const { user_id, admin_id, reason } = req.body;
-    
+
     try {
         await db.query('START TRANSACTION');
 
@@ -155,13 +154,12 @@ router.post('/ban-user', async (req, res) => {
             await db.query("UPDATE User SET status = 'banned' WHERE user_id = ?", [user_id]);
 
             await db.query(
-                "INSERT INTO Banned_logs (user_id, admin_id, reason, banned_at) VALUES (?, ?, ?, NOW())",
-                [user_id, admin_id || 1, reason]
+                "INSERT INTO Banned_logs (user_id, admin_id, reason, banned_at) VALUES (?, ?, ?, NOW())", [user_id, admin_id || 1, reason]
             );
         } else {
             // --- กรณีปลดแบน: เปลี่ยนเป็น 'active' ---
             await db.query("UPDATE User SET status = 'active' WHERE user_id = ?", [user_id]);
-            
+
             // ลบประวัติการแบนออกเพื่อให้หน้าจอไม่โชว์เหตุผลค้างไว้
             await db.query("DELETE FROM Banned_logs WHERE user_id = ?", [user_id]);
         }
@@ -175,8 +173,8 @@ router.post('/ban-user', async (req, res) => {
     }
 });
 
-router.get('/users-list', async (req, res) => {
-    const { search, status } = req.query; 
+router.get('/users-list', async(req, res) => {
+    const { search, status } = req.query;
 
     try {
         let query = `
