@@ -180,7 +180,7 @@ body {
 }
 .exp-name  { font-size: 12px; font-weight: 500; color: white; margin-bottom: 3px; }
 .exp-quote { font-size: 14px; color: rgba(255,255,255,.6); line-height: 1; margin-bottom: 2px; }
-.exp-text  { font-size: 10px; color: rgba(255,255,255,.88);font-weight: 100; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.exp-text  { font-size: 10px; color: rgba(255,255,255,.88);font-weight: 100; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; line-clamp: 3; overflow: hidden; }
 .exp-avatars { display: flex; margin-top: 6px; }
 .exp-av {
   width: 20px; height: 20px; border-radius: 50%;
