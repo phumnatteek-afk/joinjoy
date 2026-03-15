@@ -65,7 +65,7 @@ router.get('/recommended', async(req, res) => {
             `SELECT tags FROM User_profile WHERE user_id = ?`, [userId]
         );
         let userTags = [];
-        if (profile ? .tags) {
+        if (profile?.tags) {
             userTags = profile.tags.split(',').map(t => t.trim().toLowerCase()).filter(Boolean);
         }
         if (!userTags.length) return res.json({ success: true, trips: [], personalized: false });
