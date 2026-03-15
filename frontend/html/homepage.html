@@ -243,8 +243,24 @@
 <script>
 const API = 'http://localhost:3000/api';
 const MEDIA = 'http://localhost:3000'; 
-// ✅ ใช้ session-based auth — ไม่ต้องใช้ token แล้ว
+let currentUserId = null; // ตั้งค่าจาก loadUser() หลัง login
 const $ = id => document.getElementById(id);
+
+function getStoredUser() {
+  try {
+    const raw = localStorage.getItem('joinjoy_user');
+    if (raw) return JSON.parse(raw);
+  } catch {}
+  return null;
+}
+
+function getStoredUserId() {
+  return localStorage.getItem('userId') ||
+         localStorage.getItem('user_id') ||
+         localStorage.getItem('currentUserId') ||
+         (getStoredUser() && getStoredUser().user_id) ||
+         null;
+}
 
 function showToast(msg, type = '') {
   const el = $('toast');
@@ -297,6 +313,21 @@ const gr = cat => GRAD[cat]  || 'linear-gradient(135deg,#FCE4EC,#F48FB1)';
 function tripCard(t) {
   const joined = t.joined_count ?? t.current_member ?? 0;
   const full   = joined >= t.max_member;
+  const uid = currentUserId || getStoredUserId();
+  const isHost = Number(t.is_host) === 1 || (uid && Number(t.creator_id) === Number(uid));
+  // แสดงปุ่มตามสถานะ
+  let btnHtml;
+  if (isHost) {
+    btnHtml = `<button class="join-btn joined" disabled>Host</button>`;
+  } else if (t.my_join_status === 'Pending') {
+    btnHtml = `<button class="join-btn joined" disabled>Pending</button>`;
+  } else if (t.my_join_status === 'Joined') {
+    btnHtml = `<button class="join-btn joined" disabled>✓ Joined</button>`;
+  } else if (full) {
+    btnHtml = `<button class="join-btn joined" disabled>Full</button>`;
+  } else {
+    btnHtml = `<button class="join-btn" onclick="joinTrip(${t.trip_id},this,${t.creator_id})">join</button>`;
+  }
   return `
   <div class="card">
     <div class="card-top">
@@ -313,11 +344,7 @@ function tripCard(t) {
   ? `<img class="cimg" src="${MEDIA}/${t.cover_image}" alt="${t.trip_name}">` 
   : `<div class="cph" style="background:${gr(t.category)}">${em(t.category)}</div>`}
       ${t.is_matched === 1 ? `<div class="tag-badge">✦ ${t.category}</div>` : ''}
-      <div class="join-wrap">
-        <button class="join-btn${full ? ' joined' : ''}" onclick="joinTrip(${t.trip_id},this)" ${full ? 'disabled' : ''}>
-          ${full ? 'Full' : 'join'}
-        </button>
-      </div>
+      <div class="join-wrap">${btnHtml}</div>
     </div>
   </div>`;
 }
@@ -381,15 +408,21 @@ function schCard(t) {
 // }
 async function loadUser() {
   try {
-    const { success, user: u } = await apiFetch('/user/me');
+    const uid = getStoredUserId();
+    const path = uid ? `/user/me?user_id=${uid}` : '/user/me';
+    const { success, user: u } = await apiFetch(path);
 
     if (!success || !u) {
-      // ✅ ยังไม่ได้ login → redirect ไปหน้า login
       window.location.href = '/frontend/html/homelogin.html';
       return;
     }
 
-    // ✅ แสดงชื่อจริง (first_name) ถ้ามี ถ้าไม่มีใช้ user_name
+    currentUserId = u.user_id;
+    // เอาไว้ใน localStorage ด้วยเผื่อให้ board.js ใช้ได้
+    localStorage.setItem('userId', String(currentUserId));
+    localStorage.setItem('user_id', String(currentUserId));
+    localStorage.setItem('currentUserId', String(currentUserId));
+
     const displayName = u.first_name
       ? `${u.first_name} ${u.last_name || ''}`.trim()
       : u.user_name;
@@ -407,22 +440,32 @@ async function loadUser() {
 }
   } catch (e) {
     console.error('loadUser:', e);
-    // ถ้า 401 → redirect login
-    if (e.message === '401') window.location.href = '/frontend/html/homelogin.html';
+    // fallback: ใช้ localStorage
+    const stored = getStoredUser();
+    if (stored) {
+      currentUserId = stored.user_id || stored.id || null;
+      const dn = stored.first_name || stored.user_name || 'User';
+      $('greetName').textContent = `Hi! ${dn}`;
+      $('greetSub').textContent  = `Faculty : ${stored.faculty || '—'}`;
+    } else if (e.message === '401') {
+      window.location.href = '/frontend/html/homelogin.html';
+    }
   }
 }
 
 
 async function loadUpcoming() {
   try {
-    const { trips = [] } = await apiFetch('/trips/upcoming');
+    const q = currentUserId ? `?user_id=${currentUserId}` : '';
+    const { trips = [] } = await apiFetch(`/trips/upcoming${q}`);
     $('upcomingGrid').innerHTML = trips.length ? trips.slice(0,4).map(tripCard).join('') : '<div class="empty">ยังไม่มีทริปที่กำลังจะมาถึง 🌸</div>';
   } catch { $('upcomingGrid').innerHTML = '<div class="empty">โหลดข้อมูลไม่ได้</div>'; }
 }
 
 async function loadRecommended() {
   try {
-    const data = await apiFetch('/trips/recommended', { headers: authHeaders() });
+    const q = currentUserId ? `?user_id=${currentUserId}` : '';
+    const data = await apiFetch(`/trips/recommended${q}`);
     $('recSub').textContent = data?.personalized ? '(เพื่อคุณ ✦)' : '(ยอดนิยม)';
     const trips = data?.trips || [];
     $('recommendedGrid').innerHTML = trips.length ? trips.slice(0,4).map(tripCard).join('') : '<div class="empty">ยังไม่มีทริปแนะนำ</div>';
@@ -454,16 +497,34 @@ async function loadNotif() {
 }
 
 /* ── JOIN ── */
-async function joinTrip(tripId, btn) {
+async function joinTrip(tripId, btn, creatorId) {
+  const uid = currentUserId || getStoredUserId();
+  if (!uid) {
+    showToast('กรุณาล็อกอินก่อน', 'err');
+    return;
+  }
+  if (Number(uid) === Number(creatorId)) {
+    btn.disabled = true;
+    btn.textContent = 'Host';
+    btn.classList.add('joined');
+    showToast('เจ้าของโพสไม่สามารถ join ทริปตัวเองได้', 'err');
+    return;
+  }
   btn.disabled = true; btn.textContent = '...';
   try {
-    const data = await apiFetch(`/trip-members/join/${tripId}`, { method: 'POST', headers: authHeaders() });
-    if (data.success) {
-      btn.textContent = '✓ joined'; btn.classList.add('joined');
-      showToast('เข้าร่วมทริปสำเร็จ! 🎉', 'ok'); loadSchedule();
+    const res = await fetch(API + '/notification/join-request', {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ trip_id: tripId, user_id: uid })
+    });
+    const data = await res.json();
+    if (res.ok && data.success) {
+      btn.textContent = 'Pending'; btn.classList.add('joined');
+      showToast('ส่งคำขอเข้าร่วมแล้ว! รอเจ้าของโพสตตอบรับ ✌️', 'ok');
     } else {
       btn.disabled = false; btn.textContent = 'join';
-      showToast(data.message || 'เกิดข้อผิดพลาด', 'err');
+      showToast(data.error || data.message || 'เกิดข้อผิดพลาด', 'err');
     }
   } catch {
     btn.disabled = false; btn.textContent = 'join';
@@ -479,7 +540,9 @@ $('chipsRow').addEventListener('click', async e => {
   const cat = chip.dataset.cat;
   $('upcomingGrid').innerHTML = '<div class="loading gs"><div class="spinner"></div></div>';
   try {
-    const path = cat ? `/trips?category=${encodeURIComponent(cat)}` : '/trips/upcoming';
+    const uid = currentUserId || getStoredUserId() || '';
+    const uidQ = uid ? `&user_id=${uid}` : '';
+    const path = cat ? `/trips?category=${encodeURIComponent(cat)}${uidQ}` : `/trips/upcoming?user_id=${uid}`;
     const { trips = [] } = await apiFetch(path);
     $('upcomingGrid').innerHTML = trips.length ? trips.slice(0,4).map(tripCard).join('') : '<div class="empty">ไม่พบทริปในหมวดนี้</div>';
   } catch { $('upcomingGrid').innerHTML = '<div class="empty">โหลดข้อมูลไม่ได้</div>'; }
@@ -493,7 +556,9 @@ $('searchInput').addEventListener('input', e => {
     if (!q) { loadUpcoming(); return; }
     $('upcomingGrid').innerHTML = '<div class="loading gs"><div class="spinner"></div></div>';
     try {
-      const { trips = [] } = await apiFetch(`/trips?search=${encodeURIComponent(q)}`);
+      const uid = currentUserId || getStoredUserId() || '';
+      const uidQ = uid ? `&user_id=${uid}` : '';
+      const { trips = [] } = await apiFetch(`/trips?search=${encodeURIComponent(q)}${uidQ}`);
       $('upcomingGrid').innerHTML = trips.length ? trips.map(tripCard).join('') : '<div class="empty">ไม่พบทริปที่ค้นหา 🔍</div>';
     } catch { $('upcomingGrid').innerHTML = '<div class="empty">โหลดข้อมูลไม่ได้</div>'; }
   }, 380);
@@ -508,7 +573,11 @@ $('bellBtn').addEventListener('click', async () => {
 });
 
 /* ── BOOT ── */
-Promise.all([loadUser(), loadUpcoming(), loadRecommended(), loadExp(), loadSchedule(), loadNotif()]);
+// loadUser() ต้องรันก่อนเพื่อเอา currentUserId ไปใช้ loading trips
+(async () => {
+  await loadUser();
+  Promise.all([loadUpcoming(), loadRecommended(), loadExp(), loadSchedule(), loadNotif()]);
+})();
 </script>
 <script src="../js/main.js"></script>
 </body>

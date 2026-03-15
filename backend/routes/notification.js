@@ -2,14 +2,32 @@ const express = require('express')
 const router = express.Router()
 const pool = require('../db') // ← เปลี่ยนกลับมาใช้ DB จริง
 
+function getActorUserId(req) {
+    const sessionUserId = (req.session && req.session.userId) ? Number(req.session.userId) : null
+    const passportUserId = (req.user && req.user.user_id) ? Number(req.user.user_id) : null
+    const queryUserId = (req.query && req.query.user_id) ? Number(req.query.user_id) : null
+    return sessionUserId || passportUserId || queryUserId || null
+}
+
 // FLOW 1: User กด JOIN
 router.post('/join-request', async(req, res) => {
     const { trip_id, user_id } = req.body
+    const actorUserId = getActorUserId(req)
+    const requestBodyUserId = user_id ? Number(user_id) : null
+    const requesterId = actorUserId || requestBodyUserId
+
+    if (!requesterId) {
+        return res.status(401).json({ error: 'กรุณาล็อกอินก่อนส่งคำขอเข้าร่วม' })
+    }
+
+    if (actorUserId && requestBodyUserId && actorUserId !== requestBodyUserId) {
+        return res.status(403).json({ error: 'ไม่สามารถส่งคำขอแทนผู้ใช้อื่นได้' })
+    }
 
     try {
         // ดึงข้อมูล User + Trip จาก Database จริง
         const [users] = await pool.query(
-            'SELECT user_id, user_name FROM User WHERE user_id = ?', [user_id]
+            'SELECT user_id, user_name FROM User WHERE user_id = ?', [requesterId]
         )
         const [trips] = await pool.query(
             'SELECT trip_id, trip_name, creator_id FROM Trip WHERE trip_id = ?', [trip_id]
@@ -22,11 +40,27 @@ router.post('/join-request', async(req, res) => {
         const user = users[0]
         const trip = trips[0]
 
+        // ป้องกัน Host join ทริปตัวเอง
+        if (Number(requesterId) === Number(trip.creator_id)) {
+            return res.status(400).json({ error: 'เจ้าของโพสไม่สามารถ join ทริปตัวเองได้' })
+        }
+
+        // ป้องกัน join ซ้ำ
+        const [existing] = await pool.query(
+            'SELECT status FROM Trip_member WHERE trip_id = ? AND user_id = ?',
+            [trip_id, requesterId]
+        )
+        if (existing.length) {
+            return res.status(409).json({ error: `คุณได้ส่งคำขอนี้แล้ว (สถานะ: ${existing[0].status})` })
+        }
+
         // INSERT Trip_member สถานะ Pending
         await pool.query(
             `INSERT INTO Trip_member (trip_id, user_id, status, joined_at)
-       VALUES (?, ?, 'Pending', NOW())`, [trip_id, user_id]
+          VALUES (?, ?, 'Pending', NOW())`, [trip_id, requesterId]
         )
+
+        const joinRequestDetail = `${user.user_name} ขอเข้าร่วมทริป "${trip.trip_name}" [REQ_USER_ID:${user.user_id}]`
 
         // INSERT Notification ให้ Host แจ้งว่ามีคนขอเข้าร่วมทริป
         await pool.query(
@@ -36,7 +70,7 @@ router.post('/join-request', async(req, res) => {
                 trip_id,
                 trip.creator_id,
                 'มีคนขอเข้าร่วมทริป',
-                `${user.user_name} ขอเข้าร่วมทริป "${trip.trip_name}"`
+                joinRequestDetail
             ]
         )
 
@@ -46,9 +80,9 @@ router.post('/join-request', async(req, res) => {
             io.to(`room:${trip.creator_id}`).emit('new_notification', {
                 type: 'join_request',
                 title: 'มีคนขอเข้าร่วมทริป',
-                detail: `${user.user_name} ขอเข้าร่วมทริป "${trip.trip_name}"`,
+                detail: joinRequestDetail,
                 trip_id,
-                from_user_id: user_id
+                from_user_id: requesterId
             })
         }
 
@@ -100,11 +134,20 @@ router.get('/user-profile/:user_id', async(req, res) => {
 // ถ้า Accept → ส่ง contact Host ไปด้วย
 router.patch('/respond', async(req, res) => {
     const { trip_id, user_id, status } = req.body
+    const actorUserId = getActorUserId(req)
+
+    if (!actorUserId) {
+        return res.status(401).json({ error: 'กรุณาล็อกอินก่อนตอบรับคำขอ' })
+    }
+
+    if (!['Joined', 'Rejected'].includes(String(status || ''))) {
+        return res.status(400).json({ error: 'สถานะไม่ถูกต้อง' })
+    }
 
     try {
         // ดึงข้อมูล Trip + contact Host จาก Database จริง
         const [trips] = await pool.query(
-            `SELECT t.trip_name, up.social_media AS host_contact
+            `SELECT t.trip_name, t.creator_id, up.social_media AS host_contact
        FROM Trip t
        LEFT JOIN User_profile up ON up.user_id = t.creator_id
        WHERE t.trip_id = ?`, [trip_id]
@@ -115,6 +158,10 @@ router.patch('/respond', async(req, res) => {
         }
 
         const trip = trips[0]
+
+        if (Number(trip.creator_id) !== Number(actorUserId)) {
+            return res.status(403).json({ error: 'เฉพาะโฮสเจ้าของทริปเท่านั้นที่ตอบรับได้' })
+        }
             // กำหนดข้อความตาม status
         const isAccepted = status === 'Joined'
 
@@ -161,6 +208,28 @@ router.patch('/respond', async(req, res) => {
 
 // FLOW 4: ดึง Notification List
 // แสดงหน้า Notification (Today/Yesterday/This week)
+router.get('/resolve-user', async(req, res) => {
+    const username = String(req.query.username || '').trim()
+
+    if (!username) {
+        return res.status(400).json({ error: 'กรุณาระบุ username' })
+    }
+
+    try {
+        const [users] = await pool.query(
+            'SELECT user_id, user_name FROM User WHERE user_name = ? LIMIT 1', [username]
+        )
+
+        if (!users.length) {
+            return res.status(404).json({ error: 'ไม่พบผู้ใช้' })
+        }
+
+        return res.json({ success: true, user_id: Number(users[0].user_id), user_name: users[0].user_name })
+    } catch (err) {
+        return res.status(500).json({ error: err.message })
+    }
+})
+
 router.get('/:user_id', async(req, res) => {
     const { user_id } = req.params
 
@@ -185,7 +254,36 @@ router.get('/:user_id', async(req, res) => {
        ORDER BY create_at DESC`, [user_id]
         )
 
-        res.json(rows)
+        const enrichedRows = []
+
+        for (const row of rows) {
+            const detail = String(row.notification_detail || '')
+            const markerMatch = detail.match(/\[REQ_USER_ID:(\d+)\]/i)
+            let fromUserId = markerMatch ? Number(markerMatch[1]) : null
+            const cleanedDetail = detail.replace(/\s*\[REQ_USER_ID:\d+\]/gi, '').trim()
+
+            if (!fromUserId && String(row.notification_title || '').includes('มีคนขอเข้าร่วมทริป')) {
+                const nameMatch = cleanedDetail.match(/^(.+?)\s*ขอเข้าร่วมทริป/)
+                const requesterName = nameMatch ? String(nameMatch[1] || '').trim() : ''
+
+                if (requesterName) {
+                    const [requesters] = await pool.query(
+                        'SELECT user_id FROM User WHERE user_name = ? LIMIT 1', [requesterName]
+                    )
+                    if (requesters.length) {
+                        fromUserId = Number(requesters[0].user_id)
+                    }
+                }
+            }
+
+            enrichedRows.push({
+                ...row,
+                notification_detail: cleanedDetail,
+                from_user_id: fromUserId
+            })
+        }
+
+        res.json(enrichedRows)
 
     } catch (err) {
         console.error('❌ get notifications error:', err.message)
