@@ -1,13 +1,13 @@
 const express = require("express");
 const bcrypt = require("bcrypt");
-const db = require("../db"); // your existing db.js
+const db = require("../db");
 
 const router = express.Router();
 
 // ═══════════════════════════════════════════════════════════
 //  POST /api/auth/register  — Create a new account
 // ═══════════════════════════════════════════════════════════
-router.post("/api/auth/register", async(req, res) => {
+router.post("/register", async (req, res) => {
     const { fullname, email, password } = req.body;
     if (!fullname || !email || !password) {
         return res.status(400).json({ success: false, message: "Please fill in all fields." });
@@ -22,7 +22,6 @@ router.post("/api/auth/register", async(req, res) => {
     }
 
     try {
-        // ── Check if email already exists ──
         const [existing] = await db.query(
             "SELECT user_id FROM User WHERE university_email = ?", [email]
         );
@@ -31,27 +30,26 @@ router.post("/api/auth/register", async(req, res) => {
             return res.status(409).json({ success: false, message: "An account with this email already exists." });
         }
 
-        // ── Hash password ──
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // ── Split fullname into first / last ──
         const parts = fullname.trim().split(" ");
         const firstName = parts[0] || "";
         const lastName = parts.slice(1).join(" ") || "";
         const userName = email.split("@")[0];
 
-        // ── Insert into User table ──
         const [result] = await db.query(
             `INSERT INTO User (user_name, university_email, user_password, role, status, created_at)
-       VALUES (?, ?, ?, 'user', 'active', NOW())`, [userName, email, hashedPassword]
+             VALUES (?, ?, ?, 'user', 'active', NOW())`,
+            [userName, email, hashedPassword]
         );
 
         const userId = result.insertId;
 
-        // ── Insert into User_profile table ──
+        // Note: column is 'frist_name' (typo in DB schema — keep as-is)
         await db.query(
-            `INSERT INTO User_profile (user_id, first_name, last_name)
-       VALUES (?, ?, ?)`, [userId, firstName, lastName]
+            `INSERT INTO User_profile (user_id, frist_name, last_name)
+             VALUES (?, ?, ?)`,
+            [userId, firstName, lastName]
         );
 
         return res.status(201).json({
@@ -68,7 +66,7 @@ router.post("/api/auth/register", async(req, res) => {
 // ═══════════════════════════════════════════════════════════
 //  POST /api/auth/login  — Log in with email + password
 // ═══════════════════════════════════════════════════════════
-router.post("/login", async(req, res) => {
+router.post("/login", async (req, res) => {
     const { email, password } = req.body;
 
     if (!email || !password) {
@@ -104,15 +102,48 @@ router.post("/login", async(req, res) => {
         );
 
         // ── Save session ──
-        req.session.userId = user.user_id;
-        req.session.userRole = user.role;
-        req.session.email = user.university_email;
+        req.session.userId    = user.user_id;
+        req.session.userRole  = user.role;
+        req.session.email     = user.university_email;
+
+        // ── Fetch profile to include in response ──
+        const [[profile]] = await db.query(
+            `SELECT up.frist_name AS first_name, up.last_name, up.bio,
+                    up.brith_date AS birth_date, up.gender, up.faculty,
+                    up.social_media, up.tags, up.profile_img
+             FROM User_profile up WHERE up.user_id = ?`,
+            [user.user_id]
+        );
+
+        const tags = profile?.tags
+            ? profile.tags.split(",").map(t => t.trim()).filter(Boolean)
+            : [];
+
+        // ── Also cache display name & avatar in session ──
+        req.session.firstName  = profile?.first_name  || "";
+        req.session.lastName   = profile?.last_name   || "";
+        req.session.profileImg = profile?.profile_img || null;
 
         return res.json({
-            success: true,
-            message: "Login successful!",
-            role: user.role,
-            redirect: user.role === "admin" ? "/html/admin.html" : "/frontend/html/homepage.html",
+            success:  true,
+            message:  "Login successful!",
+            role:     user.role,
+            redirect: user.role === "admin" ? "/html/admin.html" : "/html/homepage.html",
+            // Frontend should save this in localStorage for instant profile rendering
+            user: {
+                user_id:          user.user_id,
+                user_name:        user.user_name,
+                university_email: user.university_email,
+                first_name:       profile?.first_name   || "",
+                last_name:        profile?.last_name    || "",
+                bio:              profile?.bio          || "",
+                birth_date:       profile?.birth_date   || "",
+                gender:           profile?.gender       || "",
+                faculty:          profile?.faculty      || "",
+                social_media:     profile?.social_media || "",
+                tags,
+                profile_img:      profile?.profile_img  || null,
+            },
         });
 
     } catch (err) {

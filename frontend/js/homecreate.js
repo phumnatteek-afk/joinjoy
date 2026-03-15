@@ -1,4 +1,3 @@
-
 // homecreate.js
 
 // ── Password toggle ──────────────────────────────────────────
@@ -11,44 +10,44 @@ eyeBtn.addEventListener('click', () => {
   document.getElementById('eyeIcon').setAttribute('stroke', isHidden ? '#F28695' : '#bbb');
 });
 
-// ── Show error / success helpers ────────────────────────────
+// ── Show error / success helpers ─────────────────────────────
 const errEl = document.getElementById('errorMsg');
 
 function showError(msg) {
   errEl.textContent = msg;
-  errEl.style.background = '#fff0f1';
-  errEl.style.borderColor = '#f8c0c4';
-  errEl.style.color = '#c0392b';
+  errEl.style.background   = '#fff0f1';
+  errEl.style.borderColor  = '#f8c0c4';
+  errEl.style.color        = '#c0392b';
   errEl.classList.add('show');
 }
 
 function showSuccess(msg) {
   errEl.textContent = msg;
-  errEl.style.background = '#f0fff4';
+  errEl.style.background  = '#f0fff4';
   errEl.style.borderColor = '#a8e6b0';
-  errEl.style.color = '#1a7a35';
+  errEl.style.color       = '#1a7a35';
   errEl.classList.add('show');
 }
 
-// ── Show OAuth error from redirect ──────────────────────────
+// ── Show OAuth error from redirect ───────────────────────────
 const oauthErrors = {
-  invalid_email:   'Only @silpakorn.edu university emails are allowed.',
-  banned:          'Your account has been suspended.',
-  auth_failed:     'Sign-in failed. Please try again.',
-  access_denied:   'Google sign-in was cancelled.',
+  invalid_email: 'Only @silpakorn.edu university emails are allowed.',
+  banned:        'Your account has been suspended.',
+  auth_failed:   'Sign-in failed. Please try again.',
+  access_denied: 'Google sign-in was cancelled.',
 };
 
 const params = new URLSearchParams(window.location.search);
 const errKey = params.get('error');
 if (errKey && oauthErrors[errKey]) showError(oauthErrors[errKey]);
 
-// ── Google button loading state ──────────────────────────────
+// ── Google button loading state ───────────────────────────────
 document.getElementById('googleBtn').addEventListener('click', function () {
   this.style.opacity = '0.6';
   this.style.pointerEvents = 'none';
 });
 
-// ── Get Started — register via API ──────────────────────────
+// ── Get Started — register via API ───────────────────────────
 document.getElementById('btnGetStarted').addEventListener('click', async () => {
   const fullname = document.getElementById('fullname').value.trim();
   const email    = document.getElementById('email').value.trim();
@@ -66,49 +65,55 @@ document.getElementById('btnGetStarted').addEventListener('click', async () => {
     return showError('Password must be at least 6 characters.');
   }
 
-  // Loading state
   btn.textContent = 'Creating account…';
-  btn.disabled = true;
+  btn.disabled    = true;
   errEl.classList.remove('show');
 
   try {
-    // ✅ แก้ไข: URL ที่ถูกต้อง (เพิ่ม / ที่หายไป) + ใช้ relative path
-    const res = await fetch('/api/auth/register', {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ fullname, email, password }),
+    // ── Step 1: Register ─────────────────────────────────────
+    const res  = await fetch('/api/auth/register', {
+      method:      'POST',
+      headers:     { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body:        JSON.stringify({ fullname, email, password }),
     });
 
     const data = await res.json();
 
-    if (data.success) {
-      showSuccess('Account created! Signing you in…');
-
-      // ✅ Auto-login หลัง register สำเร็จ
-      const loginRes = await fetch('/api/auth/login', {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ email, password }),
-      });
-
-      const loginData = await loginRes.json();
-
-      setTimeout(() => {
-        if (loginData.success) {
-          // ✅ เข้า home.html โดยตรง (root level)
-          window.location.href = loginData.redirect || '/frontend/html/homepage.html';
-        } else {
-          // ถ้า auto-login ไม่ได้ ให้ไปหน้า login แทน
-          window.location.href = '/frontend/html/homelogin.html';
-        }
-      }, 1000);
-    } else {
-      showError(data.message || 'Something went wrong.');
+    if (!data.success) {
+      return showError(data.message || 'Something went wrong.');
     }
+
+    showSuccess('Account created! Signing you in…');
+
+    // ── Step 2: Auto-login ───────────────────────────────────
+    const loginRes  = await fetch('/api/auth/login', {
+      method:      'POST',
+      headers:     { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body:        JSON.stringify({ email, password }),
+    });
+
+    const loginData = await loginRes.json();
+
+    setTimeout(() => {
+      if (loginData.success) {
+        // Save profile to localStorage (same as normal login)
+        if (loginData.user) {
+          localStorage.setItem('joinjoy_user', JSON.stringify(loginData.user));
+        }
+        window.location.href = loginData.redirect || '/html/homepage.html';
+      } else {
+        // Auto-login failed — send to login page instead
+        window.location.href = '/html/homelogin.html';
+      }
+    }, 1000);
+
   } catch (err) {
+    console.error('Register error:', err);
     showError('Network error. Please try again.');
   } finally {
     btn.textContent = 'Get Started';
-    btn.disabled = false;
+    btn.disabled    = false;
   }
 });
