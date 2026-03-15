@@ -8,8 +8,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Kanit:wght@400;600;700&display=swap" rel="stylesheet"/>
 
-  <!-- CSS path: frontend/html/ → frontend/css/ -->
   <link rel="stylesheet" href="../css/profile-page.css" />
+  <link rel="stylesheet" href="../css/homepage.css">
 </head>
 <body class="profile-screen">
 <div class="mobile-shell">
@@ -37,65 +37,103 @@
     <section class="profile-card-box">
       <div class="profile-card-top-bg"></div>
 
+      <!-- ปุ่ม Edit / Save -->
+      <button class="profile-edit-btn" id="edit-btn" onclick="toggleEdit()">Edit</button>
+
       <div class="profile-hero-box">
+
+        <!-- ─────────────────────────────────────────────────────
+             [BACKEND] Avatar
+             GET  → user.profile_image (URL)  → ใส่ใน src ของ #profile-avatar
+             POST → อัปโหลดไฟล์ไปที่ /api/user/avatar
+             ───────────────────────────────────────────────────── -->
         <div class="profile-avatar-box">
-          <!-- avatar placeholder -->
+          <img id="profile-avatar" class="profile-avatar-img" src="" alt="Avatar" style="display:none;" />
+          <label class="avatar-upload-label" for="avatar-file-input">เปลี่ยนรูป</label>
+          <input type="file" id="avatar-file-input" accept="image/*" onchange="previewAvatar(event)" />
         </div>
 
         <div class="profile-name-row">
-          <h2 class="profile-user-name">Nanno</h2>
+          <!-- [BACKEND] GET/POST → user.username -->
+          <input
+            class="profile-user-name editable"
+            id="profile-username"
+            type="text"
+            value=""
+            placeholder="ชื่อผู้ใช้"
+            readonly
+          />
           <span class="profile-verified-badge">✔</span>
         </div>
 
-        <p class="profile-user-bio">
-          I don't follow GPS, I follow the good lighting
-        </p>
-      </div>
+        <!-- [BACKEND] GET/POST → user.bio -->
+        <textarea
+          class="profile-user-bio editable"
+          id="profile-bio"
+          rows="2"
+          placeholder="เขียนแนะนำตัวสั้นๆ..."
+          readonly
+        ></textarea>
+
+      </div><!-- /profile-hero-box -->
 
       <div class="profile-info-grid">
+
+        <!-- [BACKEND] GET/POST → user.firstname -->
         <div class="profile-info-card">
           <div class="profile-info-label">First name:</div>
-          <div class="profile-info-value">Nanno</div>
+          <input class="profile-info-value editable" id="profile-firstname" type="text" value="" placeholder="ชื่อจริง" readonly />
         </div>
 
+        <!-- [BACKEND] GET/POST → user.lastname -->
         <div class="profile-info-card">
           <div class="profile-info-label">Last name:</div>
-          <div class="profile-info-value">Kim</div>
+          <input class="profile-info-value editable" id="profile-lastname" type="text" value="" placeholder="นามสกุล" readonly />
         </div>
 
+        <!-- [BACKEND] GET/POST → user.birthdate (format DD/MM/YYYY) -->
         <div class="profile-info-card">
           <div class="profile-info-label">Birthday date:</div>
-          <div class="profile-info-value">01/02/2004</div>
+          <input class="profile-info-value editable" id="profile-birthdate" type="text" value="" placeholder="DD/MM/YYYY" readonly />
         </div>
 
+        <!-- [BACKEND] GET/POST → user.gender -->
         <div class="profile-info-card">
           <div class="profile-info-label">Gender:</div>
-          <div class="profile-info-value">Female</div>
+          <input class="profile-info-value editable" id="profile-gender" type="text" value="" placeholder="เพศ" readonly />
         </div>
 
+        <!-- [BACKEND] GET/POST → user.faculty -->
         <div class="profile-info-card profile-info-card-full">
           <div class="profile-info-label">Faculty:</div>
-          <div class="profile-info-value">ICT</div>
+          <input class="profile-info-value editable" id="profile-faculty" type="text" value="" placeholder="คณะ" readonly />
         </div>
 
+        <!-- [BACKEND] GET/POST → user.social_media -->
         <div class="profile-info-card profile-info-card-full">
           <div class="profile-info-label">Social Media:</div>
-          <div class="profile-info-value">iamnanno</div>
+          <input class="profile-info-value editable" id="profile-social" type="text" value="" placeholder="@username" readonly />
+        </div>
+
+      </div><!-- /profile-info-grid -->
+
+      <!-- ─────────────────────────────────────────────────────
+           [BACKEND] Tags
+           GET  → user.tags (array of string) → render แต่ละ tag เป็น <span>
+           POST → ส่ง array กลับไปที่ /api/user/tags
+           ───────────────────────────────────────────────────── -->
+      <div class="profile-tags-section">
+        <div class="profile-tags-title">Tags:</div>
+        <div class="profile-tags-list" id="profile-tags-list">
+          <!-- [BACKEND] loop สร้าง chip จาก user.tags array -->
+        </div>
+        <!-- ช่องเพิ่ม tag ใหม่ (แสดงเฉพาะตอน edit mode) -->
+        <div class="add-tag-row">
+          <input class="add-tag-input" id="new-tag-input" type="text" placeholder="เพิ่ม tag..." />
+          <button class="add-tag-btn" onclick="addTag()">+ Add</button>
         </div>
       </div>
 
-      <div class="profile-tags-section">
-        <div class="profile-tags-title">Tags:</div>
-        <div class="profile-tags-list">
-          <span class="profile-tag-chip">#CafeHopping</span>
-          <span class="profile-tag-chip">#PhotoEnthusiast</span>
-          <span class="profile-tag-chip">#ShortGetaway</span>
-          <span class="profile-tag-chip">#Events</span>
-          <span class="profile-tag-chip">#Concert</span>
-          <span class="profile-tag-chip">#Healing</span>
-          <span class="profile-tag-chip">#No Alcohol</span>
-        </div>
-      </div>
     </section>
   </main>
 
@@ -111,7 +149,6 @@
           <span>Home</span>
         </a>
       </li>
-
       <li class="menu-item">
         <a href="../html/Board.html">
           <svg width="27" height="23" viewBox="0 0 27 23" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -120,7 +157,6 @@
           <span>Board</span>
         </a>
       </li>
-
       <li class="menu-item">
         <a href="../html/CreateTrip.html">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -129,7 +165,6 @@
           <span>Create</span>
         </a>
       </li>
-
       <li class="menu-item active">
         <a href="../html/Profile.html">
           <svg width="22" height="27" viewBox="0 0 22 27" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -143,6 +178,151 @@
   </nav>
 
   <script src="../js/main.js"></script>
+
+  <script>
+    // ═══════════════════════════════════════════════════════════
+    //  [FRONTEND] localStorage — ใช้ชั่วคราวก่อน backend พร้อม
+    //
+    //  [BACKEND] เมื่อพร้อมแล้ว ให้:
+    //  1. แทน loadProfile()  → GET  /api/user/profile  (ใช้ token จาก cookie/localStorage)
+    //  2. แทน saveProfile()  → PUT  /api/user/profile  (ส่ง JSON body)
+    //  3. แทน avatar upload  → POST /api/user/avatar   (ส่ง FormData)
+    // ═══════════════════════════════════════════════════════════
+
+    const FIELDS = ['profile-username','profile-bio','profile-firstname',
+                    'profile-lastname','profile-birthdate','profile-gender',
+                    'profile-faculty','profile-social'];
+
+    // โหลดข้อมูลจาก localStorage ตอนเปิดหน้า
+    function loadProfile() {
+      const saved = JSON.parse(localStorage.getItem('joinjoy_profile') || '{}');
+
+      FIELDS.forEach(id => {
+        const el = document.getElementById(id);
+        if (el && saved[id]) el.value = saved[id];
+      });
+
+      // โหลด avatar
+      const avatar = localStorage.getItem('joinjoy_avatar');
+      if (avatar) {
+        const img = document.getElementById('profile-avatar');
+        img.src = avatar;
+        img.style.display = 'block';
+      }
+
+      // โหลด tags
+      const tags = JSON.parse(localStorage.getItem('joinjoy_tags') || '[]');
+      if (tags.length > 0) {
+        const list = document.getElementById('profile-tags-list');
+        list.innerHTML = '';
+        tags.forEach(t => appendTagChip(t));
+      }
+    }
+
+    // บันทึกข้อมูลลง localStorage
+    function saveProfile() {
+      const data = {};
+      FIELDS.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) data[id] = el.value;
+      });
+      localStorage.setItem('joinjoy_profile', JSON.stringify(data));
+
+      // บันทึก tags
+      const chips = document.querySelectorAll('#profile-tags-list .profile-tag-chip');
+      const tags = Array.from(chips).map(c => c.dataset.tag);
+      localStorage.setItem('joinjoy_tags', JSON.stringify(tags));
+    }
+
+    // toggle Edit ↔ Save
+    function toggleEdit() {
+      const btn = document.getElementById('edit-btn');
+      const isEditing = document.body.classList.toggle('edit-mode');
+
+      if (isEditing) {
+        // เข้า edit mode
+        btn.textContent = 'Save';
+        btn.classList.add('save-mode');
+        FIELDS.forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.removeAttribute('readonly');
+        });
+        // tags removable
+        document.querySelectorAll('#profile-tags-list .profile-tag-chip')
+          .forEach(chip => chip.classList.add('removable'));
+      } else {
+        // ออก edit mode → บันทึก
+        btn.textContent = 'Edit';
+        btn.classList.remove('save-mode');
+        FIELDS.forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.setAttribute('readonly', true);
+        });
+        document.querySelectorAll('#profile-tags-list .profile-tag-chip')
+          .forEach(chip => chip.classList.remove('removable'));
+        saveProfile();
+        showToast('บันทึกเรียบร้อยแล้ว ✓');
+      }
+    }
+
+    // preview avatar ก่อน upload
+    function previewAvatar(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = e => {
+        const img = document.getElementById('profile-avatar');
+        img.src = e.target.result;
+        img.style.display = 'block';
+        localStorage.setItem('joinjoy_avatar', e.target.result);
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // เพิ่ม tag chip
+    function appendTagChip(tagText) {
+      const list = document.getElementById('profile-tags-list');
+      const span = document.createElement('span');
+      span.className = 'profile-tag-chip';
+      span.dataset.tag = tagText;
+      span.textContent = '#' + tagText.replace(/^#/, '');
+      if (document.body.classList.contains('edit-mode')) {
+        span.classList.add('removable');
+      }
+      span.onclick = () => {
+        if (document.body.classList.contains('edit-mode')) span.remove();
+      };
+      list.appendChild(span);
+    }
+
+    function addTag() {
+      const input = document.getElementById('new-tag-input');
+      const val = input.value.trim();
+      if (!val) return;
+      appendTagChip(val);
+      input.value = '';
+    }
+
+    // toast notification
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.style.cssText = 'background:#34c97a;color:#fff;padding:8px 20px;border-radius:20px;font-size:13px;font-weight:600;';
+      setTimeout(() => t.style.cssText = '', 2000);
+    }
+
+    // existing chips clickable to remove
+    document.querySelectorAll('#profile-tags-list .profile-tag-chip').forEach(chip => {
+      chip.dataset.tag = chip.textContent.replace(/^#/, '');
+      chip.onclick = () => {
+        if (document.body.classList.contains('edit-mode')) chip.remove();
+      };
+    });
+
+    // โหลดข้อมูลตอนเปิดหน้า
+    loadProfile();
+  </script>
+
 </div><!-- /.mobile-shell -->
 </body>
 </html>

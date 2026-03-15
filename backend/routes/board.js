@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
 // สร้างไฟล์เชื่อมต่อ DB ไว้ใน config/db
-const db = require('../config/db');
+const db = require('../db');
 
-router.get('/trips', async (req, res) => {
+router.get('/trips', async(req, res) => {
     try {
         const [rows] = await db.query(`
     SELECT 
