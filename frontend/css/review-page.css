@@ -1,0 +1,292 @@
+/* ── REVIEW PAGE CSS ── */
+/* ใช้กับ review.html เรียกใช้ด้วย <link rel="stylesheet" href="../css/review-page.css" /> */
+
+:root {
+  --bg: #fdecef;
+  --card: rgba(255, 255, 255, .92);
+  --card2: rgba(255, 255, 255, .78);
+  --text: #2b2b2b;
+  --muted: #6b6b6b;
+  --pink: #ff6f8f;
+  --pink2: #ff8aa3;
+  --mint: #8fe1cf;
+  --mint2: #62cbb6;
+  --stroke: rgba(34, 34, 34, .08);
+  --shadow: 0 18px 40px rgba(16, 24, 40, .14);
+  --shadow2: 0 10px 18px rgba(16, 24, 40, .08);
+  --r-xl: 28px;
+  --r-lg: 20px;
+  --r-md: 16px;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body { height: 100%; }
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Poppins', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  background: #d6b8be;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+}
+
+/* ── PHONE SHELL — 390×844px อยู่กลางจอ ── */
+.phone {
+  width: 390px;
+  min-height: 844px;
+  background:
+    radial-gradient(1200px 700px at 20% -10%, rgba(255, 111, 143, .25), transparent 50%),
+    radial-gradient(900px 600px at 110% 10%, rgba(143, 225, 207, .25), transparent 45%),
+    var(--bg);
+  position: relative;
+  overflow-x: hidden;
+  overflow-y: auto;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── TOPBAR ── */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: 20px 16px 10px 16px;
+}
+
+.icon-btn {
+  position: absolute;
+  right: 14px;
+  top: 18px;
+  border: none;
+  background: white;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  font-size: 16px;
+}
+
+.logo {
+  height: 32px;
+  object-fit: contain;
+}
+
+/* ── CONTENT ── */
+.content {
+  padding: 12px 16px 18px;
+  overflow: auto;
+}
+
+/* ── PAGE HEADING ── */
+.page-head {
+  margin: 6px 0 12px;
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--pink);
+  text-align: center;
+  letter-spacing: .2px;
+}
+
+/* ── TRIP CARD ── */
+.trip-card {
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow2);
+  border: 1px solid rgba(255, 255, 255, .65);
+  background: rgba(255, 255, 255, .6);
+}
+
+.trip-img {
+  position: relative;
+  height: 160px;
+  background:
+    linear-gradient(135deg, rgba(255, 111, 143, .35), rgba(143, 225, 207, .35)),
+    #c9d6ff;
+}
+
+.trip-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.trip-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: #fff;
+  text-shadow: 0 3px 12px rgba(0, 0, 0, .38);
+  background: linear-gradient(to bottom, rgba(0, 0, 0, .12), rgba(0, 0, 0, .35));
+}
+
+.trip-title {
+  font-size: 22px;
+  font-weight: 900;
+}
+
+.trip-sub {
+  margin-top: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  opacity: .95;
+}
+
+/* ── SECTION ── */
+.section { margin: 12px 0; }
+
+/* ── TEXTAREA ── */
+.textarea {
+  width: 100%;
+  height: 140px;
+  border-radius: var(--r-lg);
+  padding: 14px;
+  border: 2px solid rgba(143, 225, 207, .9);
+  background: rgba(255, 255, 255, .9);
+  box-shadow: 0 12px 18px rgba(98, 203, 182, .08);
+  outline: none;
+  resize: none;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.textarea::placeholder {
+  color: rgba(255, 111, 143, .75);
+  font-weight: 600;
+}
+
+/* ── PHOTO UPLOAD ── */
+.subhead {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--mint2);
+  margin-bottom: 8px;
+  letter-spacing: .2px;
+}
+
+.photo-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.photo-box {
+  width: 64px;
+  height: 54px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--stroke);
+  background: rgba(255, 255, 255, .9);
+  display: grid;
+  place-items: center;
+  box-shadow: 0 10px 14px rgba(16, 24, 40, .06);
+  overflow: hidden;
+}
+
+.photo-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.photo-add {
+  width: 64px;
+  height: 54px;
+  border-radius: var(--r-md);
+  border: 2px dashed rgba(143, 225, 207, .95);
+  background: rgba(255, 255, 255, .35);
+  box-shadow: 0 10px 14px rgba(98, 203, 182, .06);
+  font-size: 22px;
+  cursor: pointer;
+}
+
+/* ── SUBMIT BUTTON ── */
+.cta {
+  width: 100%;
+  border: 0;
+  border-radius: 22px;
+  padding: 14px 16px;
+  font-size: 20px;
+  font-weight: 900;
+  color: #fff;
+  cursor: pointer;
+  background: linear-gradient(180deg, var(--pink2), var(--pink));
+  box-shadow: 0 18px 26px rgba(255, 111, 143, .25);
+}
+
+.cta:active {
+  transform: translateY(1px);
+}
+
+/* ── LOGO FALLBACK TEXT ── */
+.logo-text {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 900;
+  font-size: 24px;
+  background: linear-gradient(135deg, #ff6f8f, #ffb347);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-decoration: none;
+}
+
+/* ── BOTTOM NAVBAR ── */
+.mainnav {
+  position: sticky;
+  bottom: 12px;
+  margin: 8px 14px 0;
+  background: #ffffff;
+  border-radius: 24px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.10);
+  z-index: 100;
+  padding: 8px 0;
+}
+
+.mainmenu {
+  list-style: none;
+  margin: 0;
+  padding: 0 12px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.menu-item a {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  text-decoration: none;
+  color: #aaaaaa;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 6px 10px;
+  border-radius: 14px;
+  font-family: 'Poppins', sans-serif;
+}
+
+.menu-item a svg {
+  width: 22px;
+  height: 22px;
+}
+
+.menu-item a:hover { color: #ff6f8f; }
+
+.menu-item.active a {
+  background: #ff6f8f;
+  color: #ffffff;
+  border-radius: 18px;
+  padding: 8px 14px;
+}
+
+.menu-item.active a svg { stroke: #ffffff; }
