@@ -140,7 +140,7 @@ router.patch('/respond', async(req, res) => {
         return res.status(401).json({ error: 'กรุณาล็อกอินก่อนตอบรับคำขอ' })
     }
 
-    if (!['Joined', 'Rejected'].includes(String(status || ''))) {
+    if (!['Joined', 'Cancelled'].includes(String(status || ''))) {
         return res.status(400).json({ error: 'สถานะไม่ถูกต้อง' })
     }
 
