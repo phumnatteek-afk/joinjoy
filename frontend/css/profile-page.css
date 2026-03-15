@@ -402,6 +402,89 @@ body.profile-screen {
   color: #fff;
 }
 
+/* ── Avatar Upload Section ── */
+.avatar-upload-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.avatar-upload-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 12px;
+  display: block;
+}
+
+.avatar-upload-circle-wrap {
+  position: relative;
+  display: inline-block;
+  margin-bottom: 10px;
+}
+
+/* วงแหวน gradient รอบรูป */
+.avatar-upload-ring {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ff6f8f, #ffb347);
+  padding: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatar-upload-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+  background: #fff;
+}
+
+.avatar-upload-placeholder {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background: #ffeef1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ปุ่มกล้องมุมล่างขวา */
+.avatar-camera-btn {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ff6f8f, #ffb347);
+  border: 2.5px solid #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(255,111,143,0.35);
+  transition: opacity 0.2s;
+}
+.avatar-camera-btn:hover { opacity: 0.85; }
+
+.avatar-file-name {
+  font-size: 11px;
+  color: #bbb;
+  margin: 0;
+  max-width: 200px;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 /* ── Cancel / Save buttons ── */
 .btn-cancel {
   flex: 1;
