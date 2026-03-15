@@ -32,9 +32,9 @@ passport.use(
         },
         async(accessToken, refreshToken, profile, done) => {
             try {
-                const email = profile.emails ? .[0] ? .value || "";
+                const email = profile.emails?.[0]?.value || "";
                 const name = profile.displayName || "";
-                const picture = profile.photos ? .[0] ? .value || "";
+                const picture = profile.photos?.[0]?.value || "";
 
                 console.log("[Google OAuth] email received:", email);
 
