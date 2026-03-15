@@ -152,17 +152,20 @@ body {
 /* ── EXPERIENCE ─────────────────────────── */
 .exp-scroll { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 28px; scrollbar-width: none; }
 .exp-scroll::-webkit-scrollbar { display: none; }
-.exp-card { flex-shrink: 0; width: 130px; border-radius: 12px; overflow: hidden; position: relative; cursor: pointer; box-shadow: var(--shadow); }
-.exp-img  { width: 100%; height: 108px; object-fit: cover; display: block; }
+.exp-card { flex-shrink: 0; height: 130px; width: 130px; border-radius: 12px; overflow: hidden; position: relative; cursor: pointer; box-shadow: var(--shadow); }
+.exp-img  { width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block; }
 .exp-ph   { width: 100%; height: 108px; display: flex; align-items: center; justify-content: center; font-size: 28px; }
 .exp-overlay {
   position: absolute; inset: 0;
   background: linear-gradient(to top, rgba(0,0,0,.75) 55%, transparent);
   display: flex; flex-direction: column; justify-content: flex-end; padding: 10px 9px;
 }
-.exp-name  { font-size: 12px; font-weight: 500; color: white; margin-bottom: 3px; }
+.exp-name  { font-size: 12px; font-weight: 600; color: white; margin-bottom: 3px; }
 .exp-quote { font-size: 14px; color: rgba(255,255,255,.6); line-height: 1; margin-bottom: 2px; }
-.exp-text  { font-size: 10px; color: rgba(255,255,255,.88);font-weight: 100; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.exp-text  { font-size: 8px; color: rgba(255,255,255,.88);font-weight: 100; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 .exp-avatars { display: flex; margin-top: 6px; }
 .exp-av {
   width: 20px; height: 20px; border-radius: 50%;
