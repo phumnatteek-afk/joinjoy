@@ -1,26 +1,63 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700;800&family=Poppins:wght@400;500;600;700&display=swap');
+:root {
+  --pink:       #F06292;
+  --pink-light: #FCE4EC;
+  --pink-dark:  #E91E8C;
+  --pink-mid:   #F48FB1;
+  --mint:       #80CBC4;
+  --bg:         #FFF0F3;
+  --white:      #FFFFFF;
+  --text:       #2D1F26;
+  --text-soft:  #B07A90;
+  --text-muted: #CBA5B5;
+  --border:     #F5D5DE;
+  --shadow:     0 4px 20px rgba(240,98,146,0.13);
+  --radius:     16px;
 }
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
-  font-family: 'Nunito', sans-serif;
-  background: #f0d0d0;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
+  font-family: 'Poppins', 'Kanit', sans-serif;
+  color: var(--text);
+background: linear-gradient(180deg, #f7dada 0%, #f3cfcf 50%, #eed9c4 100%);
+  max-width: 430px;
+  margin: 0 auto;
   min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
 }
-
+.clearfix {
+  display: block;
+}
+.clearfix:after {
+  visibility: hidden;
+  display: block;
+  font-size: 0;
+  content: " ";
+  clear: both;
+  height: 0;
+}
 .mobile {
   width: 390px;
   min-height: 100vh;
-  background: linear-gradient(170deg, #fce8e8 0%, #f8d0d0 45%, #f5bcbc 100%);
+background: linear-gradient(180deg, #ffffff 0%, #f3cfcf 50%, #eed9c4 100%);
   position: relative;
   overflow: hidden;
 }
-
+  .logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: -50px;
+  }
+  .logo img {
+    width: 120px;
+    height: auto;
+    display: block;
+    flex-shrink: 0;
+  }
 .blob1 {
   position: absolute;
   width: 260px;
@@ -63,7 +100,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #e05070;
+  color: #DE7685;
   font-size: 26px;
   font-weight: 300;
   transition: background .2s;
@@ -75,28 +112,17 @@ body {
   background: rgba(224, 80, 112, .1);
 }
 
-.logo {
-  font-size: 30px;
-  font-weight: 900;
-  letter-spacing: -.5px;
-  background: linear-gradient(130deg, #e8486a, #f97040);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  filter: drop-shadow(0 1px 0 rgba(232, 72, 106, .25));
-}
-
 .page-title {
   padding: 4px 28px 24px;
   font-size: 24px;
-  font-weight: 900;
-  color: #c03858;
+  font-weight: 700;
+  color: #DE7685;
   letter-spacing: -.4px;
 }
 
 .section-label {
   padding: 0 28px 10px;
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 800;
   color: #2a2a2a;
 }
@@ -174,7 +200,8 @@ body {
 
 .notif-title {
   font-size: 14px;
-  font-weight: 800;
+  font-weight: 700;
+  font-family: 'Kanit', sans-serif;
   color: #1e1e1e;
   margin-bottom: 4px;
 }
