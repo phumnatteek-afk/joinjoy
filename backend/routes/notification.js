@@ -1,6 +1,8 @@
 const express = require('express')
 const router = express.Router()
 const pool = require('../db') // ← เปลี่ยนกลับมาใช้ DB จริง
+const SQL_NOW_TH = "CONVERT_TZ(UTC_TIMESTAMP(), '+00:00', '+07:00')"
+const SQL_TODAY_TH = "DATE(CONVERT_TZ(UTC_TIMESTAMP(), '+00:00', '+07:00'))"
 
 let ensureNotificationSeenTablePromise = null
 
@@ -81,7 +83,7 @@ router.post('/join-request', async(req, res) => {
         // INSERT Trip_member สถานะ Pending
         await pool.query(
             `INSERT INTO Trip_member (trip_id, user_id, status, joined_at)
-          VALUES (?, ?, 'Pending', NOW())`, [trip_id, requesterId]
+                    VALUES (?, ?, 'Pending', ${SQL_NOW_TH})`, [trip_id, requesterId]
         )
 
         const joinRequestDetail = `${user.user_name} ขอเข้าร่วมทริป "${trip.trip_name}" [REQ_USER_ID:${user.user_id}]`
@@ -90,7 +92,7 @@ router.post('/join-request', async(req, res) => {
         await pool.query(
             `INSERT INTO Notification 
        (trip_id, user_id, notification_title, notification_detail, create_at)
-       VALUES (?, ?, ?, ?, NOW())`, [
+       VALUES (?, ?, ?, ?, ${SQL_NOW_TH})`, [
                 trip_id,
                 trip.creator_id,
                 'มีคนขอเข้าร่วมทริป',
@@ -195,6 +197,35 @@ router.patch('/respond', async(req, res) => {
        WHERE trip_id = ? AND user_id = ?`, [status, trip_id, user_id]
         )
 
+                // ดันเวลาแจ้งเตือนคำขอเดิมของโฮสต์ให้เป็นล่าสุด
+                // เพื่อให้ขึ้นบนสุดตามเวลาที่โฮสต์เพิ่งตอบรับ/ปฏิเสธ
+                const [requesterRows] = await pool.query(
+                        'SELECT user_name FROM User WHERE user_id = ? LIMIT 1',
+                        [user_id]
+                )
+                const requesterName = requesterRows.length ? String(requesterRows[0].user_name || '').trim() : ''
+                const requesterMarker = `%[REQ_USER_ID:${Number(user_id)}]%`
+                const requesterNameLike = requesterName ? `${requesterName} ขอเข้าร่วมทริป%` : ''
+                await pool.query(
+                        `UPDATE Notification
+             SET create_at = ${SQL_NOW_TH}
+             WHERE notification_id = (
+                 SELECT latest.notification_id FROM (
+                     SELECT notification_id
+                     FROM Notification
+                     WHERE trip_id = ?
+                         AND user_id = ?
+                         AND notification_title = 'มีคนขอเข้าร่วมทริป'
+                         AND (
+                             notification_detail LIKE ?
+                             OR (? <> '' AND notification_detail LIKE ?)
+                         )
+                     ORDER BY notification_id DESC
+                     LIMIT 1
+                 ) AS latest
+             )`, [trip_id, trip.creator_id, requesterMarker, requesterNameLike, requesterNameLike]
+                )
+
         const title = isAccepted ?
             '🎉 ได้รับการตอบรับแล้ว!' :
             '❌ ไม่ได้รับการตอบรับ'
@@ -207,7 +238,7 @@ router.patch('/respond', async(req, res) => {
         await pool.query(
             `INSERT INTO Notification
        (trip_id, user_id, notification_title, notification_detail, create_at)
-       VALUES (?, ?, ?, ?, NOW())`, [trip_id, user_id, title, detail]
+       VALUES (?, ?, ?, ?, ${SQL_NOW_TH})`, [trip_id, user_id, title, detail]
         )
 
         // Socket emit ไปหา User ทันที ส่งข้อมูล contact Host ไปด้วยถ้า ACCEPT
@@ -294,7 +325,7 @@ router.put('/read-all', async(req, res) => {
 
                 await pool.query(
                         `INSERT IGNORE INTO Notification_seen (notification_id, user_id, seen_at)
-                         SELECT n.notification_id, n.user_id, NOW()
+                     SELECT n.notification_id, n.user_id, ${SQL_NOW_TH}
                          FROM Notification n
                          WHERE n.user_id = ?`,
                         [actorUserId]
@@ -326,9 +357,9 @@ router.get('/:user_id', async(req, res) => {
                      ELSE 0
                  END AS is_unread,
          CASE
-           WHEN DATE(create_at) = CURDATE() 
+                 WHEN DATE(create_at) = ${SQL_TODAY_TH}
              THEN 'Today'
-           WHEN DATE(create_at) = DATE_SUB(CURDATE(), INTERVAL 1 DAY) 
+                 WHEN DATE(create_at) = DATE_SUB(${SQL_TODAY_TH}, INTERVAL 1 DAY)
              THEN 'Yesterday'
            ELSE 'This week'
          END AS date_group
@@ -337,7 +368,7 @@ router.get('/:user_id', async(req, res) => {
                  ON ns.notification_id = n.notification_id
                 AND ns.user_id = n.user_id
              WHERE n.user_id = ?
-       ORDER BY create_at DESC`, [user_id]
+             ORDER BY n.notification_id DESC`, [user_id]
         )
 
         const enrichedRows = []
@@ -445,7 +476,7 @@ router.post('/review-reminder', async(req, res) => {
             await pool.query(
                 `INSERT INTO Notification
          (trip_id, user_id, notification_title, notification_detail, create_at)
-         VALUES (?, ?, ?, ?, NOW())`, [
+         VALUES (?, ?, ?, ?, ${SQL_NOW_TH})`, [
                     trip_id,
                     member.user_id,
                     '⭐ รีวิวทริปของคุณ',
@@ -498,7 +529,7 @@ router.post('/review', async(req, res) => {
         await pool.query(
             `INSERT INTO Notification
        (trip_id, user_id, notification_title, notification_detail, create_at)
-       VALUES (?, ?, ?, ?, NOW())`, [
+       VALUES (?, ?, ?, ?, ${SQL_NOW_TH})`, [
                 trip_id,
                 trip.creator_id,
                 '⭐ มีคนรีวิวทริปของคุณ',
