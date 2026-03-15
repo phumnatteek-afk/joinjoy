@@ -27,12 +27,6 @@
   <main class="content">
     <h2 class="page-head">Tell Us about Your Trip</h2>
 
-    <!-- ─────────────────────────────────────────────
-         [BACKEND] Trip Card
-         GET → trip.cover_image → ใส่ใน <img> ข้างใน .trip-img
-         GET → trip.title       → แทนข้อความใน .trip-title
-         GET → trip.category    → แทนข้อความใน .trip-sub
-    ───────────────────────────────────────────────── -->
     <section class="trip-card">
       <div class="trip-img">
         <img id="trip-cover" src="" alt="" style="display:none;" />
@@ -43,10 +37,6 @@
       </div>
     </section>
 
-    <!-- ─────────────────────────────────────────────
-         [BACKEND] Review Text
-         POST → /api/review  → ส่ง field "review_text"
-    ───────────────────────────────────────────────── -->
     <section class="section">
       <div class="subhead">Your Review</div>
       <textarea
@@ -56,21 +46,14 @@
       ></textarea>
     </section>
 
-    <!-- ─────────────────────────────────────────────
-         [BACKEND] Photo Upload
-         POST → /api/review/photos → ส่ง FormData (array of images)
-         GET  → แสดงรูปที่อัปโหลดแล้วใน .photo-box
-    ───────────────────────────────────────────────── -->
     <section class="section">
       <div class="subhead">Add Photos</div>
       <div class="photo-row" id="photo-row">
-        <!-- รูปที่อัปโหลดจะ append เข้ามาที่นี่ด้วย JS -->
         <button class="photo-add" type="button" id="photo-add-btn" aria-label="add photo">+</button>
         <input type="file" id="photo-file-input" accept="image/*" multiple style="display:none;" />
       </div>
     </section>
 
-    <!-- [BACKEND] กด Submit → POST /api/review ส่ง { trip_id, review_text, photos[] } -->
     <button class="cta" type="button" id="submit-btn">Submit</button>
 
   </main>
@@ -119,7 +102,6 @@
 
 <script>
   // ── Photo preview ──────────────────────────────────
-  // [BACKEND] ตอน submit จริง ให้ส่ง FormData ไปที่ POST /api/review/photos แทน
   const photoInput = document.getElementById('photo-file-input');
   const photoAddBtn = document.getElementById('photo-add-btn');
   const photoRow = document.getElementById('photo-row');
@@ -142,15 +124,12 @@
     photoInput.value = '';
   });
 
-  // ── Submit ─────────────────────────────────────────
-  // [BACKEND] แทน alert ด้วย fetch POST /api/review
   document.getElementById('submit-btn').addEventListener('click', () => {
     const text = document.getElementById('review-text').value.trim();
     if (!text) {
       alert('กรุณาเขียนรีวิวก่อนนะคะ');
       return;
     }
-    // TODO [BACKEND]: ส่งข้อมูลไปที่ API
     alert('ส่งรีวิวเรียบร้อยแล้ว!');
   });
 </script>
