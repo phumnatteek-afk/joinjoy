@@ -222,59 +222,48 @@ body.profile-screen {
 }
 
 /* ── BOTTOM NAV ── */
-.mainnav {
-  position: fixed;
-  bottom: 16px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: calc(100% - 32px);
-  max-width: 420px;
-  background: #ffffff;
-  border-radius: 28px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
-  z-index: 100;
-  padding: 10px 0;
+.profile-screen .mainmenu .menu-item a {
+    position: relative;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: flex-end !important; 
+    width: 65px !important;  
+    height: 80px !important;
+    background: transparent !important;
+    padding: 10px 0 !important;
+    margin: 0 auto !important;
+    transition: none !important; 
 }
 
-.mainmenu {
-  list-style: none;
-  margin: 0;
-  padding: 0 16px;
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
+.profile-screen .menu-item a svg {
+    width: 38px !important;
+    height: 38px !important;
+    padding: 7px !important;
+    z-index: 2;
+    color: #747474; 
 }
 
-.menu-item a {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  text-decoration: none;
-  color: #aaaaaa;
-  font-size: 11px;
-  font-weight: 600;
-  padding: 6px 12px;
-  border-radius: 16px;
-  transition: color 0.2s;
+.profile-screen .menu-item a span {
+    font-size: 11px !important;
+    font-weight: 500 !important;
+    z-index: 2;
+    color: #747474;
 }
 
-.menu-item a svg {
-  width: 22px;
-  height: 22px;
+.profile-screen .menu-item.active a,
+.profile-screen .menu-item a:hover {
+    background-color: #F28695 !important; 
+    border-radius: 40px 40px 0 0 !important; 
 }
 
-.menu-item a:hover {
-  color: #ff6f8f;
+.profile-screen .menu-item.active a svg,
+.profile-screen .menu-item a:hover svg,
+.profile-screen .menu-item.active a span,
+.profile-screen .menu-item a:hover span {
+    color: #ffffff !important;
 }
 
-.menu-item.active a {
-  background: #ff6f8f;
-  color: #ffffff;
-  border-radius: 20px;
-  padding: 8px 14px;
-}
-
-.menu-item.active a svg {
-  stroke: #ffffff;
+.profile-screen .menu-item.active a svg {
+    background-color: transparent !important;
 }
