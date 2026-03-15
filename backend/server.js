@@ -54,6 +54,9 @@ app.use('/api', createTripRouter); // สำหรับ /api/trip และ /ap
 app.use('/api', detailRouter); // สำหรับ /api/trip-detail/:id
 app.use('/api', reviewRouter); // สำหรับ /api/review
 
+const profileRouter = require('./routes/Profile');
+app.use('/api/profile', profileRouter); // GET/PUT /api/profile/me, POST /api/profile/me/avatar
+
 app.get('/', (req, res) => {
     res.redirect('/html/homepage.html'); // ✅ frontend serve จาก /frontend → path คือ /html/...
 });
