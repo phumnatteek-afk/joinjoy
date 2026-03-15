@@ -839,11 +839,11 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-top: 0 !important;
+  margin-top: -40px !important;
 }
 
 .logo img {
-  width: 120px;
+  width: 130px !important;
   height: auto;
   display: block;
   flex-shrink: 0;
