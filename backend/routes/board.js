@@ -4,24 +4,29 @@ const db = require('../db');
 
 router.get('/trips', async(req, res) => {
     try {
+        // ส่วนของ SQL Query ในไฟล์ backend
         const [rows] = await db.query(`
-    SELECT 
-        t.trip_id, 
-        t.trip_name, 
-        t.description, 
-        t.category, 
-        t.cover_image, 
-        t.max_member,
-        t.created_at,
-        t.trip_status,
-        u.user_name,
-        NULL AS user_avatar, -- ใส่ NULL ไว้ก่อนถ้ายังหาชื่อคอลัมน์รูปไม่เจอ
-        (SELECT COUNT(*) FROM Trip_member tm WHERE tm.trip_id = t.trip_id AND tm.status = 'Joined') AS current_member
-    FROM Trip t
-    JOIN User u ON t.creator_id = u.user_id
-    WHERE t.trip_status = 'Open'
-    ORDER BY t.created_at DESC
-`);
+            SELECT 
+                t.trip_id, 
+                t.trip_name, 
+                t.description, 
+                t.category, 
+                t.cover_image, 
+                t.max_member,
+                t.start_time,      
+                t.end_time,       
+                t.budget_min,      
+                t.budget_max,     
+                t.created_at,
+                t.trip_status,
+                u.user_name,
+                NULL AS user_avatar,
+                (SELECT COUNT(*) FROM Trip_member tm WHERE tm.trip_id = t.trip_id AND tm.status = 'Joined') AS current_member
+            FROM Trip t
+            JOIN User u ON t.creator_id = u.user_id
+            WHERE t.trip_status = 'Open'
+            ORDER BY t.created_at DESC
+        `);
 
         // ถ้าไม่มีข้อมูล ส่ง Array ว่างกลับไป (ถูกต้องแล้ว)
         if (rows.length === 0) {

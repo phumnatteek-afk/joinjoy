@@ -1,11 +1,11 @@
 async function fetchTrips() {
     const postContainer = document.getElementById('postContainer');
-    
+
     try {
         const response = await fetch('http://localhost:3000/api/board/trips');
         const trips = await response.json();
 
-        postContainer.innerHTML = ''; // ล้าง Loading ออก
+        postContainer.innerHTML = '';
 
         if (trips.length === 0) {
             postContainer.innerHTML = '<p style="text-align:center; margin-top:50px;">ยังไม่มีทริปในขณะนี้</p>';
@@ -15,56 +15,69 @@ async function fetchTrips() {
         trips.forEach(trip => {
             const coverImg = trip.cover_image ? `http://localhost:3000/${trip.cover_image}` : '../img/default-trip.jpg';
             const userAvatar = trip.user_avatar ? `http://localhost:3000/${trip.user_avatar}` : '../img/default-avatar.png';
-            
+
+            const options = {
+                day: 'numeric',
+                month: 'numeric',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false // ใช้รูปแบบ 24 ชั่วโมง (ถ้าชอบ AM/PM ให้ลบบรรทัดนี้ออก)
+            };
+
+            const startTime = trip.start_time
+                ? new Date(trip.start_time).toLocaleString('th-TH', options)
+                : 'ไม่ระบุ';
+
+            const endTime = trip.end_time
+                ? new Date(trip.end_time).toLocaleString('th-TH', options)
+                : 'ไม่ระบุ';
+            const budgetDisplay = (trip.budget_min && trip.budget_max)
+                ? `${Number(trip.budget_min).toLocaleString()} - ${Number(trip.budget_max).toLocaleString()}`
+                : 'ไม่ระบุ';
+
             const postHTML = `
-                <div class="post">
-                    <div class="post-header">
-                        <img class="avatar" src="${userAvatar}" alt="avatar">
-                        <div class="post-info">
-                            <div class="name">
-                                ${trip.user_name} <span class="time">${calculateTime(trip.created_at)}</span>
-                            </div>
-                            <div class="caption">
-                                ${trip.description || 'สนใจมาจอยทริปด้วยกันไหม?'}
-                            </div>
-                        </div>
-                        <iconify-icon icon="mdi:dots-horizontal" class="dots"></iconify-icon>
-                    </div>
-                    
-                    <div class="trip-card">
-                        <div class="trip-bg" style="background-image: url('${coverImg}'); background-size: cover; background-position: center; height: 180px; border-radius: 15px;"></div>
-                        
-                        <div class="trip-header">
-                            <h2>${trip.trip_name}</h2>
-                            </div>
-                        
-                     <div class="trip-info">
-    <span>
-        <iconify-icon icon="mdi:map-marker"></iconify-icon>
-        ${trip.category}
-    </span>
-
-    <span>
-        <iconify-icon icon="mdi:account-group"></iconify-icon>
-        ${trip.current_member} / ${trip.max_member} members
-    </span>
-</div>
-                    <div class="trip-extra">
-                        <span class="trip-time">
-                            <iconify-icon icon="mdi:clock-outline"></iconify-icon>
-                            ${trip.start_time} - ${trip.end_time}
-                        </span>
-
-                        <span class="trip-budget">
-                            <iconify-icon icon="mdi:cash"></iconify-icon>
-                            ${trip.budget} ฿
-                        </span>
-                    </div>
-                        
-                        <button class="joy-btn" onclick="joinTrip(${trip.trip_id})">ขอไปด้วย</button>
-                    </div>
+    <div class="post-card">
+        <div class="post-header">
+            <img class="avatar" src="${userAvatar}" alt="avatar">
+            <div class="post-info">
+                <div class="name">
+                    ${trip.user_name} <span class="time">${calculateTime(trip.created_at)}</span>
                 </div>
-            `;
+                <div class="caption">
+                    ${trip.description || 'ทริปนี้น่าสนใจมาก!'}
+                </div>
+            </div>
+            <iconify-icon icon="mdi:dots-horizontal" class="dots"></iconify-icon>
+        </div>
+        
+        <div class="trip-bg" style="background-image: url('${coverImg}'); background-size: cover; background-position: center; height: 180px; border-radius: 15px; margin: 0 15px;"></div>
+        
+        <div class="trip-body-content">
+            <div class="trip-header-title">
+                <h2>${trip.trip_name}</h2>
+            </div>
+            
+            <div class="trip-info-pills">
+                <span><iconify-icon icon="mdi:map-marker"></iconify-icon> ${trip.category}</span>
+                <span><iconify-icon icon="mdi:account-group"></iconify-icon> ${trip.current_member}/${trip.max_member}</span>
+            </div>
+
+            <div class="trip-extra-box">
+                <div class="trip-time-row">
+                    <iconify-icon icon="mdi:clock-outline"></iconify-icon>
+                    <span>${startTime} - ${endTime}</span>
+                </div>
+                <div class="trip-budget-row">
+                    <iconify-icon icon="mdi:cash"></iconify-icon>
+                    <span>${budgetDisplay} ฿</span>
+                </div>
+            </div>
+            
+            <button class="joy-btn" onclick="joinTrip(${trip.trip_id})">Join</button>
+        </div>
+    </div>
+`;
             postContainer.insertAdjacentHTML('beforeend', postHTML);
         });
 
