@@ -989,11 +989,11 @@ textarea {
 }
 
 /* Post */
-
 .post{
   display:flex;
   flex-direction:column;
-  gap:10px;
+  gap:12px;
+  margin-bottom:30px;
 }
 
 .post-header{
@@ -1004,10 +1004,11 @@ textarea {
 }
 
 .avatar{
-  width:42px;
-  height:42px;
+  width:44px;
+  height:44px;
   border-radius:50%;
-  box-shadow:0 2px 6px rgba(0,0,0,0.15);
+  object-fit:cover;
+
 }
 
 .post-info{
@@ -1015,23 +1016,22 @@ textarea {
 }
 
 .name{
-  font-size:15px;
-  font-weight:600;
+  font-size:18px;
+  font-weight:700;
   color:#2d1f26;
 }
 
 .time{
-  font-size:12px;
+  font-size:15px;
   color:#9a8a92;
   margin-left:6px;
+  font-weight: 600;
 }
 
 .caption{
-  font-size:16px;
-  color:#444;
-  line-height:1.4;
-  margin-top:2px;
-  font-weight: 500;
+  font-size:18px;
+  color:#555;
+  margin-top:4px;
 }
 
 .dots{
@@ -1049,19 +1049,25 @@ textarea {
 /* Trip Card */
 
 .trip-card{
-  background:white;
-  border-radius:18px;
+  background:#ffffff;
+  border-radius:22px;
   padding:18px;
 
-  width:90%;          /* ทำให้เล็กลง */
-  max-width:320px;    /* จำกัดความกว้าง */
+  width:90%;
+  max-width:330px;
 
-  margin:10px auto;   /* จัดให้อยู่กลาง */
+  margin:14px auto;
 
-  box-shadow:0 8px 20px rgba(0,0,0,0.08);
+  box-shadow:0 12px 30px rgba(0,0,0,0.08);
   text-align:center;
+
+  transition:all .25s ease;
 }
 
+.trip-card:hover{
+  transform:translateY(-4px);
+  box-shadow:0 16px 35px rgba(0,0,0,0.12);
+}
 .trip-card h2{
   margin:5px 0;
 }
@@ -1123,4 +1129,28 @@ textarea {
 
 .joy-btn:hover{
   transform:scale(1.05);
+}
+
+.trip-extra{
+  display:flex;
+  justify-content:center;
+  gap:16px;
+  margin-top:8px;
+  font-size:14px;
+  color:#555;
+}
+
+.trip-time,
+.trip-budget{
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+
+.trip-budget iconify-icon{
+  color:#2ecc71;
+}
+
+.trip-time iconify-icon{
+  color:#f28695;
 }
