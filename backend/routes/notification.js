@@ -276,10 +276,21 @@ router.get('/:user_id', async(req, res) => {
                 }
             }
 
+            let memberStatus = null
+            if (fromUserId && Number(row.trip_id) > 0 &&
+                String(row.notification_title || '').includes('มีคนขอเข้าร่วมทริป')) {
+                const [memberRows] = await pool.query(
+                    'SELECT status FROM Trip_member WHERE trip_id = ? AND user_id = ? LIMIT 1',
+                    [row.trip_id, fromUserId]
+                )
+                memberStatus = memberRows.length ? memberRows[0].status : null
+            }
+
             enrichedRows.push({
                 ...row,
                 notification_detail: cleanedDetail,
-                from_user_id: fromUserId
+                from_user_id: fromUserId,
+                member_status: memberStatus
             })
         }
 
