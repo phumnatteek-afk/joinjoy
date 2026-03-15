@@ -51,13 +51,12 @@ function renderTrips(trips) {
 
         const postHTML = `
         <div class="post-card">
-
             <div class="post-header">
                 <img class="avatar" src="${userAvatar}" alt="avatar">
 
                 <div class="post-info">
-                    <div class="name">
-                        ${trip.user_name} 
+                    <div class="name-wrapper">
+                        <span class="name">${trip.user_name}</span>
                         <span class="time">${calculateTime(trip.created_at)}</span>
                     </div>
 
@@ -66,7 +65,9 @@ function renderTrips(trips) {
                     </div>
                 </div>
 
-                <iconify-icon icon="mdi:dots-horizontal"></iconify-icon>
+                <div class="dots">
+                    <iconify-icon icon="mdi:dots-horizontal"></iconify-icon>
+                </div>
             </div>
 
             <div class="trip-bg"
@@ -79,15 +80,15 @@ function renderTrips(trips) {
             </div>
 
             <div class="trip-body-content">
-
-                <h2>${trip.trip_name}</h2>
+                <div class="trip-header-title">
+                     <h2>${trip.trip_name}</h2>
+                </div>
 
                 <div class="trip-info-pills">
                     <span>
                         <iconify-icon icon="mdi:map-marker"></iconify-icon>
                         ${trip.category}
                     </span>
-
                     <span>
                         <iconify-icon icon="mdi:account-group"></iconify-icon>
                         ${trip.current_member}/${trip.max_member}
@@ -95,25 +96,20 @@ function renderTrips(trips) {
                 </div>
 
                 <div class="trip-extra-box">
-
-                    <div>
+                    <div class="trip-time-row">
                         <iconify-icon icon="mdi:clock-outline"></iconify-icon>
-                        ${startTime} - ${endTime}
+                        <span>${startTime} - ${endTime}</span>
                     </div>
-
-                    <div>
+                    <div class="trip-budget-row">
                         <iconify-icon icon="mdi:cash"></iconify-icon>
-                        ${budgetDisplay} ฿
+                        <span>${budgetDisplay} ฿</span>
                     </div>
-
                 </div>
 
                 <button class="joy-btn" onclick="joinTrip(${trip.trip_id})">
                     Join
                 </button>
-
             </div>
-
         </div>
         `;
 

@@ -38,11 +38,8 @@ body {
 /* ── HEADER ─────────────────────────────── */
 .header {
   background: transparent;
-  /* เอาพื้นขาวออก */
   min-height: auto;
-  /* ไม่ให้กินพื้นที่ */
   border-radius: 0;
-  /* เอาความโค้งออก */
   padding: 20px 20px 10px;
   position: relative;
   box-shadow: none;
@@ -53,6 +50,7 @@ body {
   justify-content: center;
   align-items: center;
   position: relative;
+  padding: 10px 0;
 }
 
 .header-icon {
@@ -68,13 +66,6 @@ body {
   cursor: pointer;
 }
 
-
-/* .logo {
-  font-family: 'Kanit', sans-serif; font-size: 30px; font-weight: 700;
-  background: linear-gradient(135deg, #F06292, #E91E8C);
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-} */
-/* .logo span { font-style: italic; } */
 .bell {
   position: absolute;
   margin-right: 20px;
@@ -107,11 +98,6 @@ body {
   background: none;
 }
 
-/* .notif-dot {
-  position: absolute; top: 7px; right: 7px;
-  width: 9px; height: 9px; border-radius: 50%;
-  background: var(--pink-dark); border: 2px solid white; display: none;
-}  */
 .profile-row {
   display: flex;
   align-items: center;
@@ -265,7 +251,6 @@ body {
 .card {
   background: var(--white);
   border-radius: var(--radius);
-  /* width: 170px; height: 170px; */
   overflow: hidden;
   box-shadow: var(--shadow);
   cursor: pointer;
@@ -834,25 +819,19 @@ body {
   }
 }
 
-/* ส่วน frontend แก้หน้าโฮม */
 #wrapper1 {
   width: 100%;
   min-height: 100vh;
-  /* ให้สูงอย่างน้อยเต็มหน้าจอเสมอ */
-  /* ใช้ Gradient เดิมที่คุณชอบ */
   background: linear-gradient(180deg, #f7dada 0%, #f3cfcf 50%, #eed9c4 100%);
   display: flex;
   flex-direction: column;
   position: relative;
-  /* เว้นระยะด้านล่างเผื่อไว้ให้ Nav bar ที่เป็น fixed */
   padding-bottom: 120px;
 }
 
-/* ถ้าอยากให้เนื้อหาอยู่ตรงกลาง (กรณีเปิดบนคอม) */
 .main {
   width: 100%;
   max-width: 430px;
-  /* ปรับขนาดความกว้างแบบมือถือ */
   margin: 0 auto;
 }
 
@@ -860,11 +839,11 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-top: -50px;
+  margin-top: -40px !important;
 }
 
 .logo img {
-  width: 120px;
+  width: 130px !important;
   height: auto;
   display: block;
   flex-shrink: 0;
@@ -897,10 +876,11 @@ body {
 }
 
 .search-container {
-  padding: 15px;
+  padding: 5px 15px;
   width: 100%;
   box-sizing: border-box;
   position: relative;
+
 }
 
 .container {
@@ -912,13 +892,13 @@ body {
   align-items: center;
   background: #ffffff;
   border-radius: 50px;
-  padding: 15px 15px;
+  padding: 12px 15px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   width: 100%;
   margin: 0;
+  margin-top: -40px;
 }
 
-/* เมื่อกดคลิกที่กล่อง ให้เงาชัดขึ้น */
 .search-box:focus-within {
   border-color: var(--primary-pink);
   box-shadow: 0 4px 15px rgba(242, 134, 149, 0.2);
@@ -958,7 +938,6 @@ body {
 /* ส่วนแสดงผลลัพธ์ */
 .search-results {
   position: absolute;
-  /* ให้ลอยทับเนื้อหาข้างล่าง */
   top: 100%;
   left: 0;
   right: 0;
@@ -975,7 +954,6 @@ body {
   border-bottom: 1px solid #f0f0f0;
 }
 
-/* ล็อคเมนูไว้ด้านล่างจอ */
 .mainmenu .menu-item a span {
   color: #747474 !important;
   transition: color 0.3s ease;
@@ -1674,7 +1652,7 @@ textarea {
 .caption {
     font-size: 16px;
     color: #555;
-    margin-top: 20px; 
+    margin-top: 15px; 
     line-height: 1.4;
     display: block;
     margin-left: -50px;
