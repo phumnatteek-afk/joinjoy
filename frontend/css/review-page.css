@@ -20,30 +20,28 @@
 }
 
 *, *::before, *::after { box-sizing: border-box; }
-html, body { height: 100%; }
 
-body {
-  margin: 0;
-  padding: 0;
-  font-family: 'Poppins', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-  background: #d6b8be;
+html:has(body.review-screen) {
+  background: linear-gradient(160deg, #f8dde4 0%, #f0cfd5 40%, #e8c5b0 100%);
   min-height: 100vh;
-  display: flex;
-  justify-content: center;
 }
 
-/* ── PHONE SHELL — 390×844px อยู่กลางจอ ── */
+body {
+  margin: 0 auto;
+  padding: 0;
+  font-family: 'Poppins', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  background: transparent;
+  min-height: 100vh;
+  max-width: 430px;
+  width: 100%;
+  display: block;
+}
+
+/* ── PHONE SHELL ── */
 .phone {
-  width: 390px;
-  min-height: 844px;
-  background:
-    radial-gradient(1200px 700px at 20% -10%, rgba(255, 111, 143, .25), transparent 50%),
-    radial-gradient(900px 600px at 110% 10%, rgba(143, 225, 207, .25), transparent 45%),
-    var(--bg);
-  position: relative;
-  overflow-x: hidden;
-  overflow-y: auto;
-  flex-shrink: 0;
+  width: 100%;
+  min-height: 100vh;
+  background: transparent;
   display: flex;
   flex-direction: column;
 }

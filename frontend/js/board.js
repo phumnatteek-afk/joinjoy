@@ -118,7 +118,9 @@ function renderTrips(trips) {
 }
 
 function searchTrips(query) {
+
     const keyword = query.toLowerCase().trim();
+
     if (!keyword) {
         renderTrips(allTrips);
         return;
@@ -126,7 +128,7 @@ function searchTrips(query) {
 
     const filtered = allTrips.filter(trip =>
         trip.trip_name?.toLowerCase().includes(keyword) ||
-        trip.location_name?.toLowerCase().includes(keyword) ||
+        trip.category?.toLowerCase().includes(keyword) ||
         trip.description?.toLowerCase().includes(keyword)
     );
 
