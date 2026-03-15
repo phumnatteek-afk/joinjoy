@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const db = require('../config/db');
 
-router.get('/trips', async (req, res) => {
+router.get('/trips', async(req, res) => {
     try {
         const [rows] = await db.query(`
     SELECT 
