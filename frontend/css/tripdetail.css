@@ -580,3 +580,109 @@
   font-weight: 600;
   font-size: 13px;
 }
+/* ── JOIN CONFIRM MODAL ─────────────────────────────────── */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.55);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+  z-index: 9999;
+}
+.modal-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+.modal-box {
+  background: #f5f6f7;
+  width: 88%;
+  max-width: 420px;
+  border-radius: 20px;
+  padding: 28px 28px 24px;
+  text-align: center;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+  position: relative;
+  transform: scale(0.9);
+  transition: transform 0.2s;
+  font-family: 'Poppins', sans-serif;
+}
+.modal-overlay.active .modal-box {
+  transform: scale(1);
+}
+.modal-close {
+  position: absolute;
+  right: 18px; top: 14px;
+  font-size: 20px;
+  cursor: pointer;
+  color: #666;
+  line-height: 1;
+}
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+.warning-icon { font-size: 26px; }
+.modal-header h2 {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+}
+.modal-box hr {
+  border: none;
+  border-top: 1px solid #ddd;
+  margin: 14px 0;
+}
+.modal-content {
+  font-size: 14px;
+  line-height: 1.7;
+  color: #444;
+}
+.note {
+  color: #e74c3c;
+  font-weight: 700;
+}
+.modal-actions {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 8px;
+}
+.btn-cancel {
+  padding: 12px 28px;
+  border: none;
+  border-radius: 50px;
+  font-size: 14px;
+  font-weight: 600;
+  color: white;
+  background: #6c7a89;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  cursor: pointer;
+  font-family: 'Poppins', sans-serif;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.btn-cancel:hover { transform: translateY(-1px); }
+.btn-confirm {
+  padding: 12px 28px;
+  border: none;
+  border-radius: 50px;
+  font-size: 14px;
+  font-weight: 600;
+  color: white;
+  background: linear-gradient(135deg, #ff7b87, #f56073);
+  box-shadow: 0 6px 16px rgba(245,96,115,0.35);
+  cursor: pointer;
+  font-family: 'Poppins', sans-serif;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.btn-confirm:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 22px rgba(245,96,115,0.4);
+}

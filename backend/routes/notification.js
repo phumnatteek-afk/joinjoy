@@ -430,31 +430,83 @@ router.get('/:user_id', async(req, res) => {
             let fromUserId = markerMatch ? Number(markerMatch[1]) : null
             let fromUserProfileImg = row.from_user_profile_img || null
 
+            // If the DB column contains a non-numeric value (e.g. username), resolve it
+            if (!fromUserId && row.from_user_id && typeof row.from_user_id === 'string') {
+                const trimmed = row.from_user_id.trim();
+                if (/^\d+$/.test(trimmed)) {
+                    fromUserId = Number(trimmed);
+                } else {
+                    const [userRows] = await pool.query(
+                        'SELECT user_id FROM User WHERE user_name = ? LIMIT 1',
+                        [trimmed]
+                    );
+                    if (userRows.length) {
+                        fromUserId = Number(userRows[0].user_id);
+                        // Persist normalized user_id for future loads
+                        await pool.query(
+                            'UPDATE Notification SET from_user_id = ? WHERE notification_id = ?',
+                            [fromUserId, row.notification_id]
+                        );
+                    }
+                }
+            }
+
             const cleanedDetail = detail
                 .replace(/\s*\[(?:REQ_USER_ID|FROM_USER_ID):\d+\]/gi, '')
                 .replace(/\s*กลับไป Join ใหม่ได้เลย/gi, '')
                 .trim()
 
-            // Backfill old notifications: store from_user_id for future JOINs
+            // 1. Fill user id from marker if available
+            // 2. For old rows without from_user_id, try to infer from text and then persist it
+            if (!fromUserId) {
+                // a) Join-request: name extracted from text
+                if (notificationTitle.includes('มีคนขอเข้าร่วมทริป')) {
+                    const nameMatch = cleanedDetail.match(/^(.+?)\s*ขอเข้าร่วมทริป/)
+                    const requesterName = nameMatch ? String(nameMatch[1] || '').trim() : ''
+                    if (requesterName) {
+                        const [requesters] = await pool.query(
+                            'SELECT user_id FROM User WHERE user_name = ? LIMIT 1', [requesterName]
+                        )
+                        if (requesters.length) {
+                            fromUserId = Number(requesters[0].user_id)
+                        }
+                    }
+                }
+
+                // b) Response notification (accept/reject): infer host as sender
+                if (!fromUserId && notificationTitle.includes('ได้รับการตอบรับ')) {
+                    if (Number(row.trip_id) > 0) {
+                        const [tripRows] = await pool.query(
+                            'SELECT creator_id FROM Trip WHERE trip_id = ? LIMIT 1',
+                            [row.trip_id]
+                        )
+                        if (tripRows.length) {
+                            fromUserId = Number(tripRows[0].creator_id)
+                        }
+                    }
+                }
+
+                // c) Review notification: parse reviewer name
+                if (!fromUserId && notificationTitle.includes('รีวิว')) {
+                    const nameMatch = cleanedDetail.match(/^(.+?)\s*ได้รีวิวทริป/)
+                    const reviewerName = nameMatch ? String(nameMatch[1] || '').trim() : ''
+                    if (reviewerName) {
+                        const [requesters] = await pool.query(
+                            'SELECT user_id FROM User WHERE user_name = ? LIMIT 1', [reviewerName]
+                        )
+                        if (requesters.length) {
+                            fromUserId = Number(requesters[0].user_id)
+                        }
+                    }
+                }
+            }
+
+            // Persist the derived user id for future reads
             if (fromUserId && !row.from_user_id) {
                 await pool.query(
                     'UPDATE Notification SET from_user_id = ? WHERE notification_id = ?',
                     [fromUserId, row.notification_id]
                 )
-            }
-
-            if (!fromUserId && notificationTitle.includes('มีคนขอเข้าร่วมทริป')) {
-                const nameMatch = cleanedDetail.match(/^(.+?)\s*ขอเข้าร่วมทริป/)
-                const requesterName = nameMatch ? String(nameMatch[1] || '').trim() : ''
-
-                if (requesterName) {
-                    const [requesters] = await pool.query(
-                        'SELECT user_id FROM User WHERE user_name = ? LIMIT 1', [requesterName]
-                    )
-                    if (requesters.length) {
-                        fromUserId = Number(requesters[0].user_id)
-                    }
-                }
             }
 
             let memberStatus = null
