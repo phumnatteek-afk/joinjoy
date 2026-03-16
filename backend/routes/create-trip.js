@@ -52,6 +52,7 @@ router.post('/trips', requireLogin, upload.single('cover_image'), async (req, re
         location_name,
         budget_min,
         budget_max,
+        budget_type,
         max_member,
         start_time,
         end_time,
@@ -74,10 +75,10 @@ router.post('/trips', requireLogin, upload.single('cover_image'), async (req, re
         const sql = `
     INSERT INTO Trip
         (creator_id, trip_name, category, location_name,
-         budget_min, budget_max, max_member, current_member,
+         budget_min, budget_max,budget_type, max_member, current_member,
          start_time, end_time, limit_date_accept,description, trip_detail,
          cover_image, trip_status, created_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?, ?, 'open', NOW())
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?, ?, 'open', NOW())
 `;
 
         const values = [
@@ -87,6 +88,7 @@ router.post('/trips', requireLogin, upload.single('cover_image'), async (req, re
             location_name,
             budget_min || null,
             budget_max || null,
+            budget_type,
             max_member,
             start_time,
             end_time,
