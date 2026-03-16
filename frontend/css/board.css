@@ -1914,14 +1914,13 @@ textarea {
   left:0;
   width:100%;
   height:100%;
-  background:rgba(0,0,0,0.45);
-  backdrop-filter:blur(4px);
+  background:rgba(0,0,0,0.55);
   display:flex;
   justify-content:center;
   align-items:center;
   opacity:0;
   pointer-events:none;
-  transition:0.25s;
+  transition:0.2s;
   z-index:9999;
 }
 
@@ -1938,8 +1937,14 @@ textarea {
   text-align:center;
   box-shadow:0 20px 40px rgba(0,0,0,0.25);
   position:relative;
+
+  transform:scale(.9);
+  transition:0.2s;
 }
 
+.modal-overlay.active .modal-box{
+  transform:scale(1);
+}
 .modal-close{
   position:absolute;
   right:20px;
