@@ -1984,49 +1984,52 @@ textarea {
   gap:22px;
   margin-top:10px;
 }
-
 /* ปุ่มยกเลิก */
 .btn-cancel{
-  padding:12px 36px;
-  border-radius:12px;
+  padding:14px 36px;
   border:none;
-  font-size:16px;
+  border-radius:50px;
+  font-size:18px;
   font-weight:600;
-  color:#fff;
-  background:linear-gradient(180deg,#7a8795,#5e6b78);
-  box-shadow:0 4px 10px rgba(0,0,0,0.15);
+  color:white;
+  background:#6c7a89;
+  box-shadow:0 6px 12px rgba(0,0,0,0.18);
   cursor:pointer;
-  transition:all .2s ease;
+
+  transition:transform .15s ease, box-shadow .15s ease;
 }
 
 .btn-cancel:hover{
-  transform:translateY(-2px);
-  box-shadow:0 6px 14px rgba(0,0,0,0.18);
+  transform:translateY(-1px);
+  box-shadow:0 8px 16px rgba(0,0,0,0.2);
 }
 
 .btn-cancel:active{
-  transform:scale(0.96);
+  transform:scale(.97);
 }
+
 
 /* ปุ่มเข้าร่วม */
 .btn-confirm{
-  padding:12px 36px;
-  border-radius:12px;
+  padding:14px 40px;
   border:none;
-  font-size:16px;
+  border-radius:50px;
+  font-size:18px;
   font-weight:600;
   color:white;
-  background:linear-gradient(180deg,#f38b95,#e36c78);
-  box-shadow:0 4px 10px rgba(227,108,120,0.35);
+  background:linear-gradient(135deg,#ff7b87,#f56073);
+  box-shadow:0 8px 18px rgba(245,96,115,0.35);
   cursor:pointer;
-  transition:all .2s ease;
+
+  transition:transform .15s ease, box-shadow .15s ease;
 }
 
 .btn-confirm:hover{
   transform:translateY(-2px);
-  box-shadow:0 6px 16px rgba(227,108,120,0.45);
+  box-shadow:0 12px 24px rgba(245,96,115,0.4);
 }
 
 .btn-confirm:active{
-  transform:scale(0.96);
+  transform:scale(.97);
+  box-shadow:0 5px 10px rgba(245,96,115,0.3);
 }
