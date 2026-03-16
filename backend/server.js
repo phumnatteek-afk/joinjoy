@@ -77,3 +77,17 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}`);
 });
+
+const notificationBudget = require("./routes/notification_budget");
+
+app.use("/api/notification", notificationBudget);
+
+setInterval(async () => {
+
+  try {
+    await fetch("http://localhost:3000/api/notification/check-trip-budget");
+  } catch (err) {
+    console.error("auto notification error", err);
+  }
+
+}, 600000);
