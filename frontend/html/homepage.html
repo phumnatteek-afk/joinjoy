@@ -1,74 +1,73 @@
 <!DOCTYPE html>
 <html lang="th">
-
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>JoinJoy — Home</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Kanit:wght@400;600;700&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="../css/homepage.css" />
-    <style>
-        /* ── My Schedule: ด้านขวามี pill + ปุ่ม Cancel ── */
-        
-        .sch-right {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            gap: 6px;
-            flex-shrink: 0;
-        }
-        
-        .sch-cancel-btn {
-            position: relative;
-            top: -5px;
-            padding: 2px 4px;
-            border-radius: 999px;
-            border: 1.5px solid #ff6f8f;
-            background: #fff;
-            color: #ff6f8f;
-            font-size: 9px;
-            font-weight: 600;
-            font-family: 'Poppins', sans-serif;
-            cursor: pointer;
-            transition: all 0.18s;
-            white-space: nowrap;
-        }
-        
-        .sch-cancel-btn:hover {
-            background: #ff6f8f;
-            color: #fff;
-        }
-        
-        .sch-cancel-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JoinJoy — Home</title>
+     <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Kanit:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/homepage.css" />
+  <style>
+    /* ── My Schedule: ด้านขวามี pill + ปุ่ม Cancel ── */
+    .sch-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+    .sch-cancel-btn {
+      position: relative;
+      top: -5px;
+      padding: 2px 4px;
+      border-radius: 999px;
+      border: 1.5px solid #ff6f8f;
+      background: #fff;
+      color: #ff6f8f;
+      font-size: 9px;
+      font-weight: 600;
+      font-family: 'Poppins', sans-serif;
+      cursor: pointer;
+      transition: all 0.18s;
+      white-space: nowrap;
+    }
+    .sch-cancel-btn:hover {
+      background: #ff6f8f;
+      color: #fff;
+    }
+    .sch-cancel-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  </style>
 </head>
-
 <body>
 
-    <div class="toast" id="toast"></div>
-    <!-- ── Confirm Cancel Popup ── -->
-    <div class="confirm-overlay" id="confirmOverlay">
-        <div class="confirm-box">
-            <div class="confirm-icon">🚫</div>
-            <div class="confirm-title">ยกเลิกการเข้าร่วม?</div>
-            <div class="confirm-msg">คุณแน่ใจหรือไม่ว่าต้องการยกเลิกการเข้าร่วมทริปนี้</div>
-            <div class="confirm-actions">
-                <button class="confirm-no" id="confirmNo">ไม่ใช่</button>
-                <button class="confirm-yes" id="confirmYes">ยืนยัน</button>
-            </div>
-        </div>
+<div class="toast" id="toast"></div>
+<!-- ── Confirm Cancel Popup ── -->
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-box">
+    <div class="confirm-icon">🚫</div>
+    <div class="confirm-title">ยกเลิกการเข้าร่วม?</div>
+    <div class="confirm-msg">คุณแน่ใจหรือไม่ว่าต้องการยกเลิกการเข้าร่วมทริปนี้</div>
+    <div class="confirm-actions">
+      <button class="confirm-no"  id="confirmNo">ไม่ใช่</button>
+      <button class="confirm-yes" id="confirmYes">ยืนยัน</button>
     </div>
-    <!-- ── HEADER ── -->
-    <header class="header">
-        <div class="logo-row">
-            <div class="logo">
-                <a href="homepage.html"><img src="../img/joinjoylogo.png" alt="" /></a>
-            </div>
-            <button class="bell" id="bellBtn" style="position:absolute;right:0" onclick="window.location.href='Notification.html'">
+  </div>
+</div>
+<!-- ── HEADER ── -->
+<header class="header">
+  <div class="logo-row">
+    <div class="logo">
+        <a href="homepage.html"
+        ><img src="../img/joinjoylogo.png" alt=""
+        /></a>
+        </div>
+    <button class="bell" id="bellBtn" style="position:absolute;right:0" onclick="window.location.href='Notification.html'">
      <svg
                   width="23"
                   height="25"
@@ -83,26 +82,41 @@
                 </svg>
       <span class="notif-dot" id="notifDot"></span>
     </button>
-        </div>
-        <div class="profile-row">
-            <div class="avatar" id="avatarEl">🏕️</div>
-            <div>
-                <div class="hi" id="greetName">Hi!</div>
-                <div class="sub" id="greetSub">Faculty : —</div>
-            </div>
-        </div>
-        <div class="search-container">
+  </div>
+  <div class="profile-row">
+    <div class="avatar" id="avatarEl">🏕️</div>
+    <div>
+      <div class="hi"  id="greetName">Hi!</div>
+      <div class="sub" id="greetSub">Faculty : —</div>
+    </div>
+  </div>
+  <div class="search-container">
             <form id="searchForm" class="search-box">
-                <div class="icon-search">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F28695" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <div class="icon-search">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#F28695"
+                  stroke-width="2.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
                   <circle cx="11" cy="11" r="8"></circle>
                   <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                 </svg>
-                </div>
+              </div>
 
-                <input type="text" id="searchInput" placeholder="Search group trip.." autocomplete="off" />
+              <input
+                type="text"
+                id="searchInput"
+                placeholder="Search group trip.."
+                autocomplete="off"
+              />
 
-                <button type="button" class="filter-btn">
+              <button type="button" class="filter-btn">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="20"
@@ -126,60 +140,62 @@
                 </svg>
               </button>
             </form>
-        </div>
-        <div id="results" class="search-results"></div>
-
-        <!-- <div class="search-box">
+          </div>
+          <div id="results" class="search-results"></div>
+      
+  <!-- <div class="search-box">
     <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
     <input id="searchInput" placeholder="Search group trip.." />
     <button class="filter-btn">
       <svg viewBox="0 0 24 24"><path d="M10 18h4v-2h-4v2zM3 6v2h18V6H3zm3 7h12v-2H6v2z"/></svg>
     </button>
   </div> -->
-    </header>
+</header>
 
-    <!-- ── MAIN ── -->
-    <main class="main">
+<!-- ── MAIN ── -->
+<main class="main">
 
-        <div class="chips" id="chipsRow">
-            <button class="chip active" data-cat="">All</button>
-            <button class="chip" data-cat="1-Day Trip">1-Day Trip</button>
-            <button class="chip" data-cat="Chill & Relaxed">Chill &amp; Relaxed</button>
-            <button class="chip" data-cat="Travel Group">Travel Group</button>
-            <button class="chip" data-cat="Beach Trips">Beach Trips</button>
-            <button class="chip" data-cat="Concert">Concert</button>
-            <button class="chip" data-cat="Cafe">Cafe</button>
-        </div>
+  <div class="chips" id="chipsRow">
+    <button class="chip active" data-cat="">All</button>
+    <button class="chip" data-cat="1-Day Trip">1-Day Trip</button>
+    <button class="chip" data-cat="Chill & Relaxed">Chill &amp; Relaxed</button>
+    <button class="chip" data-cat="Travel Group">Travel Group</button>
+    <button class="chip" data-cat="Beach Trips">Beach Trips</button>
+    <button class="chip" data-cat="Concert">Concert</button>
+    <button class="chip" data-cat="Cafe">Cafe</button>
+  </div>
 
-        <div class="sec-hd">Upcoming Trip</div>
-        <div class="grid" id="upcomingGrid">
-            <div class="loading gs">
-                <div class="spinner"></div><span>Loading...</span></div>
-        </div>
+  <div class="sec-hd">Upcoming Trip</div>
+  <div class="grid" id="upcomingGrid">
+    <div class="loading gs"><div class="spinner"></div><span>Loading...</span></div>
+  </div>
 
-        <div class="sec-hd">Recommended <span class="sec-sub" id="recSub"></span></div>
-        <div class="grid" id="recommendedGrid">
-            <div class="loading gs">
-                <div class="spinner"></div><span>Loading...</span></div>
-        </div>
+  <div class="sec-hd">Recommended <span class="sec-sub" id="recSub"></span></div>
+  <div class="grid" id="recommendedGrid">
+    <div class="loading gs"><div class="spinner"></div><span>Loading...</span></div>
+  </div>
 
-        <div class="sec-hd">Trip Experience</div>
-        <div class="exp-scroll" id="expScroll">
-            <div class="loading">
-                <div class="spinner"></div>
-            </div>
-        </div>
+  <div class="sec-hd">Trip Experience</div>
+  <div class="exp-scroll" id="expScroll">
+    <div class="loading"><div class="spinner"></div></div>
+  </div>
 
-        <div class="sec-hd" id="schTitle" style="display:none">My Schedule</div>
-        <div class="sch-list" id="schList"></div>
+  <div class="sec-hd" id="schTitle" style="display:none">My Schedule</div>
+  <div class="sch-list" id="schList"></div>
 
-    </main>
-    <!-- เมนู -->
-    <nav id="mainnav" class="mainnav" aria-label="Main navigation">
-        <ul class="mainmenu">
+</main>
+<!-- เมนู -->
+        <nav id="mainnav" class="mainnav" aria-label="Main navigation">
+          <ul class="mainmenu">
             <li class="menu-item active">
-                <a href="homepage.html">
-                    <svg width="24" height="27" viewBox="0 0 24 27" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <a href="homepage.html">
+                <svg
+                  width="24"
+                  height="27"
+                  viewBox="0 0 24 27"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
                   <path
                     d="M3.93287 25.7504C2.31312 25.7504 1 24.4029 1 22.7391V10.6364C1 9.72201 1.40563 8.85576 2.1 8.28513L10.1671 1.66038C10.6826 1.23356 11.3308 1 12 1C12.6692 1 13.3174 1.23356 13.8329 1.66038L21.8986 8.28513C22.5944 8.85576 23 9.72201 23 10.6364V22.7391C23 24.4029 21.6869 25.7504 20.0671 25.7504H3.93287Z"
                     stroke="currentColor"
@@ -195,13 +211,19 @@
                     stroke-linejoin="round"
                   />
                 </svg>
-                    <span>Home</span>
-                </a>
+                <span>Home</span>
+              </a>
             </li>
 
             <li class="menu-item">
-                <a href="Board.html">
-                    <svg width="27" height="23" viewBox="0 0 27 23" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <a href="Board.html">
+                <svg
+                  width="27"
+                  height="23"
+                  viewBox="0 0 27 23"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
                   <path
                     d="M9.92857 1H4.57143C3.58519 1 2.78571 1.79947 2.78571 2.78571V15.2857H24.2143V2.78571C24.2143 1.79947 23.4148 1 22.4286 1H17.0714M1 15.2857H26M13.5 15.2857V21.5357M9.03571 15.2857L6.35714 21.5357M17.9643 15.2857L20.6429 21.5357"
                     stroke="currentColor"
@@ -210,13 +232,19 @@
                     stroke-linejoin="round"
                   />
                 </svg>
-                    <span>Board</span>
-                </a>
+                <span>Board</span>
+              </a>
             </li>
 
             <li class="menu-item">
-                <a href="CreateTrip.html">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <a href="CreateTrip.html">
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
                   <path
                     d="M11.7399 22.56L11.7399 11.9094L22.2389 11.9094M11.7399 1.25887L11.7389 11.9104L1.24097 11.9094"
                     stroke="currentColor"
@@ -225,13 +253,19 @@
                     stroke-linejoin="round"
                   />
                 </svg>
-                    <span>Create</span>
-                </a>
+                <span>Create</span>
+              </a>
             </li>
 
             <li class="menu-item">
-                <a href="Profile.html">
-                    <svg width="22" height="27" viewBox="0 0 22 27" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <a href="Profile.html">
+                <svg
+                  width="22"
+                  height="27"
+                  viewBox="0 0 22 27"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
                   <path
                     d="M11.0002 11C13.7617 11 16.0002 8.76142 16.0002 6C16.0002 3.23858 13.7617 1 11.0002 1C8.23882 1 6.00024 3.23858 6.00024 6C6.00024 8.76142 8.23882 11 11.0002 11Z"
                     stroke="currentColor"
@@ -243,110 +277,84 @@
                     stroke-width="2"
                   />
                 </svg>
-                    <span>Profile</span>
-                </a>
+                <span>Profile</span>
+              </a>
             </li>
-        </ul>
-    </nav>
-    <!-- จบเมนู -->
+          </ul>
+        </nav>
+        <!-- จบเมนู -->
 
-    <script>
-        const API = '/api';
-        const MEDIA = '';
-        // const API = 'http://localhost:3000/api';
-        // const MEDIA = 'http://localhost:3000'; 
+<script>
+const API = '/api';
+const MEDIA = '';
+// const API = 'http://localhost:3000/api';
+// const MEDIA = 'http://localhost:3000'; 
 
-        let currentUserId = null; // ตั้งค่าจาก loadUser() หลัง login
-        const $ = id => document.getElementById(id);
+let currentUserId = null; // ตั้งค่าจาก loadUser() หลัง login
+const $ = id => document.getElementById(id);
 
-        function getStoredUser() {
-            try {
-                const raw = localStorage.getItem('joinjoy_user');
-                if (raw) return JSON.parse(raw);
-            } catch {}
-            return null;
-        }
+function getStoredUser() {
+  try {
+    const raw = localStorage.getItem('joinjoy_user');
+    if (raw) return JSON.parse(raw);
+  } catch {}
+  return null;
+}
 
-        function getStoredUserId() {
-            return localStorage.getItem('userId') ||
-                localStorage.getItem('user_id') ||
-                localStorage.getItem('currentUserId') ||
-                (getStoredUser() && getStoredUser().user_id) ||
-                null;
-        }
+function getStoredUserId() {
+  return localStorage.getItem('userId') ||
+         localStorage.getItem('user_id') ||
+         localStorage.getItem('currentUserId') ||
+         (getStoredUser() && getStoredUser().user_id) ||
+         null;
+}
 
-        function showToast(msg, type = '') {
-            const el = $('toast');
-            el.textContent = msg;
-            el.className = `toast ${type} show`;
-            setTimeout(() => el.classList.remove('show'), 2800);
-        }
+function showToast(msg, type = '') {
+  const el = $('toast');
+  el.textContent = msg; el.className = `toast ${type} show`;
+  setTimeout(() => el.classList.remove('show'), 2800);
+}
 
-        // session cookie ส่งอัตโนมัติทุก request — แค่ระบุ credentials: 'include'
-        function authHeaders() {
-            return {
-                'Content-Type': 'application/json'
-            };
-        }
+// session cookie ส่งอัตโนมัติทุก request — แค่ระบุ credentials: 'include'
+function authHeaders() {
+  return { 'Content-Type': 'application/json' };
+}
 
-        function formatDate(iso) {
-            if (!iso) return '';
-            const d = new Date(iso),
-                diff = Math.round((d - new Date()) / 86400000);
-            if (diff <= 0) return 'Today';
-            if (diff === 1) return 'Tomorrow';
-            return d.toLocaleDateString('th-TH', {
-                day: 'numeric',
-                month: 'short'
-            });
-        }
+function formatDate(iso) {
+  if (!iso) return '';
+  const d = new Date(iso), diff = Math.round((d - new Date()) / 86400000);
+  if (diff <= 0) return 'Today';
+  if (diff === 1) return 'Tomorrow';
+  return d.toLocaleDateString('th-TH', { day: 'numeric', month: 'short' });
+}
 
-        function pillInfo(daysUntil) {
-            const d = parseInt(daysUntil);
-            if (isNaN(d) || d <= 0) return {
-                text: 'Today',
-                cls: 'today'
-            };
-            if (d === 1) return {
-                text: '1 Day',
-                cls: 'soon'
-            };
-            return {
-                text: `${d} Day`,
-                cls: 'normal'
-            };
-        }
+function pillInfo(daysUntil) {
+  const d = parseInt(daysUntil);
+  if (isNaN(d) || d <= 0) return { text: 'Today',    cls: 'today'  };
+  if (d === 1)             return { text: '1 Day',    cls: 'soon'   };
+  return                          { text: `${d} Day`, cls: 'normal' };
+}
 
 
 
-        async function apiFetch(path, opts = {}) {
-            // ✅ credentials: 'include' ทำให้ session cookie ถูกส่งทุกครั้ง
-            const res = await fetch(API + path, {
-                credentials: 'include',
-                ...opts
-            });
-            if (!res.ok) throw new Error(`${res.status}`);
-            return res.json();
-        }
+async function apiFetch(path, opts = {}) {
+  // ✅ credentials: 'include' ทำให้ session cookie ถูกส่งทุกครั้ง
+  const res = await fetch(API + path, { credentials: 'include', ...opts });
+  if (!res.ok) throw new Error(`${res.status}`);
+  return res.json();
+}
 
-        const EMOJI = {
-            'Beach Trips': '🏖️',
-            'Concert': '🎵',
-            'Cafe': '☕',
-            '1-Day Trip': '🗺️',
-            'Chill & Relaxed': '🌸',
-            'Travel Group': '🚌'
-        };
-        const GRAD = {
-            'Beach Trips': 'linear-gradient(135deg,#80DEEA,#26C6DA)',
-            'Concert': 'linear-gradient(135deg,#CE93D8,#AB47BC)',
-            'Cafe': 'linear-gradient(135deg,#FFCC80,#FFA726)',
-            '1-Day Trip': 'linear-gradient(135deg,#A5D6A7,#66BB6A)',
-            'Chill & Relaxed': 'linear-gradient(135deg,#F48FB1,#EC407A)',
-            'Travel Group': 'linear-gradient(135deg,#90CAF9,#42A5F5)',
-        };
-        const em = cat => EMOJI[cat] || '🏕️';
-        const gr = cat => GRAD[cat] || 'linear-gradient(135deg,#FCE4EC,#F48FB1)';
+const EMOJI = { 'Beach Trips':'🏖️','Concert':'🎵','Cafe':'☕','1-Day Trip':'🗺️','Chill & Relaxed':'🌸','Travel Group':'🚌' };
+const GRAD  = {
+  'Beach Trips':    'linear-gradient(135deg,#80DEEA,#26C6DA)',
+  'Concert':        'linear-gradient(135deg,#CE93D8,#AB47BC)',
+  'Cafe':           'linear-gradient(135deg,#FFCC80,#FFA726)',
+  '1-Day Trip':     'linear-gradient(135deg,#A5D6A7,#66BB6A)',
+  'Chill & Relaxed':'linear-gradient(135deg,#F48FB1,#EC407A)',
+  'Travel Group':   'linear-gradient(135deg,#90CAF9,#42A5F5)',
+};
+const em = cat => EMOJI[cat] || '🏕️';
+const gr = cat => GRAD[cat]  || 'linear-gradient(135deg,#FCE4EC,#F48FB1)';
 
 /* ── RENDER ── */
 function tripCard(t) {
@@ -357,17 +365,15 @@ function tripCard(t) {
   // แสดงปุ่มตามสถานะ
   let btnHtml;
   if (isHost) {
-    btnHtml = `<button class="join-btn joined" disabled>Host</button>`;
+    btnHtml = `<button class="join-btn host" disabled><svg xmlns="http://www.w3.org/2000/svg" width="14px" height="14px" viewBox="0 0 24 24"><path fill="currentColor" d="M9.175 10.825Q8 9.65 8 8t1.175-2.825T12 4t2.825 1.175T16 8t-1.175 2.825T12 12t-2.825-1.175M4 18v-.8q0-.85.438-1.562T5.6 14.55q1.55-.775 3.15-1.162T12 13t3.25.388t3.15 1.162q.725.375 1.163 1.088T20 17.2v.8q0 .825-.587 1.413T18 20H6q-.825 0-1.412-.587T4 18"/></svg>Host</button>`;
 } else if (t.my_join_status === 'Pending') {
   btnHtml = `<button class="join-btn pending" disabled>
     <svg xmlns="http://www.w3.org/2000/svg" width="14px" height="14px" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"><circle cx="12" cy="12" r="9"/><path d="M11 8v5h5"/></g></svg> Pending
   </button>`;
   } else if (t.my_join_status === 'Joined') {
-    btnHtml = `<button class="join-btn joined" disabled>✓ Joined</button>`;
-  } else if (t.my_join_status === 'Pending') {
-  btnHtml = `<button class="join-btn pending" disabled>Pending</button>`;
+    btnHtml = `<button class="join-btn joined" disabled><svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" viewBox="0 0 24 24"><path fill="currentColor" d="m9 20.42l-6.21-6.21l2.83-2.83L9 14.77l9.88-9.89l2.83 2.83z"/></svg>Joined</button>`;
   } else if (full) {
-    btnHtml = `<button class="join-btn joined" disabled>Full</button>`;
+    btnHtml = `<button class="join-btn joined" disabled><svg xmlns="http://www.w3.org/2000/svg" width="14px" height="14px" viewBox="0 0 24 24"><path fill="currentColor" d="M9.175 10.825Q8 9.65 8 8t1.175-2.825T12 4t2.825 1.175T16 8t-1.175 2.825T12 12t-2.825-1.175M4 18v-.8q0-.85.438-1.562T5.6 14.55q1.55-.775 3.15-1.162T12 13t3.25.388t3.15 1.162q.725.375 1.163 1.088T20 17.2v.8q0 .825-.587 1.413T18 20H6q-.825 0-1.412-.587T4 18"/></svg>Full</button>`;
   } else {
     btnHtml = `<button class="join-btn" onclick="event.stopPropagation();joinTrip(${t.trip_id},this,${t.creator_id})">join</button>`;
   }
@@ -449,10 +455,26 @@ function schCard(t) {
 
 /* ── LEAVE TRIP ── */
 async function leaveTrip(tripId, btn) {
-  if (!confirm('ยืนยันการยกเลิกเข้าร่วมทริปนี้?')) return;
+  const overlay    = document.getElementById('confirmOverlay');
+  const confirmYes = document.getElementById('confirmYes');
+  const confirmNo  = document.getElementById('confirmNo');
 
-  btn.disabled    = true;
-  btn.textContent = '...';
+  overlay.classList.add('open');
+
+  // ── ล้าง event เก่าก่อนทุกครั้ง ──
+  confirmNo.replaceWith(confirmNo.cloneNode(true));
+  confirmYes.replaceWith(confirmYes.cloneNode(true));
+
+  // ดึง element ใหม่หลัง clone
+  document.getElementById('confirmNo').onclick = () => {
+    overlay.classList.remove('open');
+  };
+
+  document.getElementById('confirmYes').onclick = async () => {
+    overlay.classList.remove('open');
+
+    btn.disabled  = true;
+    btn.innerHTML = '...';
 
     try {
       const res  = await fetch(`${API}/trips/${tripId}/leave`, {
@@ -584,12 +606,13 @@ async function loadNotif() {
   }
 }
 
-/* ── JOIN MODAL ── */
-let _pendingJoin = null; // { tripId, btn, creatorId }
-
-function joinTrip(tripId, btn, creatorId) {
+/* ── JOIN ── */
+async function joinTrip(tripId, btn, creatorId) {
   const uid = currentUserId || getStoredUserId();
-  if (!uid) { showToast('กรุณาล็อกอินก่อน', 'err'); return; }
+  if (!uid) {
+    showToast('กรุณาล็อกอินก่อน', 'err');
+    return;
+  }
   if (Number(uid) === Number(creatorId)) {
     btn.disabled = true;
     btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14px" height="14px" viewBox="0 0 24 24"><path fill="currentColor" d="M9.175 10.825Q8 9.65 8 8t1.175-2.825T12 4t2.825 1.175T16 8t-1.175 2.825T12 12t-2.825-1.175M4 18v-.8q0-.85.438-1.562T5.6 14.55q1.55-.775 3.15-1.162T12 13t3.25.388t3.15 1.162q.725.375 1.163 1.088T20 17.2v.8q0 .825-.587 1.413T18 20H6q-.825 0-1.412-.587T4 18"/></svg> Host`;
@@ -597,23 +620,6 @@ function joinTrip(tripId, btn, creatorId) {
     showToast('เจ้าของโพสไม่สามารถ join ทริปตัวเองได้', 'err');
     return;
   }
-  // Store pending data and open modal
-  _pendingJoin = { tripId, btn, creatorId };
-  document.getElementById('joinModal').classList.add('active');
-}
-
-function closeJoinModal() {
-  document.getElementById('joinModal').classList.remove('active');
-  _pendingJoin = null;
-}
-
-async function confirmJoinHomepage() {
-  if (!_pendingJoin) return;
-  const { tripId, btn, creatorId } = _pendingJoin;
-  _pendingJoin = null;
-  closeJoinModal();
-
-  const uid = currentUserId || getStoredUserId();
   btn.disabled = true; btn.textContent = '...';
   try {
     const res = await fetch(API + '/notification/join-request', {
@@ -623,15 +629,10 @@ async function confirmJoinHomepage() {
       body: JSON.stringify({ trip_id: tripId, user_id: uid })
     });
     const data = await res.json();
-    if (res.ok && data.success) {
-<<<<<<< HEAD
-      btn.textContent = 'Pending'; btn.classList.add('joined');
-      showToast('ส่งคำขอเข้าร่วมแล้ว! รอเจ้าของโพสตตอบรับ ✌️', 'ok');
-=======
-      btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14px" height="14px" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"><circle cx="12" cy="12" r="9"/><path d="M11 8v5h5"/></g></svg> Pending`;
-      btn.classList.add('pending');
-      showToast('ส่งคำขอเข้าร่วมแล้ว! รอเจ้าของโพสต์ตอบรับ ✌️', 'ok');
->>>>>>> 7e46a6e147ea10cd7fa411545e1209963bde9aa1
+  if (res.ok && data.success) {
+   btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14px" height="14px" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"><circle cx="12" cy="12" r="9"/><path d="M11 8v5h5"/></g></svg> Pending`;
+  btn.classList.add('pending');
+  showToast('ส่งคำขอเข้าร่วมแล้ว! รอเจ้าของโพสต์ตอบรับ ✌️', 'ok');
     } else {
       btn.disabled = false; btn.textContent = 'join';
       showToast(data.error || data.message || 'เกิดข้อผิดพลาด', 'err');
@@ -641,14 +642,6 @@ async function confirmJoinHomepage() {
     showToast('เกิดข้อผิดพลาด กรุณาลองใหม่', 'err');
   }
 }
-
-// Wire confirm button + backdrop close
-document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('joinModalConfirmBtn').addEventListener('click', confirmJoinHomepage);
-  document.getElementById('joinModal').addEventListener('click', e => {
-    if (e.target.id === 'joinModal') closeJoinModal();
-  });
-});
 
 /* ── EVENTS ── */
 $('chipsRow').addEventListener('click', async e => {
@@ -697,32 +690,7 @@ $('bellBtn').addEventListener('click', async () => {
   Promise.all([loadUpcoming(), loadRecommended(), loadExp(), loadSchedule(), loadNotif()]);
 })();
 // test
-    </script>
-    <script src="../js/main.js"></script>
-
-  <!-- ── JOIN CONFIRM MODAL ── -->
-  <div id="joinModal" class="modal-overlay">
-    <div class="modal-box">
-      <div class="modal-close" onclick="closeJoinModal()">✕</div>
-      <div class="modal-header">
-        <span class="warning-icon">⚠️</span>
-        <h2>ยืนยันการเข้าร่วมทริป</h2>
-      </div>
-      <hr>
-      <div class="modal-content">
-        <p>
-          <span class="note">หมายเหตุ:</span> ค่าใช้จ่ายต่อคนอาจมีการเปลี่ยนแปลง<br>
-          หากจำนวนผู้เข้าร่วมไม่ครบตามที่กำหนด<br><br>
-          กรุณารับทราบเงื่อนไขก่อนยืนยันการเข้าร่วม
-        </p>
-      </div>
-      <hr>
-      <div class="modal-actions">
-        <button class="btn-cancel" onclick="closeJoinModal()">ยกเลิก</button>
-        <button class="btn-confirm" id="joinModalConfirmBtn">ยอมรับและเข้าร่วม</button>
-      </div>
-    </div>
-  </div>
+</script>
+<script src="../js/main.js"></script>
 </body>
-
 </html>
