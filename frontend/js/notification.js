@@ -125,6 +125,22 @@
     }
   };
 
+  const resolveHostIdByTrip = async (tripId) => {
+    const id = Number(tripId || 0);
+    if (!id) return 0;
+
+    try {
+      const response = await fetch(`/api/notification/trip-host/${encodeURIComponent(id)}`, {
+        credentials: 'include'
+      });
+      if (!response.ok) return 0;
+      const payload = await response.json();
+      return Number(payload.host_user_id || 0);
+    } catch {
+      return 0;
+    }
+  };
+
   const renderProfile = (profile) => {
     const firstName = profile.frist_name || '';
     const lastName = profile.last_name || '';
@@ -175,18 +191,38 @@
         const requesterName = extractRequesterName(item.notification_detail);
         const isRequest = isJoinRequest(item);
         const isAccepted = String(item.notification_title || '').includes('ได้รับการตอบรับแล้ว');
+        const isRejected =
+          String(item.notification_title || '').includes('ปฏิเสธ') ||
+          String(item.notification_detail || '').includes('ปฏิเสธ');
         const isUnread = Boolean(item.is_unread);
         const memberStatus = item.member_status || null;
-        const canOpenProfile = isRequest && (Number(item.from_user_id) > 0 || requesterName);
+        const hostUserId = Number(item.host_user_id || 0);
+        const profileUserId = isAccepted ? hostUserId : Number(item.from_user_id || 0);
+        const canOpenProfile =
+          (isRequest && (profileUserId > 0 || requesterName)) ||
+          (isAccepted && profileUserId > 0);
         const profileTargetId = item.notification_id;
+        const statusTone =
+          isAccepted || memberStatus === 'Joined'
+            ? 'accepted'
+            : isRejected || memberStatus === 'Cancelled'
+              ? 'rejected'
+              : 'pending';
+        const fallbackIcon =
+          statusTone === 'accepted'
+            ? '✅'
+            : statusTone === 'rejected'
+              ? '❌'
+              : '⏳';
         const profileImageSource = isAccepted ? (item.host_profile_img || '') : (item.from_user_profile_img || '');
         const profileImage = resolveProfileImage(profileImageSource);
+        const iconToneClass = profileImage ? '' : ` tone-${statusTone}`;
         const iconContent = profileImage
           ? `<img class="notif-avatar-img" src="${escapeHtml(profileImage)}" alt="profile">`
-          : iconSvg;
+          : `<span class="notif-status-emoji">${fallbackIcon}</span>`;
         const iconHtml = canOpenProfile
-          ? `<button class="notif-icon notif-icon-btn" type="button" data-action="profile" data-user-id="${item.from_user_id || ''}" data-requester-name="${escapeHtml(requesterName)}" data-target-id="${profileTargetId}" aria-label="Open profile">${iconContent}</button>`
-          : `<div class="notif-icon">${iconContent}</div>`;
+          ? `<button class="notif-icon notif-icon-btn${iconToneClass}" type="button" data-action="profile" data-user-id="${profileUserId || ''}" data-requester-name="${escapeHtml(isAccepted ? '' : requesterName)}" data-profile-type="${isAccepted ? 'host' : 'requester'}" data-trip-id="${item.trip_id || ''}" data-target-id="${profileTargetId}" aria-label="Open profile">${iconContent}</button>`
+          : `<div class="notif-icon${iconToneClass}">${iconContent}</div>`;
 
         const hostContact = extractHostContact(item);
         const detailCleaned = isAccepted
@@ -206,9 +242,9 @@
               </div>
             `;
           } else if (memberStatus === 'Joined') {
-            actionHtml = `<div class="notif-status-done accepted">✓ ยืนยันแล้ว</div>`;
+            actionHtml = `<div class="notif-status-done accepted">✅ ตอบรับแล้ว</div>`;
           } else if (memberStatus === 'Cancelled') {
-            actionHtml = `<div class="notif-status-done rejected">✕ ปฏิเสธแล้ว</div>`;
+            actionHtml = `<div class="notif-status-done rejected">❌ ปฏิเสธแล้ว</div>`;
           } else {
             actionHtml = `<div class="notif-status-done">${escapeHtml(memberStatus)}</div>`;
           }
@@ -272,6 +308,7 @@
     const action = button.dataset.action;
     let userId = Number(button.dataset.userId || 0);
     const requesterName = button.dataset.requesterName || '';
+    const profileType = button.dataset.profileType || 'requester';
     const tripId = Number(button.dataset.tripId || 0);
 
     if (!userId && requesterName) {
@@ -281,9 +318,16 @@
       }
     }
 
+    if (!userId && profileType === 'host' && tripId > 0) {
+      userId = await resolveHostIdByTrip(tripId);
+      if (userId) {
+        button.dataset.userId = String(userId);
+      }
+    }
+
     try {
       if (action === 'profile') {
-        if (!userId) throw new Error('ไม่พบข้อมูลผู้ขอเข้าร่วม');
+        if (!userId) throw new Error('ไม่พบข้อมูลโปรไฟล์');
         const targetId = button.dataset.targetId;
         const container = document.getElementById(`profile-${targetId}`);
         if (!container) return;

@@ -184,6 +184,21 @@ background: linear-gradient(180deg, #ffffff 0%, #f3cfcf 50%, #eed9c4 100%);
   transition: transform .15s;
 }
 
+.notif-icon.tone-accepted {
+  background: linear-gradient(135deg, #d8f4df, #9de0b0);
+  box-shadow: 0 4px 14px rgba(40, 167, 69, .22);
+}
+
+.notif-icon.tone-pending {
+  background: linear-gradient(135deg, #fff6cf, #ffd97a);
+  box-shadow: 0 4px 14px rgba(240, 173, 0, .25);
+}
+
+.notif-icon.tone-rejected {
+  background: linear-gradient(135deg, #ffe4ea, #f7b8c6);
+  box-shadow: 0 4px 14px rgba(224, 70, 110, .22);
+}
+
 .notif-icon-btn {
   border: none;
   cursor: pointer;
@@ -215,6 +230,11 @@ background: linear-gradient(180deg, #ffffff 0%, #f3cfcf 50%, #eed9c4 100%);
   object-fit: cover;
   border-radius: 50%;
   display: block;
+}
+
+.notif-status-emoji {
+  font-size: 22px;
+  line-height: 1;
 }
 
 .notif-body {
@@ -263,17 +283,22 @@ background: linear-gradient(180deg, #ffffff 0%, #f3cfcf 50%, #eed9c4 100%);
   display: flex;
   gap: 8px;
   margin-top: 10px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  width: 100%;
+  max-width: 260px;
 }
 
 .notif-btn {
   border: none;
   border-radius: 999px;
-  padding: 10px 18px;
+  padding: 10px 0;
   font-size: 14px;
   font-weight: 700;
+  font-family: 'Kanit', sans-serif;
   cursor: pointer;
-  min-width: 98px;
+  flex: 1;
+  min-width: 0;
+  text-align: center;
 }
 
 .notif-btn.profile {
@@ -282,13 +307,13 @@ background: linear-gradient(180deg, #ffffff 0%, #f3cfcf 50%, #eed9c4 100%);
 }
 
 .notif-btn.accept {
-  background: #d8f4df;
-  color: #1e8a4b;
+  background: #ccefd8;
+  color: #247c4a;
 }
 
 .notif-btn.reject {
-  background: #ffe3e3;
-  color: #b34242;
+  background: #f7d9de;
+  color: #a64f60;
 }
 
 .notif-btn:disabled {
@@ -299,22 +324,30 @@ background: linear-gradient(180deg, #ffffff 0%, #f3cfcf 50%, #eed9c4 100%);
 .notif-status-done {
   display: inline-block;
   margin-top: 10px;
-  padding: 8px 18px;
+  padding: 10px 0;
   border-radius: 999px;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
+  font-family: 'Kanit', sans-serif;
   background: #f0f0f0;
   color: #888;
+  min-width: 132px;
+  text-align: center;
 }
 
 .notif-status-done.accepted {
-  background: #d8f4df;
-  color: #1e8a4b;
+  background: #ccefd8;
+  color: #247c4a;
+}
+
+.notif-status-done.pending {
+  background: #fff6cf;
+  color: #9a7400;
 }
 
 .notif-status-done.rejected {
-  background: #ffe3e3;
-  color: #b34242;
+  background: #f7d9de;
+  color: #a64f60;
 }
 
 .notif-inline-profile {
