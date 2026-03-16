@@ -285,21 +285,6 @@ router.post('/me/avatar', upload.single('avatar'), async(req, res) => {
         console.error('POST /api/profile/me/avatar error:', err);
         return res.status(500).json({ success: false, message: 'Server error' });
     }
-    if (req.session) {
-        req.session.profileImg = imgPath;
-    }
-
-    return res.json({
-        success: true,
-        message: 'Avatar updated.',
-        profile_img: imgPath,
-    });
-
-} catch (err) {
-    console.error('POST /api/profile/me/avatar error:', err);
-    return res.status(500).json({ success: false, message: 'Server error' });
-}
-4 ae3e026de232326747845fd2d6a8b8c9219ca87
 });
 
 // ══════════════════════════════════════════════════════════════
@@ -334,7 +319,6 @@ router.delete('/me/avatar', async(req, res) => {
         console.error('DELETE /api/profile/me/avatar error:', err);
         return res.status(500).json({ success: false, message: 'Server error' });
     }
-    4 ae3e026de232326747845fd2d6a8b8c9219ca87
 });
 
 module.exports = router;
