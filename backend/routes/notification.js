@@ -457,7 +457,6 @@ router.get('/:user_id', async(req, res) => {
             }
 
             let memberStatus = null
-            let fromUserProfileImg = null
             let hostContact = null
             let hostProfileImg = null
             let hostUserId = null
