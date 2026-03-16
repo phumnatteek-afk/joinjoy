@@ -275,34 +275,63 @@ function setupJoinButton(tripId) {
     setJoinState(btn, 'default');
   }
 
-  btn.addEventListener('click', async () => {
+  // Open confirm modal instead of joining directly
+  btn.addEventListener('click', () => {
     if (localStorage.getItem(pendingKey) || localStorage.getItem(joinedKey)) return;
-
     const userId = localStorage.getItem('user_id');
     if (!userId) { alert('Please log in to join a trip.'); return; }
-
-    setJoinState(btn, 'loading');
-
-    try {
-      // POST to notification/join-request → inserts Trip_member as Pending + notifies host
-      const res = await fetch(`${API_BASE}/api/notification/join-request`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ trip_id: parseInt(tripId), user_id: parseInt(userId) })
-      });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed');
-
-      localStorage.setItem(pendingKey, '1');
-      setJoinState(btn, 'pending');
-
-    } catch (err) {
-      setJoinState(btn, 'default');
-      alert(`Could not join: ${err.message}`);
-    }
+    openJoinModal();
   });
 }
+
+/* ── Join Confirm Modal ───────────────────────────────────── */
+function openJoinModal() {
+  const modal = $('joinModal');
+  if (modal) modal.classList.add('active');
+}
+
+function closeJoinModal() {
+  const modal = $('joinModal');
+  if (modal) modal.classList.remove('active');
+}
+
+async function confirmJoin() {
+  closeJoinModal();
+  const tripId = getQueryParam('trip_id');
+  const btn = $('joinBtn');
+  if (!btn || !tripId) return;
+
+  const pendingKey = `pending_${tripId}`;
+  const userId = localStorage.getItem('user_id');
+  if (!userId) { alert('Please log in to join a trip.'); return; }
+
+  setJoinState(btn, 'loading');
+
+  try {
+    const res = await fetch(`${API_BASE}/api/notification/join-request`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ trip_id: parseInt(tripId), user_id: parseInt(userId) })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed');
+    localStorage.setItem(pendingKey, '1');
+    setJoinState(btn, 'pending');
+  } catch (err) {
+    setJoinState(btn, 'default');
+    alert(`Could not join: ${err.message}`);
+  }
+}
+
+// Close modal when clicking the backdrop
+document.addEventListener('DOMContentLoaded', () => {
+  const modal = $('joinModal');
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeJoinModal();
+    });
+  }
+});
 
 /* ── Skeleton ─────────────────────────────────────────────── */
 function showSkeleton() {

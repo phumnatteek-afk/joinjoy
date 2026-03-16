@@ -598,13 +598,12 @@ async function loadNotif() {
   }
 }
 
-/* ── JOIN ── */
-async function joinTrip(tripId, btn, creatorId) {
+/* ── JOIN MODAL ── */
+let _pendingJoin = null; // { tripId, btn, creatorId }
+
+function joinTrip(tripId, btn, creatorId) {
   const uid = currentUserId || getStoredUserId();
-  if (!uid) {
-    showToast('กรุณาล็อกอินก่อน', 'err');
-    return;
-  }
+  if (!uid) { showToast('กรุณาล็อกอินก่อน', 'err'); return; }
   if (Number(uid) === Number(creatorId)) {
     btn.disabled = true;
     btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14px" height="14px" viewBox="0 0 24 24"><path fill="currentColor" d="M9.175 10.825Q8 9.65 8 8t1.175-2.825T12 4t2.825 1.175T16 8t-1.175 2.825T12 12t-2.825-1.175M4 18v-.8q0-.85.438-1.562T5.6 14.55q1.55-.775 3.15-1.162T12 13t3.25.388t3.15 1.162q.725.375 1.163 1.088T20 17.2v.8q0 .825-.587 1.413T18 20H6q-.825 0-1.412-.587T4 18"/></svg> Host`;
@@ -612,6 +611,23 @@ async function joinTrip(tripId, btn, creatorId) {
     showToast('เจ้าของโพสไม่สามารถ join ทริปตัวเองได้', 'err');
     return;
   }
+  // Store pending data and open modal
+  _pendingJoin = { tripId, btn, creatorId };
+  document.getElementById('joinModal').classList.add('active');
+}
+
+function closeJoinModal() {
+  document.getElementById('joinModal').classList.remove('active');
+  _pendingJoin = null;
+}
+
+async function confirmJoinHomepage() {
+  if (!_pendingJoin) return;
+  const { tripId, btn, creatorId } = _pendingJoin;
+  _pendingJoin = null;
+  closeJoinModal();
+
+  const uid = currentUserId || getStoredUserId();
   btn.disabled = true; btn.textContent = '...';
   try {
     const res = await fetch(API + '/notification/join-request', {
@@ -621,10 +637,10 @@ async function joinTrip(tripId, btn, creatorId) {
       body: JSON.stringify({ trip_id: tripId, user_id: uid })
     });
     const data = await res.json();
-  if (res.ok && data.success) {
-   btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14px" height="14px" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"><circle cx="12" cy="12" r="9"/><path d="M11 8v5h5"/></g></svg> Pending`;
-  btn.classList.add('pending');
-  showToast('ส่งคำขอเข้าร่วมแล้ว! รอเจ้าของโพสต์ตอบรับ ✌️', 'ok');
+    if (res.ok && data.success) {
+      btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14px" height="14px" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"><circle cx="12" cy="12" r="9"/><path d="M11 8v5h5"/></g></svg> Pending`;
+      btn.classList.add('pending');
+      showToast('ส่งคำขอเข้าร่วมแล้ว! รอเจ้าของโพสต์ตอบรับ ✌️', 'ok');
     } else {
       btn.disabled = false; btn.textContent = 'join';
       showToast(data.error || data.message || 'เกิดข้อผิดพลาด', 'err');
@@ -634,6 +650,14 @@ async function joinTrip(tripId, btn, creatorId) {
     showToast('เกิดข้อผิดพลาด กรุณาลองใหม่', 'err');
   }
 }
+
+// Wire confirm button + backdrop close
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('joinModalConfirmBtn').addEventListener('click', confirmJoinHomepage);
+  document.getElementById('joinModal').addEventListener('click', e => {
+    if (e.target.id === 'joinModal') closeJoinModal();
+  });
+});
 
 /* ── EVENTS ── */
 $('chipsRow').addEventListener('click', async e => {
@@ -684,6 +708,30 @@ $('bellBtn').addEventListener('click', async () => {
 // test
     </script>
     <script src="../js/main.js"></script>
+
+  <!-- ── JOIN CONFIRM MODAL ── -->
+  <div id="joinModal" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-close" onclick="closeJoinModal()">✕</div>
+      <div class="modal-header">
+        <span class="warning-icon">⚠️</span>
+        <h2>ยืนยันการเข้าร่วมทริป</h2>
+      </div>
+      <hr>
+      <div class="modal-content">
+        <p>
+          <span class="note">หมายเหตุ:</span> ค่าใช้จ่ายต่อคนอาจมีการเปลี่ยนแปลง<br>
+          หากจำนวนผู้เข้าร่วมไม่ครบตามที่กำหนด<br><br>
+          กรุณารับทราบเงื่อนไขก่อนยืนยันการเข้าร่วม
+        </p>
+      </div>
+      <hr>
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closeJoinModal()">ยกเลิก</button>
+        <button class="btn-confirm" id="joinModalConfirmBtn">ยอมรับและเข้าร่วม</button>
+      </div>
+    </div>
+  </div>
 </body>
 
 </html>
