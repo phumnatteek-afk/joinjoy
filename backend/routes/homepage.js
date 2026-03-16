@@ -48,8 +48,8 @@ router.get('/upcoming', async(req, res) => {
       FROM Trip t
       JOIN User u ON t.creator_id = u.user_id
       LEFT JOIN User_profile up ON up.user_id = u.user_id
-      WHERE t.trip_status = 'Open' AND t.start_time >= NOW()
-      ORDER BY t.start_time ASC LIMIT 6
+      WHERE t.trip_status = 'Open' AND DATE(t.start_time) >= CURDATE()
+      ORDER BY t.start_time ASC 
     `, [uid, uid]);
         res.json({ success: true, trips });
     } catch (err) {
@@ -86,7 +86,7 @@ router.get('/recommended', async(req, res) => {
          WHERE tm2.trip_id = t.trip_id AND tm2.user_id = ? LIMIT 1) AS my_join_status
       FROM Trip t JOIN User u ON t.creator_id = u.user_id
       WHERE t.trip_status = 'Open' AND (${conditions})
-      ORDER BY joined_count DESC, t.created_at DESC LIMIT 6
+      ORDER BY joined_count DESC, t.created_at DESC
     `, [userId, userId, ...likeParams]);
         res.json({ success: true, trips, personalized: true });
     } catch (err) {
@@ -106,7 +106,7 @@ router.get('/my-schedule', async(req, res) => {
               WHERE t2.trip_id = t.trip_id AND t2.status = 'Joined') AS joined_count,
              DATEDIFF(t.start_time, NOW()) AS days_until
       FROM Trip t JOIN Trip_member tm ON t.trip_id = tm.trip_id
-      WHERE tm.user_id = ? AND tm.status = 'Joined' AND t.start_time >= NOW()
+     WHERE tm.user_id = ? AND tm.status = 'Joined' AND DATE(t.start_time) >= CURDATE()
       ORDER BY t.start_time ASC
     `, [userId]);
         res.json({ success: true, trips });
@@ -128,7 +128,7 @@ router.get('/', async(req, res) => {
         (SELECT tm2.status FROM Trip_member tm2
          WHERE tm2.trip_id = t.trip_id AND tm2.user_id = ? LIMIT 1) AS my_join_status
       FROM Trip t JOIN User u ON t.creator_id = u.user_id
-      WHERE t.trip_status = 'Open'
+      WHERE t.trip_status = 'Open' AND DATE(t.start_time) >= CURDATE()
     `;
         const params = [uid2, uid2];
         if (category) {

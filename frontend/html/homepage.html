@@ -538,7 +538,7 @@ async function loadUpcoming() {
   try {
     const q = currentUserId ? `?user_id=${currentUserId}` : '';
     const { trips = [] } = await apiFetch(`/trips/upcoming${q}`);
-    $('upcomingGrid').innerHTML = trips.length ? trips.slice(0,4).map(tripCard).join('') : '<div class="empty">ยังไม่มีทริปที่กำลังจะมาถึง 🌸</div>';
+    $('upcomingGrid').innerHTML = trips.length ? trips.map(tripCard).join('') :  '<div class="empty">ยังไม่มีทริปที่กำลังจะมาถึง 🌸</div>';
   } catch { $('upcomingGrid').innerHTML = '<div class="empty">โหลดข้อมูลไม่ได้</div>'; }
 }
 
@@ -548,7 +548,7 @@ async function loadRecommended() {
     const data = await apiFetch(`/trips/recommended${q}`);
     $('recSub').textContent = data?.personalized ? '(เพื่อคุณ ✦)' : '(ยอดนิยม)';
     const trips = data?.trips || [];
-    $('recommendedGrid').innerHTML = trips.length ? trips.slice(0,4).map(tripCard).join('') : '<div class="empty">ยังไม่มีทริปแนะนำ</div>';
+    $('recommendedGrid').innerHTML = trips.length ? trips.map(tripCard).join('') : '<div class="empty">ยังไม่มีทริปแนะนำ</div>';
   } catch { $('recommendedGrid').innerHTML = '<div class="empty">โหลดข้อมูลไม่ได้</div>'; }
 }
 
