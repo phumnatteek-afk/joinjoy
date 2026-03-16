@@ -23,6 +23,7 @@ function formatDate(dateStr) {
   });
 }
 
+
 const AVATAR_COLORS = ['av-pink', 'av-mint', 'av-peach', 'av-lav'];
 function avatarColor(index) { return AVATAR_COLORS[index % AVATAR_COLORS.length]; }
 
@@ -119,9 +120,6 @@ function renderUserProfile(user, container) {
     ? `<div class="td-pf-row td-pf-contact">
          <span class="td-pf-label">Contact</span>
          <span class="td-contact-chip">
-           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-             <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.21 12 19.79 19.79 0 0 1 1.12 3.44 2 2 0 0 1 3.09 1.25h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 9.1a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
-           </svg>
            ${user.social_media}
          </span>
        </div>`
@@ -156,6 +154,12 @@ function renderTrip(trip) {
   $('tripTitle').textContent = trip.trip_name || '—';
   $('tripHost').textContent  = trip.host_name || '—';
 
+  // Cover image in hero avatar
+  const heroAvatar = document.getElementById('heroAvatar');
+  if (heroAvatar && trip.cover_image) {
+    heroAvatar.innerHTML = `<img src="${API_BASE}/${trip.cover_image}" alt="${trip.trip_name || 'Trip cover'}" />`;
+  }
+
   const tagsWrap = $('tripTags');
   tagsWrap.innerHTML = '';
   if (trip.category) {
@@ -183,6 +187,19 @@ function renderTrip(trip) {
   const max     = trip.max_member ?? '?';
   $('tripMembers').textContent = `${current} / ${max} Members`;
   $('tripDescription').innerHTML = (trip.description || trip.trip_detail || '—').replace(/\n/g, '<br>');
+
+  // Last day to join (limit_date_accept)
+  const deadlineRow = document.getElementById('deadlineRow');
+  const limitDateEl = document.getElementById('limitDate');
+  if (deadlineRow && limitDateEl) {
+    const deadlineVal = trip.limit_date_accept;
+    if (deadlineVal) {
+      limitDateEl.textContent = formatDate(deadlineVal);
+      deadlineRow.style.display = 'flex';
+    } else {
+      deadlineRow.style.display = 'none';
+    }
+  }
 }
 
 async function renderMembers(tripId, maxMembers) {
@@ -195,6 +212,7 @@ async function renderMembers(tripId, maxMembers) {
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const members = await res.json();
 
+    // members array is already Joined-only, so length matches top count
     $('memberCount').textContent = `${members.length}/${maxMembers || '?'}`;
     list.innerHTML = '';
 

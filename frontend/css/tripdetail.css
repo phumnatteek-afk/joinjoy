@@ -38,7 +38,7 @@
    
    /* ── BACK BUTTON ──────────────────────────────── */
    .btn-back {
-     position: fixed;
+     position: absolute;
      top: 20px;
      left: 18px;
      z-index: 300;
@@ -63,7 +63,8 @@
      padding: 16px 0 0;
    }
    .td-logo img {
-     height: 34px;
+    width: 100px;
+     height: 100px;
      object-fit: contain;
    }
    
@@ -193,7 +194,7 @@
    
    /* ── INFO BOX ─────────────────────────────────── */
    .td-infobox {
-     margin: 0 16px;
+     margin: 16px 16px;
      background: var(--white);
      border-radius: var(--radius);
      box-shadow: var(--shadow);
@@ -542,4 +543,40 @@
   flex-wrap: wrap;
   gap: 5px;
   margin-top: 2px;
+}
+
+/* ── DATE BLOCK — date chips only ─────────────────────────── */
+.td-date-block {
+  margin: 14px 16px 0;
+  animation: fadeUp .35s .05s ease both;
+}
+.td-date-block .td-dates {
+  margin: 0;
+}
+
+/* ── LAST DAY TO JOIN — standalone pink card (matches board) ─ */
+.td-deadline-row {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin: 12px 16px 0;
+  padding: 13px 16px 15px;
+  background: #fce4ec;
+  border-radius: 14px;
+  animation: fadeUp .35s .12s ease both;
+}
+.td-deadline-label {
+  color: var(--text);
+  font-weight: 700;
+  font-size: 13px;
+}
+.td-deadline-value-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.td-deadline-value {
+  color: #e53935;
+  font-weight: 600;
+  font-size: 13px;
 }

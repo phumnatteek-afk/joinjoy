@@ -95,6 +95,12 @@ async function fetchTrips() {
     }
 }
 
+function goToTrip(event, tripId) {
+    // Don't navigate if clicking the Join button
+    if (event.target.closest('.joy-btn')) return;
+    window.location.href = `../html/tripdetail.html?trip_id=${tripId}`;
+}
+
 function renderTrips(trips) {
     const postContainer = document.getElementById('postContainer');
     postContainer.innerHTML = '';
@@ -173,7 +179,7 @@ function renderTrips(trips) {
             : 'ไม่ระบุ';
 
         const postHTML = `
-        <div class="post-card">
+        <div class="post-card" onclick="goToTrip(event, ${trip.trip_id})" style="cursor:pointer;">
             <div class="post-header">
                ${avatarHtml}
 
@@ -332,6 +338,9 @@ document.addEventListener('DOMContentLoaded', () => {
             searchTrips(e.target.value);
         });
 
+<<<<<<< HEAD
+});
+=======
 });
 
 //*************** */ 
@@ -357,3 +366,4 @@ function confirmJoin(){
 
     joinTrip(tripId, btn, creatorId, meUserIdFromTrip);
 }
+>>>>>>> c97eb2c0b04b29b4e8f396f4febd4ddd3c235a26
