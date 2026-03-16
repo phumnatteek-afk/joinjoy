@@ -1,6 +1,7 @@
 let allTrips = [];
 let currentUserId = null;
 let currentUserName = null;
+let pendingJoinData = null;
 
 function getStoredUser() {
     try {
@@ -153,7 +154,7 @@ function renderTrips(trips) {
         const isHostById = Number(trip.is_host) === 1 || (effectiveUserId && Number(trip.creator_id) === Number(effectiveUserId));
         const isHostByName = effectiveUserName && normalizeName(trip.user_name) === normalizeName(effectiveUserName);
         const isHost = isHostById || isHostByName;
-        let joinButtonHtml = `<button class="joy-btn" onclick="joinTrip(${trip.trip_id}, this, ${trip.creator_id}, ${trip.me_user_id || 'null'})">Join</button>`;
+        let joinButtonHtml = `<button class="joy-btn"onclick="openJoinModal(${trip.trip_id}, this, ${trip.creator_id}, ${trip.me_user_id || 'null'})">Join</button>`;
 
         if (isHost) {
             joinButtonHtml = `<button class="joy-btn" disabled>Host</button>`;
@@ -332,3 +333,27 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
 });
+
+//*************** */ 
+function openJoinModal(tripId, btn, creatorId, meUserIdFromTrip){
+
+    pendingJoinData = {tripId, btn, creatorId, meUserIdFromTrip};
+
+    document.getElementById("joinModal").classList.add("active");
+}
+
+function closeJoinModal(){
+
+    document.getElementById("joinModal").classList.remove("active");
+}
+
+function confirmJoin(){
+
+    if(!pendingJoinData) return;
+
+    const {tripId, btn, creatorId, meUserIdFromTrip} = pendingJoinData;
+
+    closeJoinModal();
+
+    joinTrip(tripId, btn, creatorId, meUserIdFromTrip);
+}
