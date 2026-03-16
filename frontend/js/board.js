@@ -91,7 +91,7 @@ async function fetchTrips() {
         renderTrips(allTrips);
     } catch (error) {
         console.error('Error:', error);
-        postContainer.innerHTML = '<p>ขออภัย เกิดข้อผิดพลาดในการโหลดข้อมูล</p>';
+        postContainer.innerHTML = '<p>ขออภัย เกิดข้อผิดพลาดในการโหลดข้อมู</p>';
     }
 }
 
@@ -160,8 +160,11 @@ function renderTrips(trips) {
         const isHostById = Number(trip.is_host) === 1 || (effectiveUserId && Number(trip.creator_id) === Number(effectiveUserId));
         const isHostByName = effectiveUserName && normalizeName(trip.user_name) === normalizeName(effectiveUserName);
         const isHost = isHostById || isHostByName;
-        let joinButtonHtml = `<button class="joy-btn"onclick="openJoinModal(${trip.trip_id}, this, ${trip.creator_id}, ${trip.me_user_id || 'null'})">Join</button>`;
-
+       let joinButtonHtml = `
+<button class="joy-btn"
+onclick="event.stopPropagation(); openJoinModal(${trip.trip_id}, this, ${trip.creator_id}, ${trip.me_user_id || 'null'})">
+Join
+</button>`;
         if (isHost) {
             joinButtonHtml = `<button class="joy-btn" disabled>Host</button>`;
         } else if (trip.my_join_status === 'Pending') {
@@ -338,4 +341,27 @@ document.addEventListener('DOMContentLoaded', () => {
             searchTrips(e.target.value);
         });
 
+});
+
+
+
+function openJoinModal(tripId, btn, creatorId, meUserId) {
+
+  pendingJoinData = {
+    tripId,
+    btn,
+    creatorId,
+    meUserId
+  };
+
+  document.getElementById("joinModal").classList.add("active");
+}
+
+function closeJoinModal() {
+  document.getElementById("joinModal").classList.remove("active");
+}
+document.getElementById("joinModal").addEventListener("click", (e)=>{
+  if(e.target.id === "joinModal"){
+    closeJoinModal();
+  }
 });
