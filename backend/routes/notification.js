@@ -228,11 +228,11 @@ router.patch('/respond', async(req, res) => {
 
         const title = isAccepted ?
             '🎉 ได้รับการตอบรับแล้ว!' :
-            '❌ ไม่ได้รับการตอบรับ'
+            '❌ คำขอถูกปฏิเสธ'
 
         const detail = isAccepted ?
             `ได้รับการตอบรับเข้าร่วมทริป "${trip.trip_name}" ติดต่อ Host: ${trip.host_contact}` :
-            `คำขอเข้าร่วมทริป "${trip.trip_name}" ไม่ได้รับการตอบรับ กลับไป Join ใหม่ได้เลย`
+            `คำขอเข้าร่วมทริป "${trip.trip_name}" ถูกปฏิเสธ ยังมีทริปอื่นให้ร่วมจอยอยู่นะ`
 
         // INSERT Notification ให้ User แจ้งผลการตอบรับ
         await pool.query(
@@ -376,15 +376,10 @@ router.get('/:user_id', async(req, res) => {
         for (const row of rows) {
             const notificationTitle = String(row.notification_title || '')
             const detail = String(row.notification_detail || '')
-
-            // Allow converting notification text markers into a user_id for fetching the latest profile image.
-            // - `[REQ_USER_ID:xxx]` is used for join requests (old flow)
-            // - `[FROM_USER_ID:xxx]` is used for review notifications
-            const markerMatch = detail.match(/\[(?:REQ_USER_ID|FROM_USER_ID):(\d+)\]/i)
+            const markerMatch = detail.match(/\[REQ_USER_ID:(\d+)\]/i)
             let fromUserId = markerMatch ? Number(markerMatch[1]) : null
-
             const cleanedDetail = detail
-                .replace(/\s*\[(?:REQ_USER_ID|FROM_USER_ID):\d+\]/gi, '')
+                .replace(/\s*\[REQ_USER_ID:\d+\]/gi, '')
                 .replace(/\s*กลับไป Join ใหม่ได้เลย/gi, '')
                 .trim()
 
@@ -531,7 +526,6 @@ router.post('/review', async(req, res) => {
         const trip = trips[0]
 
         // INSERT Notification ให้ Host รู้ว่ามีคนรีวิว
-        // - include marker for reviewer ID so we can fetch the latest profile image later
         await pool.query(
             `INSERT INTO Notification
        (trip_id, user_id, notification_title, notification_detail, create_at)
@@ -539,7 +533,7 @@ router.post('/review', async(req, res) => {
                 trip_id,
                 trip.creator_id,
                 '⭐ มีคนรีวิวทริปของคุณ',
-                `${trip.user_name} ได้รีวิวทริป "${trip.trip_name}" [FROM_USER_ID:${user_id}]`,
+                `${trip.user_name} ได้รีวิวทริป "${trip.trip_name}"`
             ]
         )
 
