@@ -78,7 +78,7 @@ router.get('/trips', async(req, res) => {
         if (err.code === 'ER_BAD_FIELD_ERROR') {
             return res.status(500).json({
                 error: "SQL Syntax Error",
-                message: "มีชื่อ Column ผิด (ลองเช็ค user_avatar หรือ profile_image)"
+                message: "เนื่องจากมีชื่อ Column ผิด (ลองเช็ค user_avatar หรือ profile_image)"
             });
         }
 

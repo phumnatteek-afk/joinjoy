@@ -107,7 +107,7 @@ router.post('/trips', requireLogin, upload.single('cover_image'), async(req, res
         });
     } catch (err) {
         console.error(err);
-        res.status(500).json({ success: false, error: 'บันทึกข้อมูลไม่สำเร็จ: ' + err.message });
+        res.status(500).json({ success: false, error: 'บันทึกข้อมูลไม่สำเร็จ!: ' + err.message });
     }
 });
 
