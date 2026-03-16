@@ -773,24 +773,10 @@ width: 20px;   /* ลดขนาดลง */
     transition: all .28s cubic-bezier(.34, 1.56, .64, 1);
     white-space: nowrap;
 }
-
-.toast.show {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
-}
-
-.toast.ok {
-    background: #7bd07f;
-}
-
-.toast.err {
-    background: #df6e6e;
-}
-
-.toast.info {
-    background: var(--pink);
-}
-
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast.ok   { background: #388E3C; }
+.toast.err  { background: #C62828; }
+.toast.info { background: var(--pink); }
 
 /* ── ANIMATIONS ─────────────────────────── */
 
