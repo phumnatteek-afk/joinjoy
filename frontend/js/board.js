@@ -339,26 +339,3 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
 });
-
-function openJoinModal(tripId, btn, creatorId, meUserIdFromTrip){
-
-    pendingJoinData = {tripId, btn, creatorId, meUserIdFromTrip};
-
-    document.getElementById("joinModal").classList.add("active");
-}
-
-function closeJoinModal(){
-
-    document.getElementById("joinModal").classList.remove("active");
-}
-
-function confirmJoin(){
-
-    if(!pendingJoinData) return;
-
-    const {tripId, btn, creatorId, meUserIdFromTrip} = pendingJoinData;
-
-    closeJoinModal();
-
-    joinTrip(tripId, btn, creatorId, meUserIdFromTrip);
-}
