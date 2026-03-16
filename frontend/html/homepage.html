@@ -375,10 +375,10 @@ function tripCard(t) {
   } else if (full) {
     btnHtml = `<button class="join-btn joined" disabled>Full</button>`;
   } else {
-    btnHtml = `<button class="join-btn" onclick="joinTrip(${t.trip_id},this,${t.creator_id})">join</button>`;
+    btnHtml = `<button class="join-btn" onclick="event.stopPropagation();joinTrip(${t.trip_id},this,${t.creator_id})">join</button>`;
   }
   return `
-  <div class="card">
+  <div class="card" onclick="window.location.href='tripdetail.html?trip_id=${t.trip_id}'" style="cursor:pointer">
     <div class="card-top">
       <div class="mbadge"><span class="dot"></span>Member: ${joined}/${t.max_member}</div>
       <div class="cname">${t.trip_name}</div>
@@ -670,7 +670,7 @@ $('bellBtn').addEventListener('click', async () => {
   try {
     await apiFetch('/notifications/read-all', { method: 'PUT', headers: authHeaders() });
     $('notifDot').style.display = 'none';
-    showToast('อ่านการแจ้งเตือนทั้งหมดแล้ว', 'info');
+    showToast('อ่านการแจ้งเตือนทั้งหมด', 'info');
   } catch (e) { console.error('bell:', e); }
 });
 
@@ -680,6 +680,7 @@ $('bellBtn').addEventListener('click', async () => {
   await loadUser();
   Promise.all([loadUpcoming(), loadRecommended(), loadExp(), loadSchedule(), loadNotif()]);
 })();
+// test
 </script>
 <script src="../js/main.js"></script>
 </body>

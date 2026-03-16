@@ -27,6 +27,7 @@ router.get('/trips', async(req, res) => {
                 t.limit_date_accept,
                 t.budget_min,      
                 t.budget_max,     
+                t.budget_type,
                 t.created_at,
                 t.trip_status,
                 t.creator_id,
