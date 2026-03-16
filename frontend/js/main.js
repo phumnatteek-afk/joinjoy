@@ -1,28 +1,28 @@
 // script home
-        (function () {
-        const menuLinks = document.querySelectorAll('.mainmenu .menu-item a');
-        
-        const currentPath = window.location.pathname;
-        let currentPage = currentPath.substring(currentPath.lastIndexOf('/') + 1); 
+(function() {
+    const menuLinks = document.querySelectorAll('.mainmenu .menu-item a');
 
-        // จัดการกรณีที่อยู่หน้าหลักและ URL อาจเป็นแค่ /
-        if (currentPage === '' || currentPage.toUpperCase() === 'INDEX.HTML') {
-             currentPage = 'home.html';
+    const currentPath = window.location.pathname;
+    let currentPage = currentPath.substring(currentPath.lastIndexOf('/') + 1);
+
+    // จัดการกรณีที่อยู่หน้าหลักและ URL อาจเป็นแค่ /
+    if (currentPage === '' || currentPage.toUpperCase() === 'INDEX.HTML') {
+        currentPage = 'home.html';
+    }
+
+    // ตรวจสอบและใส่คลาส 'active'
+    menuLinks.forEach(link => {
+        let linkTarget = link.getAttribute('href');
+
+        if (linkTarget && linkTarget !== '#') {
+            // ตรวจสอบว่า href ของเมนูตรงกับชื่อไฟล์ปัจจุบันหรือไม่
+            if (linkTarget.toUpperCase() === currentPage.toUpperCase()) {
+                link.classList.add('active'); // ใส่คลาส active
+            }
         }
-        
-        // ตรวจสอบและใส่คลาส 'active'
-        menuLinks.forEach(link => {
-            let linkTarget = link.getAttribute('href');
+    });
+})();
 
-            if (linkTarget && linkTarget !== '#') {
-                // ตรวจสอบว่า href ของเมนูตรงกับชื่อไฟล์ปัจจุบันหรือไม่
-                if (linkTarget.toUpperCase() === currentPage.toUpperCase()) {
-                    link.classList.add('active'); // ใส่คลาส active
-                }
-            } 
-        });
-    })();
-    
 
 // === 2. หน้า Home: เลือก Chip ได้อันเดียว (เช็คก่อนรัน) ===
 const homeChips = document.querySelectorAll('.chip');
@@ -43,10 +43,10 @@ if (categoryWrapper) {
         tag.addEventListener('click', function(e) {
             e.preventDefault();
             // toggle คือการสลับสถานะ (เลือก/ไม่เลือก) โดยไม่ยุ่งกับปุ่มอื่น
-            this.classList.toggle('active'); 
-            
+            this.classList.toggle('active');
+
             const selected = Array.from(categoryWrapper.querySelectorAll('.tag-chip.active'))
-                                  .map(el => el.innerText);
+                .map(el => el.innerText);
             console.log("หมวดหมู่ที่เลือกตอนนี้:", selected);
         });
     });

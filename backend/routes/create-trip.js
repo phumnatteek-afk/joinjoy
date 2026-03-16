@@ -28,7 +28,7 @@ function requireLogin(req, res, next) {
 // ─────────────────────────────────────────
 // GET /api/trips  — ดึงทริปทั้งหมด
 // ─────────────────────────────────────────
-router.get('/trips', async (req, res) => {
+router.get('/trips', async(req, res) => {
     try {
         const [rows] = await db.query('SELECT * FROM Trip ORDER BY created_at DESC');
         res.json(rows);
@@ -41,10 +41,10 @@ router.get('/trips', async (req, res) => {
 // ─────────────────────────────────────────
 // POST /api/trips  — สร้างทริปใหม่ (ต้อง login)
 // ─────────────────────────────────────────
-router.post('/trips', requireLogin, upload.single('cover_image'), async (req, res) => {
+router.post('/trips', requireLogin, upload.single('cover_image'), async(req, res) => {
 
     // ดึง creator_id จาก session — รองรับทั้ง Google OAuth (req.user) และ login ปกติ (req.session.userId)
-    const creator_id = req.user?.user_id || req.session.userId;
+    const creator_id = (req.user && req.user.user_id) || req.session.userId;
 
     const {
         trip_name,
@@ -110,7 +110,7 @@ router.post('/trips', requireLogin, upload.single('cover_image'), async (req, re
 // ─────────────────────────────────────────
 // GET /api/trips/:id  — ดึงทริปเดียว
 // ─────────────────────────────────────────
-router.get('/trips/:id', async (req, res) => {
+router.get('/trips/:id', async(req, res) => {
     try {
         const [rows] = await db.query('SELECT * FROM Trip WHERE trip_id = ?', [req.params.id]);
         if (rows.length === 0) return res.status(404).json({ error: 'ไม่พบทริปนี้' });
