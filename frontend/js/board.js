@@ -91,7 +91,7 @@ async function fetchTrips() {
         renderTrips(allTrips);
     } catch (error) {
         console.error('Error:', error);
-        postContainer.innerHTML = '<p>ขออภัย เกิดข้อผิดพลาดในการโหลดข้อมูล</p>';
+        postContainer.innerHTML = '<p>ขออภัย เกิดข้อผิดพลาดในการโหลดข้อมู</p>';
     }
 }
 
