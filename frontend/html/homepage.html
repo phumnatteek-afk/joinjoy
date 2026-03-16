@@ -455,10 +455,17 @@ function schCard(t) {
 
 /* ── LEAVE TRIP ── */
 async function leaveTrip(tripId, btn) {
-  // เปิด popup แทน confirm()
-  const overlay = document.getElementById('confirmOverlay');
+  const overlay    = document.getElementById('confirmOverlay');
+  const confirmYes = document.getElementById('confirmYes');
+  const confirmNo  = document.getElementById('confirmNo');
+
   overlay.classList.add('open');
 
+  // ── ล้าง event เก่าก่อนทุกครั้ง ──
+  confirmNo.replaceWith(confirmNo.cloneNode(true));
+  confirmYes.replaceWith(confirmYes.cloneNode(true));
+
+  // ดึง element ใหม่หลัง clone
   document.getElementById('confirmNo').onclick = () => {
     overlay.classList.remove('open');
   };
