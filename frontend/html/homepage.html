@@ -366,8 +366,10 @@ function tripCard(t) {
   let btnHtml;
   if (isHost) {
     btnHtml = `<button class="join-btn joined" disabled>Host</button>`;
-  } else if (t.my_join_status === 'Pending') {
-    btnHtml = `<button class="join-btn joined" disabled>Pending</button>`;
+} else if (t.my_join_status === 'Pending') {
+  btnHtml = `<button class="join-btn pending" disabled>
+    <svg xmlns="http://www.w3.org/2000/svg" width="14px" height="14px" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"><circle cx="12" cy="12" r="9"/><path d="M11 8v5h5"/></g></svg> Pending
+  </button>`;
   } else if (t.my_join_status === 'Joined') {
     btnHtml = `<button class="join-btn joined" disabled>✓ Joined</button>`;
   } else if (full) {
@@ -618,9 +620,10 @@ async function joinTrip(tripId, btn, creatorId) {
       body: JSON.stringify({ trip_id: tripId, user_id: uid })
     });
     const data = await res.json();
-    if (res.ok && data.success) {
-      btn.textContent = 'Pending'; btn.classList.add('joined');
-      showToast('ส่งคำขอเข้าร่วมแล้ว! รอเจ้าของโพสตตอบรับ ✌️', 'ok');
+  if (res.ok && data.success) {
+   btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14px" height="14px" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"><circle cx="12" cy="12" r="9"/><path d="M11 8v5h5"/></g></svg> Pending`;
+  btn.classList.add('pending');
+  showToast('ส่งคำขอเข้าร่วมแล้ว! รอเจ้าของโพสต์ตอบรับ ✌️', 'ok');
     } else {
       btn.disabled = false; btn.textContent = 'join';
       showToast(data.error || data.message || 'เกิดข้อผิดพลาด', 'err');
@@ -643,7 +646,7 @@ $('chipsRow').addEventListener('click', async e => {
     const uidQ = uid ? `&user_id=${uid}` : '';
     const path = cat ? `/trips?category=${encodeURIComponent(cat)}${uidQ}` : `/trips/upcoming?user_id=${uid}`;
     const { trips = [] } = await apiFetch(path);
-    $('upcomingGrid').innerHTML = trips.length ? trips.slice(0,4).map(tripCard).join('') : '<div class="empty">ไม่พบทริปในหมวดนี้</div>';
+    $('upcomingGrid').innerHTML = trips.length ? trips.map(tripCard).join('') : '<div class="empty">ไม่พบทริปในหมวดนี้</div>';
   } catch { $('upcomingGrid').innerHTML = '<div class="empty">โหลดข้อมูลไม่ได้</div>'; }
 });
 
@@ -658,7 +661,7 @@ $('searchInput').addEventListener('input', e => {
       const uid = currentUserId || getStoredUserId() || '';
       const uidQ = uid ? `&user_id=${uid}` : '';
       const { trips = [] } = await apiFetch(`/trips?search=${encodeURIComponent(q)}${uidQ}`);
-      $('upcomingGrid').innerHTML = trips.length ? trips.map(tripCard).join('') : '<div class="empty">ไม่พบทริปที่ค้นหา 🔍</div>';
+      $('upcomingGrid').innerHTML = trips.length ? trips.map(tripCard).join(''): '<div class="empty">ไม่พบทริปที่ค้นหา 🔍</div>';
     } catch { $('upcomingGrid').innerHTML = '<div class="empty">โหลดข้อมูลไม่ได้</div>'; }
   }, 380);
 });

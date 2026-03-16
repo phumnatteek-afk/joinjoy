@@ -196,7 +196,25 @@ body {
 }
 .join-btn:hover    { background: #fff; transform: scale(1.04); color: #F28695;  border: 1.5px solid #F28695;}
 .join-btn:disabled { background: #ccc; box-shadow: none; cursor: not-allowed; transform: none; }
-.join-btn.joined   { background: linear-gradient(135deg, #66BB6A, #43A047); }
+.join-btn.joined   { background: #7bd07f; }
+.join-btn.pending svg{
+width: 20px;   /* ลดขนาดลง */
+  height: 20px;
+  flex-shrink: 0;
+}
+.join-btn.pending:hover{
+  color: #f28695;
+  background: #ffff;
+}
+.join-btn.pending {background: #f4d571;   width: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  /* padding: 10px 10px; */
+  font-size: 14px;
+  margin-right: 10px;
+  height: 40px;}
 .tag-badge {
   position: absolute; top: 8px; right: 8px;
   background: var(--pink-dark); color: white;
@@ -293,8 +311,8 @@ body {
   transition: all .28s cubic-bezier(.34,1.56,.64,1); white-space: nowrap;
 }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-.toast.ok   { background: #388E3C; }
-.toast.err  { background: #C62828; }
+.toast.ok   { background: #7bd07f; }
+.toast.err  { background: #df6e6e; }
 .toast.info { background: var(--pink); }
 
 /* ── ANIMATIONS ─────────────────────────── */
