@@ -133,6 +133,17 @@
                 </div>
             </div>
 
+            <!-- Last day to join -->
+            <div class="datetime-range-section" style="margin-top: 20px;">
+                <label class="section-label">Last day to join <span class="required">*</span></label>
+                <div class="range-container">
+                    <div class="range-box" style="width: 100%;">
+                        <iconify-icon icon="solar:calendar-date-bold" class="pink-icon"></iconify-icon>
+                        <input type="datetime-local" id="limit_date_accept" />
+                    </div>
+                </div>
+            </div>
+
             <!-- Social Media -->
             <div class="input-group1">
                 <div class="icon-contact">
@@ -200,10 +211,6 @@
     <!-- main.js ต้องโหลดก่อน script ด้านล่าง -->
     <script src="../js/main.js"></script>
     <script>
-    // ─────────────────────────────────────────────────────────
-    //  NOTE: coverInput, uploadBox และ category chips
-    //  ถูกจัดการโดย main.js แล้ว — ไม่ต้องประกาศซ้ำที่นี่
-    // ─────────────────────────────────────────────────────────
 
     const BASE_URL = 'http://localhost:3000/api';
 
@@ -240,10 +247,11 @@
         const max_member    = document.getElementById('max_member').value.trim();
         const start_time    = document.getElementById('start_time').value;
         const end_time      = document.getElementById('end_time').value;
+        const limit_date    = document.getElementById('limit_date_accept').value;
         const budget_raw    = document.getElementById('budget_range').value.trim();
         const description   = document.getElementById('description').value.trim();
         const trip_detail   = document.getElementById('trip_detail').value.trim();
-        const category      = getSelectedCategories();  // ดึงจาก main.js ที่ toggle ไว้แล้ว
+        const category      = getSelectedCategories();
 
         // Validate
         if (!trip_name)     return showToast('กรุณากรอกชื่อทริป', true);
@@ -251,8 +259,12 @@
         if (!max_member)    return showToast('กรุณากรอกจำนวนสมาชิก', true);
         if (!start_time)    return showToast('กรุณาเลือกวันเริ่มต้น', true);
         if (!end_time)      return showToast('กรุณาเลือกวันสิ้นสุด', true);
+        if (!limit_date)    return showToast('กรุณาเลือกวันสุดท้ายที่จะรับสมาชิก', true);
         if (new Date(end_time) <= new Date(start_time)) {
             return showToast('วันสิ้นสุดต้องมาหลังวันเริ่มต้น', true);
+        }
+        if (new Date(limit_date) > new Date(start_time)) {
+            return showToast('วันปิดรับสมาชิกต้องไม่เกินวันเริ่มทริป', true);
         }
 
         const { budget_min, budget_max } = budget_raw
@@ -266,6 +278,7 @@
         formData.append('max_member',    max_member);
         formData.append('start_time',    start_time);
         formData.append('end_time',      end_time);
+        formData.append('limit_date_accept', limit_date);
         if (category)    formData.append('category',    category);
         if (budget_min)  formData.append('budget_min',  budget_min);
         if (budget_max)  formData.append('budget_max',  budget_max);
