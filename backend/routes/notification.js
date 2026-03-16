@@ -285,6 +285,28 @@ router.get('/resolve-user', async(req, res) => {
     }
 })
 
+router.get('/trip-host/:trip_id', async(req, res) => {
+    const tripId = Number(req.params.trip_id || 0)
+
+    if (!tripId) {
+        return res.status(400).json({ error: 'trip_id ไม่ถูกต้อง' })
+    }
+
+    try {
+        const [rows] = await pool.query(
+            'SELECT creator_id FROM Trip WHERE trip_id = ? LIMIT 1', [tripId]
+        )
+
+        if (!rows.length || !rows[0].creator_id) {
+            return res.status(404).json({ error: 'ไม่พบโฮสต์ของทริปนี้' })
+        }
+
+        return res.json({ success: true, host_user_id: Number(rows[0].creator_id) })
+    } catch (err) {
+        return res.status(500).json({ error: err.message })
+    }
+})
+
 router.get('/unread-count', async(req, res) => {
         const actorUserId = getActorUserId(req)
 
@@ -401,6 +423,7 @@ router.get('/:user_id', async(req, res) => {
             let fromUserProfileImg = null
             let hostContact = null
             let hostProfileImg = null
+            let hostUserId = null
             if (fromUserId && Number(row.trip_id) > 0 &&
                 notificationTitle.includes('มีคนขอเข้าร่วมทริป')) {
                 const [memberRows] = await pool.query(
@@ -420,7 +443,7 @@ router.get('/:user_id', async(req, res) => {
 
             if (Number(row.trip_id) > 0 && notificationTitle.includes('ได้รับการตอบรับแล้ว')) {
                 const [hostRows] = await pool.query(
-                    `SELECT up.social_media AS host_contact, up.profile_img AS host_profile_img
+                    `SELECT t.creator_id AS host_user_id, up.social_media AS host_contact, up.profile_img AS host_profile_img
                      FROM Trip t
                      LEFT JOIN User_profile up ON up.user_id = t.creator_id
                      WHERE t.trip_id = ?
@@ -429,6 +452,7 @@ router.get('/:user_id', async(req, res) => {
                 )
 
                 if (hostRows.length) {
+                    hostUserId = hostRows[0].host_user_id || null
                     hostContact = hostRows[0].host_contact || null
                     hostProfileImg = hostRows[0].host_profile_img || null
                 }
@@ -441,6 +465,7 @@ router.get('/:user_id', async(req, res) => {
                 from_user_id: fromUserId,
                 from_user_profile_img: fromUserProfileImg,
                 member_status: memberStatus,
+                host_user_id: hostUserId,
                 host_contact: hostContact,
                 host_profile_img: hostProfileImg
             })
