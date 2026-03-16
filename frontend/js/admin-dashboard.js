@@ -2,28 +2,42 @@ document.addEventListener('DOMContentLoaded', () => {
     const token = localStorage.getItem('adminToken');
 
     if (!token) {
-        // ถ้าไม่มี Token ให้เด้งกลับไปหน้า Login ทันที
         alert('กรุณาเข้าสู่ระบบก่อน');
         window.location.href = 'admin-login.html';
         return;
     }
 
+    // ─── FETCH STATS ───────────────────────────────────────────
     async function fetchDashboardData() {
         try {
             const response = await fetch('http://localhost:3000/api/admin/stats');
             const data = await response.json();
 
             if (response.ok) {
-                document.getElementById('active-users-val').innerText = data.activeUsers;
-                document.getElementById('open-trips-val').innerText = data.open;
-                document.getElementById('full-trips-val').innerText = data.full;
-                document.getElementById('closed-trips-val').innerText = data.closed;
+                animateCount('active-users-val', data.activeUsers);
+                animateCount('open-trips-val',   data.open);
+                animateCount('full-trips-val',   data.full);
+                animateCount('closed-trips-val', data.closed);
             }
         } catch (error) {
             console.error("ไม่สามารถโหลดข้อมูลสถิติได้:", error);
         }
     }
 
+    // ─── COUNT ANIMATION ───────────────────────────────────────
+    function animateCount(id, target) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        let current = 0;
+        const step = Math.ceil(target / 30);
+        const timer = setInterval(() => {
+            current = Math.min(current + step, target);
+            el.textContent = current;
+            if (current >= target) clearInterval(timer);
+        }, 30);
+    }
+
+    // ─── USER GROWTH CHART ─────────────────────────────────────
     async function initUserGrowthChart() {
         try {
             const response = await fetch('http://localhost:3000/api/admin/user-growth');
@@ -36,26 +50,35 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const labels = data.map(item => item.month_label);
             const counts = data.map(item => item.cumulative_count);
+            const maxVal = counts.length > 0 ? Math.max(...counts) + 2 : 10;
 
             const ctx = document.getElementById('userGrowthChart').getContext('2d');
-
-            // เช็คเผื่อ counts ไม่มีข้อมูล
-            const maxVal = counts.length > 0 ? Math.max(...counts) + 2 : 10;
 
             new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: labels,
+                    labels,
                     datasets: [{
-                        label: 'New Users',
+                        label: 'ยอดผู้ใช้สะสม',
                         data: counts,
                         borderColor: '#F28695',
-                        backgroundColor: 'rgba(242, 134, 149, 0.2)',
+                        backgroundColor: (context) => {
+                            const chart = context.chart;
+                            const { ctx: c, chartArea } = chart;
+                            if (!chartArea) return 'rgba(242,134,149,0.15)';
+                            const gradient = c.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+                            gradient.addColorStop(0, 'rgba(242,134,149,0.30)');
+                            gradient.addColorStop(1, 'rgba(242,134,149,0.00)');
+                            return gradient;
+                        },
                         borderWidth: 3,
-                        tension: 0.4,
+                        tension: 0.45,
                         fill: true,
                         pointBackgroundColor: '#F28695',
-                        pointRadius: 5
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointRadius: 5,
+                        pointHoverRadius: 7
                     }]
                 },
                 options: {
@@ -65,87 +88,87 @@ document.addEventListener('DOMContentLoaded', () => {
                         y: {
                             beginAtZero: true,
                             suggestedMax: maxVal,
-                            ticks: { stepSize: 1 }
+                            ticks: { stepSize: 1, font: { family: 'DM Sans', size: 12 }, color: '#b8a8ac' },
+                            grid: { color: 'rgba(45,35,40,0.05)' },
+                            border: { display: false }
+                        },
+                        x: {
+                            ticks: { font: { family: 'DM Sans', size: 12 }, color: '#b8a8ac' },
+                            grid: { display: false },
+                            border: { display: false }
                         }
                     },
                     plugins: {
                         legend: { display: false },
                         tooltip: {
+                            backgroundColor: '#2D2328',
+                            titleFont: { family: 'Playfair Display', size: 14 },
+                            bodyFont: { family: 'DM Sans', size: 13 },
+                            padding: 12,
+                            cornerRadius: 10,
                             callbacks: {
-                                label: function (context) {
-                                    return ` ยอดรวมทั้งหมด: ${context.raw} คน`;
-                                }
+                                label: ctx => ` ยอดรวมทั้งหมด: ${ctx.raw} คน`
                             }
                         }
                     }
                 }
             });
         } catch (error) {
-            console.error("Error loading chart:", error);
+            console.error("Error loading user growth chart:", error);
         }
     }
+    async function initTripGrowthChart() {
 
-    async function initReviewChart() {
-        try {
-            const response = await fetch('http://localhost:3000/api/admin/review-stats');
-            const data = await response.json();
+    try {
 
-            const ctx = document.getElementById('tripReviewsChart').getContext('2d');
+        const response = await fetch('http://localhost:3000/api/admin/trip-growth');
+        const data = await response.json();
 
-            new Chart(ctx, {
-                type: 'doughnut', // ใช้ doughnut จะดูสวยกว่า pie ปกติครับ
-                data: {
-                    labels: ['รีวิวแล้ว', 'ยังไม่รีวิว'],
-                    datasets: [{
-                        data: [data.reviewed, data.notReviewed],
-                        backgroundColor: ['#F28695', '#F2E6B8'], // สีชมพู และ สีเหลืองนวล
-                        borderWidth: 0,
-                        hoverOffset: 4
-                    }]
+        if (!data || data.length === 0) return;
+
+        const labels = data.map(item =>
+            new Date(item.trip_date).toLocaleDateString('th-TH',{
+                day:'numeric',
+                month:'short'
+            })
+        );
+
+        const counts = data.map(item => item.trip_count);
+
+        const ctx = document.getElementById('tripGrowthChart').getContext('2d');
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels,
+                datasets: [{
+                    label: 'จำนวนทริปที่ถูกสร้าง',
+                    data: counts,
+                    backgroundColor: '#F28695',
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins:{
+                    legend:{display:false}
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: {
-                                font: { family: 'Inter', size: 14 }
-                            }
-                        }
-                    },
-                    cutout: '70%' // ทำให้วงกลมดูเป็นวงแหวนบางๆ สวยงาม
+                scales:{
+                    y:{beginAtZero:true}
                 }
-            });
-        } catch (error) {
-            console.error("Error loading review chart:", error);
-        }
+            }
+        });
+
+    } catch (error) {
+        console.error("Trip Chart Error:", error);
     }
 
-    fetchDashboardData();
-    initUserGrowthChart();
-    initReviewChart();
-
-// ค้นหาปุ่ม Logout
-const logoutBtn = document.querySelector('.logout-btn');
-
-if (logoutBtn) {
-    logoutBtn.addEventListener('click', (e) => {
-        e.preventDefault(); // ป้องกันการเปลี่ยนหน้าทันที
-
-        // สร้างหน้าต่างยืนยัน
-        const isConfirmed = confirm("คุณแน่ใจหรือไม่ว่าต้องการออกจากระบบ?");
-
-        if (isConfirmed) {
-            // ถ้าตกลง (OK) ให้ล้างข้อมูลและเด้งไปหน้า Login
-            localStorage.removeItem('adminToken');
-            alert('ออกจากระบบสำเร็จ');
-            window.location.href = 'admin-login.html';
-        } else {
-            // ถ้ากดยกเลิก (Cancel) ไม่ต้องทำอะไร อยู่หน้าเดิมต่อ
-            console.log("ยกเลิกการออกจากระบบ");
-        }
-    });
 }
 
+
+    // ─── INIT ──────────────────────────────────────────────────
+    fetchDashboardData();
+    initUserGrowthChart();
+    initTripGrowthChart();
+   
 });

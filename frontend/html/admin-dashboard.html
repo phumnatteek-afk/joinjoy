@@ -1,85 +1,142 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="th">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JoinJoy - Admin Dashboard</title>
-
+    <title>JoinJoy — Admin Dashboard</title>
     <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
+    <link rel="stylesheet" href="../css/admin-shared.css">
     <link rel="stylesheet" href="../css/admin-dashboard.css">
 </head>
-
 <body>
-    <div class="dashboard-wrapper">
-        <nav class="sidebar">
-            <div class="sidebar-top">
-                <img src="../img/joinjoylogo.png" alt="Logo" class="sidebar-logo">
-                <div class="menu-items">
-                    <a href="#" class="menu-item active">
-                        <iconify-icon icon="si:dashboard-fill"></iconify-icon>
-                        Dashboard
-                    </a>
-                    <a href="admin-users.html" class="menu-item">
-                        <iconify-icon icon="gridicons:user"></iconify-icon>
-                        User
-                    </a>
-                </div>
-            </div>
-            <a href="admin-login.html" class="logout-btn">
-                <iconify-icon icon="material-symbols:logout-rounded"></iconify-icon>
-                Log Out
-            </a>
-        </nav>
 
-        <main class="content">
-            <div class="stats-grid">
-                <div class="stat-card active-users">
-                    <h3>Active Users</h3>
-                    <div class="stat-value" id="active-users-val">0</div>
-                    <h4>person per day</h4>
-                </div>
-
-                <div class="stat-card trip-stats">
-                    <h3>Trip Statistics</h3>
-                    <div class="trip-grid">
-                        <div class="trip-sub">
-                            <div class="val" id="open-trips-val">0</div>
-                            <div class="lbl">New Trip</div>
-                        </div>
-                        <div class="trip-divider"></div>
-                        <div class="trip-sub">
-                            <div class="val" id="full-trips-val">0</div>
-                            <div class="lbl">Full Trip</div>
-                        </div>
-                        <div class="trip-divider"></div>
-                        <div class="trip-sub">
-                            <div class="val" id="closed-trips-val">0</div>
-                            <div class="lbl">End Trip</div>
-                        </div>
-                    </div>
-                </div>
+<!-- SIDEBAR -->
+<nav class="sidebar">
+    <div class="sidebar-brand">
+        <div class="brand-logo">
+            <div class="brand-icon">🌸</div>
+            <div>
+                <div class="brand-name">JoinJoy</div>
+                <div class="brand-sub">Admin Panel</div>
             </div>
-
-            <div class="charts-grid">
-                <div class="chart-container user-growth">
-                    <h3>User Growth</h3>
-                    <div class="chart-wrapper">
-                        <canvas id="userGrowthChart"></canvas>
-                    </div>
-                </div>
-                <div class="chart-container trip-reviews">
-                    <h3>Trip Reviews</h3>
-                    <div class="chart-wrapper-circle">
-                        <canvas id="tripReviewsChart"></canvas>
-                    </div>
-                </div>
-            </div>
-        </main>
+        </div>
     </div>
-    <script src="../js/admin-dashboard.js"></script>
-</body>
 
+    <div class="nav-section">
+        <div class="nav-label">Main Menu</div>
+        <a href="admin-dashboard.html" class="nav-item active">
+            <iconify-icon icon="si:dashboard-fill"></iconify-icon>
+            Dashboard
+        </a>
+        <a href="admin-users.html" class="nav-item">
+            <iconify-icon icon="gridicons:user"></iconify-icon>
+            Users
+        </a>
+        <a href="admin-trips.html" class="nav-item">
+            <iconify-icon icon="mdi:map-marker-path"></iconify-icon>
+            Trips
+        </a>
+    </div>
+
+    <div class="sidebar-footer">
+        <a href="admin-login.html" class="logout-btn" id="logoutBtn">
+            <iconify-icon icon="material-symbols:logout-rounded"></iconify-icon>
+            ออกจากระบบ
+        </a>
+    </div>
+</nav>
+
+<!-- MAIN -->
+<main class="main">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">Dashboard</h1>
+            <p class="page-subtitle">ภาพรวมระบบ JoinJoy</p>
+        </div>
+        <div class="header-date">
+            <iconify-icon icon="mdi:calendar-outline"></iconify-icon>
+            <span id="today-date">—</span>
+        </div>
+    </div>
+
+    <!-- Stat Cards -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="card-label">Active Users Today</div>
+            <div class="card-value" id="active-users-val">—</div>
+            <div class="card-unit">คน / วันนี้</div>
+        </div>
+
+        <div class="stat-card trip-stats-card" style="padding: 0;">
+            <div class="trip-stat-item">
+                <div class="trip-stat-badge badge-open">
+                    <iconify-icon icon="mdi:map-marker-plus-outline"></iconify-icon>
+                </div>
+                <div class="trip-stat-val" id="open-trips-val">—</div>
+                <div class="trip-stat-lbl">New Trip</div>
+            </div>
+            <div class="trip-stat-item">
+                <div class="trip-stat-badge badge-full">
+                    <iconify-icon icon="mdi:account-group"></iconify-icon>
+                </div>
+                <div class="trip-stat-val" id="full-trips-val">—</div>
+                <div class="trip-stat-lbl">Full Trip</div>
+            </div>
+            <div class="trip-stat-item">
+                <div class="trip-stat-badge badge-closed">
+                    <iconify-icon icon="mdi:flag-checkered"></iconify-icon>
+                </div>
+                <div class="trip-stat-val" id="closed-trips-val">—</div>
+                <div class="trip-stat-lbl">End Trip</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="charts-grid">
+
+    <!-- USER GROWTH -->
+    <div class="chart-card">
+        <div class="chart-header">
+            <div class="chart-title">User Growth</div>
+            <span class="chart-tag">Cumulative</span>
+        </div>
+        <div class="chart-wrap">
+            <canvas id="userGrowthChart"></canvas>
+        </div>
+    </div>
+
+    <!-- TRIP GROWTH -->
+    <div class="chart-card">
+        <div class="chart-header">
+            <div class="chart-title">Trip Creation</div>
+            <span class="chart-tag">Per Day</span>
+        </div>
+        <div class="chart-wrap">
+            <canvas id="tripGrowthChart"></canvas>
+        </div>
+    </div>
+
+</div>
+</main>
+
+<script src="../js/admin-dashboard.js"></script>
+<script>
+    // Show today date
+    const d = new Date();
+    document.getElementById('today-date').textContent = d.toLocaleDateString('th-TH', {
+        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+    });
+
+    // Logout confirm
+    document.getElementById('logoutBtn').addEventListener('click', e => {
+        e.preventDefault();
+        if (confirm('คุณแน่ใจหรือไม่ว่าต้องการออกจากระบบ?')) {
+            localStorage.removeItem('adminToken');
+            window.location.href = 'admin-login.html';
+        }
+    });
+</script>
+</body>
 </html>

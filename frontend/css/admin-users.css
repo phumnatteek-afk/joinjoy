@@ -1,0 +1,172 @@
+/* ── TABLE CARD ── */
+.table-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid rgba(45,35,40,0.06);
+    overflow: hidden;
+}
+
+table { width: 100%; border-collapse: collapse; }
+
+thead th {
+    background: var(--cream);
+    padding: 14px 20px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--ink-lt);
+    border-bottom: 1px solid rgba(45,35,40,0.06);
+}
+
+tbody tr {
+    border-bottom: 1px solid rgba(45,35,40,0.04);
+    transition: background 0.15s;
+}
+
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: rgba(242,134,149,0.04); }
+
+tbody td {
+    padding: 16px 20px;
+    font-size: 14px;
+    vertical-align: middle;
+}
+
+/* ── USER CELL ── */
+.user-info { display: flex; align-items: center; gap: 12px; }
+
+.avatar {
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    background: var(--rose-lt);
+    display: grid;
+    place-items: center;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--rose-dk);
+    flex-shrink: 0;
+}
+
+.user-name  { font-weight: 600; font-size: 14px; }
+.user-email { font-size: 12px; color: var(--ink-md); margin-top: 1px; }
+
+/* ── BADGES ── */
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.badge-active { background: rgba(109,191,138,0.15); color: #3a9c5c; }
+.badge-banned { background: rgba(224,92,106,0.15);  color: var(--danger); }
+.badge-user   { background: rgba(242,134,149,0.15); color: var(--rose-dk); }
+.badge-admin  { background: rgba(45,35,40,0.08);    color: var(--ink); }
+
+/* ── BAN REASON ── */
+.reason-text {
+    font-size: 12px;
+    color: var(--danger);
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* ── ACTION BUTTONS ── */
+.action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+}
+
+.btn-ban            { background: rgba(224,92,106,0.1); color: var(--danger); }
+.btn-ban:hover      { background: var(--danger); color: white; }
+.btn-unban          { background: rgba(109,191,138,0.1); color: #3a9c5c; }
+.btn-unban:hover    { background: var(--success); color: white; }
+
+/* ── BAN MODAL ── */
+.modal {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 36px;
+    width: 420px;
+    box-shadow: var(--shadow-lg);
+    animation: popIn 0.25s cubic-bezier(.34,1.56,.64,1);
+}
+
+.modal-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 6px;
+}
+
+.modal-sub   { font-size: 14px; color: var(--ink-md); margin-bottom: 24px; }
+.modal-label { font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: 8px; }
+
+.modal-textarea {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1.5px solid rgba(45,35,40,0.1);
+    border-radius: var(--radius-sm);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    resize: vertical;
+    min-height: 100px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.modal-textarea:focus { border-color: var(--rose); }
+
+.modal-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 24px;
+    justify-content: flex-end;
+}
+
+.btn-primary {
+    padding: 10px 24px;
+    background: var(--danger);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-primary:hover { background: #c0404e; }
+
+.btn-secondary {
+    padding: 10px 24px;
+    background: var(--cream);
+    color: var(--ink-md);
+    border: 1.5px solid rgba(45,35,40,0.1);
+    border-radius: var(--radius-sm);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-secondary:hover { background: rgba(45,35,40,0.05); }
