@@ -670,7 +670,7 @@ $('bellBtn').addEventListener('click', async () => {
   try {
     await apiFetch('/notifications/read-all', { method: 'PUT', headers: authHeaders() });
     $('notifDot').style.display = 'none';
-    showToast('อ่านการแจ้งเตือนทั้งหมดแล้ว', 'info');
+    showToast('อ่านการแจ้งเตือนทั้งหมด', 'info');
   } catch (e) { console.error('bell:', e); }
 });
 
@@ -680,6 +680,7 @@ $('bellBtn').addEventListener('click', async () => {
   await loadUser();
   Promise.all([loadUpcoming(), loadRecommended(), loadExp(), loadSchedule(), loadNotif()]);
 })();
+// test
 </script>
 <script src="../js/main.js"></script>
 </body>
