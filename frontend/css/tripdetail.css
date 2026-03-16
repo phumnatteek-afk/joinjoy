@@ -1,0 +1,545 @@
+/* ════════════════════════════════════════════════
+   tripdetail.css  –  JoinJoy  |  Trip Detail Page
+   ════════════════════════════════════════════════ */
+
+   @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
+
+   /* ── DESIGN TOKENS (matches home.css) ─────────── */
+   :root {
+     --pink:        #F06292;
+     --pink-light:  #FCE4EC;
+     --pink-dark:   #E91E8C;
+     --pink-mid:    #F48FB1;
+     --mint:        #80CBC4;
+     --mint-dark:   #4DB6AC;
+     --bg:          #FFF0F3;
+     --white:       #FFFFFF;
+     --text:        #2D1F26;
+     --text-soft:   #B07A90;
+     --text-muted:  #CBA5B5;
+     --border:      #F5D5DE;
+     --shadow:      0 4px 20px rgba(240,98,146,0.13);
+     --radius:      16px;
+   }
+   
+   /* ── RESET & BASE ─────────────────────────────── */
+   *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+   
+   body {
+     font-family: 'Poppins', sans-serif;
+     color: var(--text);
+     background: linear-gradient(180deg, #f7dada 0%, #f3cfcf 50%, #eed9c4 100%);
+     max-width: 430px;
+     margin: 0 auto;
+     min-height: 100vh;
+     padding-bottom: 80px;
+     -webkit-font-smoothing: antialiased;
+   }
+   
+   /* ── BACK BUTTON ──────────────────────────────── */
+   .btn-back {
+     position: fixed;
+     top: 20px;
+     left: 18px;
+     z-index: 300;
+     width: 36px;
+     height: 36px;
+     border-radius: 50%;
+     background: var(--white);
+     border: none;
+     cursor: pointer;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     box-shadow: 0 2px 10px rgba(0,0,0,0.10);
+     transition: transform .15s;
+   }
+   .btn-back:hover { transform: scale(1.08); }
+   
+   /* ── LOGO ─────────────────────────────────────── */
+   .td-logo {
+     display: flex;
+     justify-content: center;
+     padding: 16px 0 0;
+   }
+   .td-logo img {
+     height: 34px;
+     object-fit: contain;
+   }
+   
+   /* ── LOADING STATE ────────────────────────────── */
+   .td-loading {
+     display: flex;
+     flex-direction: column;
+     align-items: center;
+     justify-content: center;
+     gap: 14px;
+     min-height: 55vh;
+     color: var(--text-soft);
+     font-size: 13px;
+     font-weight: 500;
+   }
+   .spinner {
+     width: 36px;
+     height: 36px;
+     border: 3.5px solid var(--pink-light);
+     border-top-color: var(--pink);
+     border-radius: 50%;
+     animation: spin .75s linear infinite;
+   }
+   .td-hidden { display: none; }
+   
+   /* ── HERO CARD ────────────────────────────────── */
+   .td-hero {
+     margin: 14px 16px 0;
+     background: var(--white);
+     border-radius: 22px;
+     padding: 20px 18px;
+     display: flex;
+     align-items: flex-start;
+     gap: 16px;
+     box-shadow: var(--shadow);
+     animation: fadeUp .35s ease both;
+   }
+   
+   .td-hero-avatar {
+     width: 62px;
+     height: 62px;
+     border-radius: 50%;
+     background: var(--pink-light);
+     border: 2px solid #f9c0cf;
+     flex-shrink: 0;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     overflow: hidden;
+   }
+   .td-hero-avatar img {
+     width: 100%;
+     height: 100%;
+     object-fit: cover;
+   }
+   
+   .td-hero-body { flex: 1; min-width: 0; }
+   
+   .td-trip-name {
+     font-size: 18px;
+     font-weight: 700;
+     line-height: 1.25;
+     margin-bottom: 5px;
+     color: var(--text);
+   }
+   
+   .td-host-line {
+     font-size: 12.5px;
+     color: var(--text-soft);
+     margin-bottom: 10px;
+   }
+   .td-host-name {
+     color: var(--pink);
+     font-weight: 600;
+   }
+   
+   .td-tags {
+     display: flex;
+     flex-wrap: wrap;
+     gap: 6px;
+   }
+   .td-tag {
+     background: var(--pink-light);
+     color: var(--pink);
+     border-radius: 50px;
+     padding: 3px 12px;
+     font-size: 11px;
+     font-weight: 600;
+   }
+   
+   /* ── DATE ROW ─────────────────────────────────── */
+   .td-dates {
+     display: flex;
+     align-items: center;
+     gap: 6px;
+     margin: 14px 16px;
+     animation: fadeUp .35s .05s ease both;
+   }
+   .td-date-chip {
+     flex: 1;
+     display: flex;
+     align-items: center;
+     gap: 6px;
+     background: var(--white);
+     border-radius: 50px;
+     padding: 9px 14px;
+     font-size: 12px;
+     font-weight: 500;
+     color: var(--text);
+     box-shadow: 0 2px 8px rgba(240,98,146,0.10);
+     white-space: nowrap;
+     overflow: hidden;
+   }
+   .td-date-chip span {
+     overflow: hidden;
+     text-overflow: ellipsis;
+     color: var(--pink);
+     font-weight: 600;
+     font-size: 11.5px;
+   }
+   .td-date-arrow {
+     font-size: 18px;
+     color: var(--text-muted);
+     font-weight: 700;
+     flex-shrink: 0;
+   }
+   
+   /* ── INFO BOX ─────────────────────────────────── */
+   .td-infobox {
+     margin: 0 16px;
+     background: var(--white);
+     border-radius: var(--radius);
+     box-shadow: var(--shadow);
+     overflow: hidden;
+     animation: fadeUp .35s .1s ease both;
+   }
+   .td-info-row {
+     display: flex;
+     align-items: center;
+     gap: 14px;
+     padding: 13px 16px;
+     border-bottom: 1px solid var(--border);
+   }
+   .td-info-row:last-child { border-bottom: none; }
+   .td-info-icon {
+     width: 26px;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     flex-shrink: 0;
+   }
+   .td-info-text {
+     font-size: 14px;
+     font-weight: 500;
+     color: var(--text);
+   }
+   
+   /* ── SECTION ──────────────────────────────────── */
+   .td-section {
+     margin: 16px 16px 0;
+     animation: fadeUp .35s .15s ease both;
+   }
+   .td-section-label {
+     font-size: 13.5px;
+     font-weight: 600;
+     color: var(--text);
+     margin-bottom: 10px;
+   }
+   .td-section-label--center {
+     font-size: 16px;
+     font-weight: 700;
+     text-align: center;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     gap: 8px;
+     margin-bottom: 12px;
+   }
+   
+   /* ── DETAILS BOX ──────────────────────────────── */
+   .td-details-box {
+     background: var(--white);
+     border-radius: var(--radius);
+     padding: 14px 16px;
+     box-shadow: var(--shadow);
+   }
+   .td-details-box p {
+     font-size: 13px;
+     color: var(--pink);
+     font-weight: 500;
+     line-height: 1.8;
+   }
+   
+   /* ── MEMBER BADGE ─────────────────────────────── */
+   .td-member-badge {
+     font-size: 14px;
+     font-weight: 700;
+     color: var(--text);
+   }
+   
+   /* ── MEMBERS LIST ─────────────────────────────── */
+   .td-members-list {
+     background: var(--white);
+     border-radius: var(--radius);
+     overflow: hidden;
+     box-shadow: var(--shadow);
+   }
+   
+   /* ── MEMBER ITEM ──────────────────────────────── */
+   .td-member-item {
+     border-bottom: 1px solid var(--border);
+   }
+   .td-member-item:last-child { border-bottom: none; }
+   
+   .td-member-row {
+     display: flex;
+     align-items: center;
+     gap: 12px;
+     padding: 14px 16px;
+     cursor: pointer;
+     transition: background .15s;
+     user-select: none;
+   }
+   .td-member-row:hover { background: #fff8f9; }
+   .td-member-row:active { background: var(--pink-light); }
+   
+   /* Avatar */
+   .td-member-avatar {
+     width: 46px;
+     height: 46px;
+     border-radius: 50%;
+     flex-shrink: 0;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     font-size: 16px;
+     font-weight: 700;
+     color: #fff;
+     overflow: hidden;
+   }
+   .td-member-avatar img {
+     width: 100%;
+     height: 100%;
+     object-fit: cover;
+   }
+   /* Avatar colour variants */
+   .av-pink  { background: linear-gradient(135deg, #f9a8c9, #f06292); }
+   .av-mint  { background: linear-gradient(135deg, #80cbc4, #4db6ac); }
+   .av-peach { background: linear-gradient(135deg, #ffccbc, #ff8a65); }
+   .av-lav   { background: linear-gradient(135deg, #ce93d8, #9c27b0); }
+   .av-sky   { background: linear-gradient(135deg, #81d4fa, #0288d1); }
+   
+   .td-member-info { flex: 1; min-width: 0; }
+   .td-member-name {
+     font-size: 14px;
+     font-weight: 600;
+     color: var(--text);
+   }
+   .td-member-sub {
+     font-size: 12px;
+     color: var(--text-muted);
+     margin-top: 1px;
+   }
+   
+   /* "you" badge */
+   .td-you-badge {
+     display: inline-block;
+     font-size: 9px;
+     font-weight: 700;
+     background: var(--pink);
+     color: #fff;
+     border-radius: 50px;
+     padding: 2px 7px;
+     margin-left: 5px;
+     vertical-align: middle;
+   }
+   
+   /* Chevron icon */
+   .td-member-chevron {
+     flex-shrink: 0;
+     color: var(--text-muted);
+     transition: transform .25s ease;
+   }
+   .td-member-item.open .td-member-chevron {
+     transform: rotate(90deg);
+   }
+   
+   /* ── PROFILE DROPDOWN ─────────────────────────── */
+   .td-profile-drop {
+     max-height: 0;
+     overflow: hidden;
+     transition: max-height .32s ease;
+     background: linear-gradient(160deg, #fff8fa 0%, #fce4ec 100%);
+   }
+   .td-profile-drop.open {
+     max-height: 500px;
+   }
+   
+   .td-profile-inner {
+     padding: 12px 16px 16px 74px;
+   }
+   
+   /* Loading inside dropdown */
+   .td-profile-inner .td-loading {
+     min-height: unset;
+     flex-direction: row;
+     justify-content: flex-start;
+     padding: 8px 0;
+     gap: 10px;
+   }
+   .td-profile-inner .spinner {
+     width: 22px;
+     height: 22px;
+     border-width: 2.5px;
+   }
+   
+   /* Field rows inside dropdown */
+   .td-pf-row {
+     display: flex;
+     align-items: flex-start;
+     gap: 8px;
+     margin-bottom: 8px;
+     font-size: 13px;
+   }
+   .td-pf-label {
+     color: var(--text-muted);
+     font-weight: 500;
+     min-width: 86px;
+     flex-shrink: 0;
+   }
+   .td-pf-value {
+     color: var(--text);
+     font-weight: 600;
+   }
+   
+   /* Social chips */
+   .td-social-row {
+     display: flex;
+     flex-wrap: wrap;
+     gap: 7px;
+     margin-top: 6px;
+   }
+   .td-social-chip {
+     display: inline-flex;
+     align-items: center;
+     gap: 5px;
+     background: var(--white);
+     border: 1.5px solid var(--border);
+     border-radius: 50px;
+     padding: 4px 12px;
+     font-size: 11.5px;
+     font-weight: 600;
+     color: var(--pink);
+     text-decoration: none;
+     transition: background .15s, border-color .15s;
+   }
+   .td-social-chip:hover {
+     background: var(--pink-light);
+     border-color: var(--pink-mid);
+   }
+   .td-social-chip i { font-size: 11px; }
+   
+   /* ── TOAST ────────────────────────────────────── */
+   .td-toast {
+     position: fixed;
+     bottom: 30px;
+     left: 50%;
+     transform: translateX(-50%) translateY(14px);
+     background: var(--text);
+     color: #fff;
+     font-size: 13px;
+     font-weight: 600;
+     padding: 10px 22px;
+     border-radius: 50px;
+     opacity: 0;
+     pointer-events: none;
+     z-index: 999;
+     white-space: nowrap;
+     transition: opacity .25s, transform .25s;
+   }
+   .td-toast.show {
+     opacity: 1;
+     transform: translateX(-50%) translateY(0);
+   }
+   .td-toast.ok  { background: #388E3C; }
+   .td-toast.err { background: #C62828; }
+   
+   /* ── EMPTY / ERROR STATES ─────────────────────── */
+   .td-empty {
+     padding: 24px 16px;
+     text-align: center;
+     color: var(--text-muted);
+     font-size: 13px;
+   }
+   
+   /* ── ANIMATIONS ───────────────────────────────── */
+   @keyframes fadeUp {
+     from { opacity: 0; transform: translateY(14px); }
+     to   { opacity: 1; transform: translateY(0); }
+   }
+   @keyframes spin { to { transform: rotate(360deg); } }
+/* ── JOIN BUTTON ──────────────────────────────────────────── */
+.join-btn {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 32px);
+  max-width: 398px;
+  height: 52px;
+  border: none;
+  border-radius: 50px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background .2s, transform .15s, box-shadow .2s;
+  letter-spacing: 0.3px;
+  z-index: 200;
+}
+
+/* Default — pink gradient */
+.join-btn.join-btn--default {
+  background: linear-gradient(135deg, #f48fb1, #f06292);
+  color: #fff;
+  box-shadow: 0 4px 18px rgba(240,98,146,0.40);
+}
+.join-btn.join-btn--default:hover {
+  transform: translateX(-50%) scale(1.02);
+  box-shadow: 0 6px 24px rgba(240,98,146,0.50);
+}
+.join-btn.join-btn--default:active {
+  transform: translateX(-50%) scale(0.98);
+}
+
+/* Loading */
+.join-btn.join-btn--loading {
+  background: #f5d5de;
+  color: #c07090;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+/* Pending — soft amber */
+.join-btn.join-btn--pending {
+  background: linear-gradient(135deg, #ffe0b2, #ffb74d);
+  color: #7c4a00;
+  box-shadow: 0 4px 16px rgba(255,183,77,0.35);
+  cursor: not-allowed;
+}
+
+/* Joined — green */
+.join-btn.join-btn--joined {
+  background: linear-gradient(135deg, #a5d6a7, #66bb6a);
+  color: #1b5e20;
+  box-shadow: 0 4px 16px rgba(102,187,106,0.35);
+  cursor: not-allowed;
+}
+
+/* ── CONTACT CHIP in member dropdown ─────────────────────── */
+.td-contact-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--pink-light);
+  color: var(--pink);
+  border: 1.5px solid var(--border);
+  border-radius: 50px;
+  padding: 4px 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.td-pf-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 2px;
+}
