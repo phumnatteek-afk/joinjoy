@@ -24,6 +24,7 @@ router.get('/trips', async(req, res) => {
                 t.max_member,
                 t.start_time,      
                 t.end_time,       
+                t.limit_date_accept,
                 t.budget_min,      
                 t.budget_max,     
                 t.created_at,
@@ -46,12 +47,18 @@ router.get('/trips', async(req, res) => {
             return res.status(200).json([]);
         }
 
-        // เพิ่มเติม: ตรวจสอบข้อมูลก่อนส่ง (เช่น ถ้าไม่มีรูปให้ใส่ null หรือ default)
-        const formattedRows = rows.map(trip => ({
-            ...trip,
-            // ถ้าอยากให้ Backend ต่อ Path รูปภาพให้เลย สามารถทำได้ที่นี่
-            // cover_image: trip.cover_image ? `/uploads/trips/${trip.cover_image}` : null
-        }));
+        const formattedRows = rows.map(trip => {
+            // ตรวจสอบว่าเลยวันปิดรับหรือยัง (Expired)
+            const now = new Date();
+            const limitDate = trip.limit_date_accept ? new Date(trip.limit_date_accept) : null;
+            const isExpired = limitDate && now > limitDate;
+
+            return {
+                ...trip,
+                is_expired: isExpired, // ส่งค่า boolean นี้ไปให้ frontend เช็คได้ง่ายขึ้น
+                // cover_image: trip.cover_image ? `/uploads/trips/${trip.cover_image}` : null
+            };
+        });
 
         res.status(200).json(formattedRows);
 
