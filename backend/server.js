@@ -5,12 +5,10 @@ const cors = require('cors');
 const path = require('path');
 const passport = require('passport');
 const session = require('express-session');
-
+// ── Routes ที่ลี่สร้างเพิ่ม ─────────────────────────────────
 const createTripRouter = require('./routes/create-trip');
 const detailRouter = require('./routes/trip-detail');
 const reviewRouter = require('./routes/review');
-const tripMemberRouter = require('./routes/trip-member');
-
 
 const app = express();
 
@@ -107,9 +105,9 @@ const db = require('./db');
 app.get('/api/trip-members/:id', async (req, res) => {
     const tripId = req.params.id;
     try {
-        // Step 1: get all members of this trip
+        // Step 1: get only JOINED (approved) members
         const [members] = await db.query(
-            'SELECT * FROM Trip_member WHERE trip_id = ?',
+            "SELECT * FROM Trip_member WHERE trip_id = ? AND status = 'Joined'",
             [tripId]
         );
 
@@ -216,7 +214,6 @@ app.post('/api/join-trip', async (req, res) => {
     }
 });
 app.use('/api', reviewRouter); // สำหรับ /api/review
-app.use('/api', tripMemberRouter);
 
 const profileRouter = require('./routes/Profile');
 app.use('/api/profile', profileRouter); // GET/PUT /api/profile/me, POST /api/profile/me/avatar
@@ -224,7 +221,6 @@ app.use('/api/profile', profileRouter); // GET/PUT /api/profile/me, POST /api/pr
 app.get('/', (req, res) => {
     res.redirect('/html/homepage.html'); // ✅ frontend serve จาก /frontend → path คือ /html/...
 });
-
 
 // ── Start ────────────────────────────────────────────────────
 const PORT = process.env.PORT || 3000;
