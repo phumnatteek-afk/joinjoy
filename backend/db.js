@@ -7,7 +7,11 @@ const pool = mysql.createPool({
     password: process.env.DB_PASSWORD, // ดึงค่าจากไฟล์ .env
     database: 'defaultdb',
     port: 16356, 
-    ssl: { rejectUnauthorized: false } 
+    ssl: { rejectUnauthorized: false }
 });
+
+pool.on('connection', (connection) => {
+    connection.query("SET time_zone = '+07:00'")
+})
 
 module.exports = pool.promise();

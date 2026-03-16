@@ -1,6 +1,32 @@
 const express = require('express')
 const router = express.Router()
 const pool = require('../db') // ← เปลี่ยนกลับมาใช้ DB จริง
+const SQL_NOW_TH = "CONVERT_TZ(UTC_TIMESTAMP(), '+00:00', '+07:00')"
+const SQL_TODAY_TH = "DATE(CONVERT_TZ(UTC_TIMESTAMP(), '+00:00', '+07:00'))"
+
+let ensureNotificationSeenTablePromise = null
+
+function ensureNotificationSeenTable() {
+    if (!ensureNotificationSeenTablePromise) {
+        ensureNotificationSeenTablePromise = pool.query(`
+            CREATE TABLE IF NOT EXISTS Notification_seen (
+                notification_id INT NOT NULL,
+                user_id INT NOT NULL,
+                seen_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY (notification_id, user_id),
+                INDEX idx_notification_seen_user (user_id),
+                CONSTRAINT fk_notification_seen_notification
+                    FOREIGN KEY (notification_id) REFERENCES Notification(notification_id)
+                    ON DELETE CASCADE
+            )
+        `).catch((err) => {
+            ensureNotificationSeenTablePromise = null
+            throw err
+        })
+    }
+
+    return ensureNotificationSeenTablePromise
+}
 
 function getActorUserId(req) {
     const sessionUserId = (req.session && req.session.userId) ? Number(req.session.userId) : null
@@ -8,74 +34,6 @@ function getActorUserId(req) {
     const queryUserId = (req.query && req.query.user_id) ? Number(req.query.user_id) : null
     return sessionUserId || passportUserId || queryUserId || null
 }
-
-async function createReviewNotificationsForTrip(trip_id, io = null) {
-    // ตรวจสอบสถานะทริปก่อน (Closed เท่านั้น)
-    const [trips] = await pool.query('SELECT creator_id, trip_name, trip_status FROM Trip WHERE trip_id = ?', [trip_id])
-    if (!trips.length) {
-        throw new Error('ไม่พบทริป')
-    }
-    const trip = trips[0]
-    if (String(trip.trip_status).toLowerCase() !== 'closed') {
-        return { skipped: true }
-    }
-
-    // ดึงสมาชิกที่เข้าร่วม (Joined) และ Host (creator_id) ด้วย UNION
-    const [members] = await pool.query(
-        `SELECT user_id FROM (
-           SELECT tm.user_id
-           FROM Trip_member tm
-           WHERE tm.trip_id = ? AND tm.status = 'Joined'
-           UNION
-           SELECT t.creator_id AS user_id
-           FROM Trip tแ
-           WHERE t.trip_id = ?
-         ) x`,
-        [trip_id, trip_id]
-    )
-
-    // กำหนด link สำหรับให้ผู้ใช้ไปเขียนรีวิว
-    const reviewLink = `review.html?trip_id=${trip_id}`
-    const detailText = `ทริป "${trip.trip_name}" จบแล้ว! มาแชร์ความรู้สึกกันเถอะ (${reviewLink})`
-
-    let notified = 0
-    for (const member of members) {
-        const userId = member.user_id
-        // ป้องกันสร้างซ้ำ (ถ้ามีแล้ว)
-        const [existing] = await pool.query(
-            `SELECT 1 FROM Notification WHERE trip_id = ? AND user_id = ? AND notification_title = ? LIMIT 1`,
-            [trip_id, userId, '⭐ รีวิวทริปของคุณ']
-        )
-        if (existing.length) continue
-
-        await pool.query(
-            `INSERT INTO Notification
-             (trip_id, user_id, notification_title, notification_detail, create_at, is_read)
-             VALUES (?, ?, ?, ?, NOW(), 0)`,
-            [
-                trip_id,
-                userId,
-                '⭐ รีวิวทริปของคุณ',
-                detailText
-            ]
-        )
-
-        if (io) {
-            io.to(`room:${userId}`).emit('new_notification', {
-                type: 'review_reminder',
-                title: '⭐ รีวิวทริปของคุณ',
-                detail: detailText,
-                trip_id
-            })
-        }
-        notified += 1
-    }
-
-    return { notified }
-}
-
-// expose helper for other routes
-router.createReviewNotificationsForTrip = createReviewNotificationsForTrip
 
 // FLOW 1: User กด JOIN
 router.post('/join-request', async(req, res) => {
@@ -125,7 +83,7 @@ router.post('/join-request', async(req, res) => {
         // INSERT Trip_member สถานะ Pending
         await pool.query(
             `INSERT INTO Trip_member (trip_id, user_id, status, joined_at)
-          VALUES (?, ?, 'Pending', NOW())`, [trip_id, requesterId]
+                    VALUES (?, ?, 'Pending', ${SQL_NOW_TH})`, [trip_id, requesterId]
         )
 
         const joinRequestDetail = `${user.user_name} ขอเข้าร่วมทริป "${trip.trip_name}" [REQ_USER_ID:${user.user_id}]`
@@ -133,8 +91,8 @@ router.post('/join-request', async(req, res) => {
         // INSERT Notification ให้ Host แจ้งว่ามีคนขอเข้าร่วมทริป
         await pool.query(
             `INSERT INTO Notification 
-       (trip_id, user_id, notification_title, notification_detail, create_at, is_read)
-       VALUES (?, ?, ?, ?, NOW(), 0)`, [
+       (trip_id, user_id, notification_title, notification_detail, create_at)
+       VALUES (?, ?, ?, ?, ${SQL_NOW_TH})`, [
                 trip_id,
                 trip.creator_id,
                 'มีคนขอเข้าร่วมทริป',
@@ -239,6 +197,35 @@ router.patch('/respond', async(req, res) => {
        WHERE trip_id = ? AND user_id = ?`, [status, trip_id, user_id]
         )
 
+                // ดันเวลาแจ้งเตือนคำขอเดิมของโฮสต์ให้เป็นล่าสุด
+                // เพื่อให้ขึ้นบนสุดตามเวลาที่โฮสต์เพิ่งตอบรับ/ปฏิเสธ
+                const [requesterRows] = await pool.query(
+                        'SELECT user_name FROM User WHERE user_id = ? LIMIT 1',
+                        [user_id]
+                )
+                const requesterName = requesterRows.length ? String(requesterRows[0].user_name || '').trim() : ''
+                const requesterMarker = `%[REQ_USER_ID:${Number(user_id)}]%`
+                const requesterNameLike = requesterName ? `${requesterName} ขอเข้าร่วมทริป%` : ''
+                await pool.query(
+                        `UPDATE Notification
+             SET create_at = ${SQL_NOW_TH}
+             WHERE notification_id = (
+                 SELECT latest.notification_id FROM (
+                     SELECT notification_id
+                     FROM Notification
+                     WHERE trip_id = ?
+                         AND user_id = ?
+                         AND notification_title = 'มีคนขอเข้าร่วมทริป'
+                         AND (
+                             notification_detail LIKE ?
+                             OR (? <> '' AND notification_detail LIKE ?)
+                         )
+                     ORDER BY notification_id DESC
+                     LIMIT 1
+                 ) AS latest
+             )`, [trip_id, trip.creator_id, requesterMarker, requesterNameLike, requesterNameLike]
+                )
+
         const title = isAccepted ?
             '🎉 ได้รับการตอบรับแล้ว!' :
             '❌ ไม่ได้รับการตอบรับ'
@@ -250,8 +237,8 @@ router.patch('/respond', async(req, res) => {
         // INSERT Notification ให้ User แจ้งผลการตอบรับ
         await pool.query(
             `INSERT INTO Notification
-       (trip_id, user_id, notification_title, notification_detail, create_at, is_read)
-       VALUES (?, ?, ?, ?, NOW(), 0)`, [trip_id, user_id, title, detail]
+       (trip_id, user_id, notification_title, notification_detail, create_at)
+       VALUES (?, ?, ?, ?, ${SQL_NOW_TH})`, [trip_id, user_id, title, detail]
         )
 
         // Socket emit ไปหา User ทันที ส่งข้อมูล contact Host ไปด้วยถ้า ACCEPT
@@ -298,10 +285,65 @@ router.get('/resolve-user', async(req, res) => {
     }
 })
 
+router.get('/unread-count', async(req, res) => {
+        const actorUserId = getActorUserId(req)
+
+        if (!actorUserId) {
+                return res.status(401).json({ error: 'กรุณาล็อกอินก่อนดูจำนวนการแจ้งเตือน' })
+        }
+
+        try {
+                await ensureNotificationSeenTable()
+
+                const [rows] = await pool.query(
+                        `SELECT COUNT(*) AS unread_count
+                         FROM Notification n
+                         LEFT JOIN Notification_seen ns
+                             ON ns.notification_id = n.notification_id
+                            AND ns.user_id = n.user_id
+                         WHERE n.user_id = ?
+                             AND ns.notification_id IS NULL`,
+                        [actorUserId]
+                )
+
+                return res.json({ count: Number(rows[0]?.unread_count || 0) })
+        } catch (err) {
+                console.error('❌ unread-count error:', err.message)
+                return res.status(500).json({ error: err.message })
+        }
+})
+
+router.put('/read-all', async(req, res) => {
+        const actorUserId = getActorUserId(req)
+
+        if (!actorUserId) {
+                return res.status(401).json({ error: 'กรุณาล็อกอินก่อนอ่านการแจ้งเตือน' })
+        }
+
+        try {
+                await ensureNotificationSeenTable()
+
+                await pool.query(
+                        `INSERT IGNORE INTO Notification_seen (notification_id, user_id, seen_at)
+                     SELECT n.notification_id, n.user_id, ${SQL_NOW_TH}
+                         FROM Notification n
+                         WHERE n.user_id = ?`,
+                        [actorUserId]
+                )
+
+                return res.json({ success: true })
+        } catch (err) {
+                console.error('❌ read-all error:', err.message)
+                return res.status(500).json({ error: err.message })
+        }
+})
+
 router.get('/:user_id', async(req, res) => {
     const { user_id } = req.params
 
     try {
+                await ensureNotificationSeenTable()
+
         const [rows] = await pool.query(
             `SELECT 
          notification_id,
@@ -310,28 +352,38 @@ router.get('/:user_id', async(req, res) => {
          notification_title,
          notification_detail,
          create_at,
-         is_read,
+                 CASE
+                     WHEN ns.notification_id IS NULL THEN 1
+                     ELSE 0
+                 END AS is_unread,
          CASE
-           WHEN DATE(create_at) = CURDATE() 
+                 WHEN DATE(create_at) = ${SQL_TODAY_TH}
              THEN 'Today'
-           WHEN DATE(create_at) = DATE_SUB(CURDATE(), INTERVAL 1 DAY) 
+                 WHEN DATE(create_at) = DATE_SUB(${SQL_TODAY_TH}, INTERVAL 1 DAY)
              THEN 'Yesterday'
            ELSE 'This week'
          END AS date_group
-       FROM Notification
-       WHERE user_id = ?
-       ORDER BY create_at DESC`, [user_id]
+             FROM Notification n
+             LEFT JOIN Notification_seen ns
+                 ON ns.notification_id = n.notification_id
+                AND ns.user_id = n.user_id
+             WHERE n.user_id = ?
+             ORDER BY n.notification_id DESC`, [user_id]
         )
 
         const enrichedRows = []
 
         for (const row of rows) {
+            const notificationTitle = String(row.notification_title || '')
             const detail = String(row.notification_detail || '')
             const markerMatch = detail.match(/\[REQ_USER_ID:(\d+)\]/i)
             let fromUserId = markerMatch ? Number(markerMatch[1]) : null
-            const cleanedDetail = detail.replace(/\s*\[REQ_USER_ID:\d+\]/gi, '').trim()
+            const cleanedDetail = detail
+                .replace(/\s*\[REQ_USER_ID:\d+\]/gi, '')
+                .replace(/\s*กลับไป Join ใหม่ได้เลย/gi, '')
+                .trim()
 
-            if (!fromUserId && String(row.notification_title || '').includes('มีคนขอเข้าร่วมทริป')) {
+            if (!fromUserId && notificationTitle.includes('มีคนขอเข้าร่วมทริป')) {
                 const nameMatch = cleanedDetail.match(/^(.+?)\s*ขอเข้าร่วมทริป/)
                 const requesterName = nameMatch ? String(nameMatch[1] || '').trim() : ''
 
@@ -346,8 +398,11 @@ router.get('/:user_id', async(req, res) => {
             }
 
             let memberStatus = null
+            let fromUserProfileImg = null
+            let hostContact = null
+            let hostProfileImg = null
             if (fromUserId && Number(row.trip_id) > 0 &&
-                String(row.notification_title || '').includes('มีคนขอเข้าร่วมทริป')) {
+                notificationTitle.includes('มีคนขอเข้าร่วมทริป')) {
                 const [memberRows] = await pool.query(
                     'SELECT status FROM Trip_member WHERE trip_id = ? AND user_id = ? LIMIT 1',
                     [row.trip_id, fromUserId]
@@ -355,11 +410,39 @@ router.get('/:user_id', async(req, res) => {
                 memberStatus = memberRows.length ? memberRows[0].status : null
             }
 
+            if (fromUserId) {
+                const [profileRows] = await pool.query(
+                    'SELECT profile_img FROM User_profile WHERE user_id = ? LIMIT 1',
+                    [fromUserId]
+                )
+                fromUserProfileImg = profileRows.length ? profileRows[0].profile_img : null
+            }
+
+            if (Number(row.trip_id) > 0 && notificationTitle.includes('ได้รับการตอบรับแล้ว')) {
+                const [hostRows] = await pool.query(
+                    `SELECT up.social_media AS host_contact, up.profile_img AS host_profile_img
+                     FROM Trip t
+                     LEFT JOIN User_profile up ON up.user_id = t.creator_id
+                     WHERE t.trip_id = ?
+                     LIMIT 1`,
+                    [row.trip_id]
+                )
+
+                if (hostRows.length) {
+                    hostContact = hostRows[0].host_contact || null
+                    hostProfileImg = hostRows[0].host_profile_img || null
+                }
+            }
+
             enrichedRows.push({
                 ...row,
                 notification_detail: cleanedDetail,
+                is_unread: Number(row.is_unread) === 1,
                 from_user_id: fromUserId,
-                member_status: memberStatus
+                from_user_profile_img: fromUserProfileImg,
+                member_status: memberStatus,
+                host_contact: hostContact,
+                host_profile_img: hostProfileImg
             })
         }
 
@@ -373,13 +456,47 @@ router.get('/:user_id', async(req, res) => {
 
 // FLOW 5: หลังทริปจบ → แจ้งเตือนให้ Review
 // เรียกใช้เมื่อ trip_status = 'Closed'
-router.post('/review-reminder', async (req, res) => {
+router.post('/review-reminder', async(req, res) => {
     const { trip_id } = req.body
 
     try {
+        // ดึง members ทุกคนที่ status = Joined
+        const [members] = await pool.query(
+            `SELECT tm.user_id, t.trip_name
+       FROM Trip_member tm
+       JOIN Trip t ON t.trip_id = tm.trip_id
+       WHERE tm.trip_id = ? AND tm.status = 'Joined'`, [trip_id]
+        )
+
         const io = req.app.get('io')
-        const result = await createReviewNotificationsForTrip(trip_id, io)
-        res.json({ success: true, ...result })
+
+        // แจ้งเตือนทุกคนพร้อมกัน
+        for (const member of members) {
+            // INSERT Notification ให้ทุกคน
+            await pool.query(
+                `INSERT INTO Notification
+         (trip_id, user_id, notification_title, notification_detail, create_at)
+         VALUES (?, ?, ?, ?, ${SQL_NOW_TH})`, [
+                    trip_id,
+                    member.user_id,
+                    '⭐ รีวิวทริปของคุณ',
+                    `ทริป "${member.trip_name}" จบแล้ว! มาแชร์ความรู้สึกกันเถอะ`
+                ]
+            )
+
+            // Socket emit ทุกคนพร้อมกัน
+            if (io) {
+                io.to(`room:${member.user_id}`).emit('new_notification', {
+                    type: 'review_reminder',
+                    title: '⭐ รีวิวทริปของคุณ',
+                    detail: `ทริป "${member.trip_name}" จบแล้ว! มาแชร์ความรู้สึกกันเถอะ`,
+                    trip_id
+                })
+            }
+        }
+
+        res.json({ success: true, notified: members.length })
+
     } catch (err) {
         console.error('❌ review-reminder error:', err.message)
         res.status(500).json({ error: err.message })
@@ -411,8 +528,8 @@ router.post('/review', async(req, res) => {
         // INSERT Notification ให้ Host รู้ว่ามีคนรีวิว
         await pool.query(
             `INSERT INTO Notification
-       (trip_id, user_id, notification_title, notification_detail, create_at, is_read)
-       VALUES (?, ?, ?, ?, NOW(), 0)`, [
+       (trip_id, user_id, notification_title, notification_detail, create_at)
+       VALUES (?, ?, ?, ?, ${SQL_NOW_TH})`, [
                 trip_id,
                 trip.creator_id,
                 '⭐ มีคนรีวิวทริปของคุณ',

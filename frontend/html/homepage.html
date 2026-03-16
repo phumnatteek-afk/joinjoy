@@ -241,8 +241,11 @@
         <!-- จบเมนู -->
 
 <script>
-const API = 'http://localhost:3000/api';
-const MEDIA = 'http://localhost:3000'; 
+const API = '/api';
+const MEDIA = '';
+// const API = 'http://localhost:3000/api';
+// const MEDIA = 'http://localhost:3000'; 
+
 let currentUserId = null; // ตั้งค่าจาก loadUser() หลัง login
 const $ = id => document.getElementById(id);
 
@@ -491,7 +494,7 @@ async function loadSchedule() {
 
 async function loadNotif() {
   try {
-    const { count = 0 } = await apiFetch('/notifications/unread-count');
+   const { count = 0 } = await apiFetch('/notification/unread-count');
     if (count > 0) $('notifDot').style.display = 'block';
   } catch (e) { console.error('loadNotif:', e); }
 }
