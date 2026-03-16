@@ -24,6 +24,7 @@ router.get('/trips', async(req, res) => {
                 t.max_member,
                 t.start_time,      
                 t.end_time,       
+                t.limit_date_accept,
                 t.budget_min,      
                 t.budget_max,     
                 t.created_at,
@@ -31,12 +32,13 @@ router.get('/trips', async(req, res) => {
                 t.creator_id,
                 ? AS me_user_id,
                 u.user_name,
-                NULL AS user_avatar,
+                up.profile_img AS user_avatar,
                 (SELECT COUNT(*) FROM Trip_member tm WHERE tm.trip_id = t.trip_id AND tm.status = 'Joined') AS current_member,
                 CASE WHEN t.creator_id = ? THEN 1 ELSE 0 END AS is_host,
                 (SELECT tm2.status FROM Trip_member tm2 WHERE tm2.trip_id = t.trip_id AND tm2.user_id = ? LIMIT 1) AS my_join_status
             FROM Trip t
             JOIN User u ON t.creator_id = u.user_id
+            LEFT JOIN User_profile up ON up.user_id = u.user_id
             WHERE t.trip_status = 'Open'
             ORDER BY t.created_at DESC
         `, [currentUserId, currentUserId, currentUserId]);
@@ -46,12 +48,18 @@ router.get('/trips', async(req, res) => {
             return res.status(200).json([]);
         }
 
-        // เพิ่มเติม: ตรวจสอบข้อมูลก่อนส่ง (เช่น ถ้าไม่มีรูปให้ใส่ null หรือ default)
-        const formattedRows = rows.map(trip => ({
-            ...trip,
-            // ถ้าอยากให้ Backend ต่อ Path รูปภาพให้เลย สามารถทำได้ที่นี่
-            // cover_image: trip.cover_image ? `/uploads/trips/${trip.cover_image}` : null
-        }));
+        const formattedRows = rows.map(trip => {
+            // ตรวจสอบว่าเลยวันปิดรับหรือยัง (Expired)
+            const now = new Date();
+            const limitDate = trip.limit_date_accept ? new Date(trip.limit_date_accept) : null;
+            const isExpired = limitDate && now > limitDate;
+
+            return {
+                ...trip,
+                is_expired: isExpired, // ส่งค่า boolean นี้ไปให้ frontend เช็คได้ง่ายขึ้น
+                // cover_image: trip.cover_image ? `/uploads/trips/${trip.cover_image}` : null
+            };
+        });
 
         res.status(200).json(formattedRows);
 

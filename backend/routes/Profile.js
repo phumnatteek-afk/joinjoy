@@ -275,11 +275,16 @@ router.post('/me/avatar', upload.single('avatar'), async (req, res) => {
       );
     }
 
+    if (req.session) {
+      req.session.profileImg = imgPath;
+    }
+
     return res.json({
       success: true,
       message: 'Avatar updated.',
       profile_img: imgPath,
     });
+
   } catch (err) {
     console.error('POST /api/profile/me/avatar error:', err);
     return res.status(500).json({ success: false, message: 'Server error' });
@@ -301,6 +306,9 @@ router.delete('/me/avatar', async (req, res) => {
       'UPDATE User_profile SET profile_img = NULL WHERE user_id = ?',
       [userId]
     );
+    if (req.session) {
+      req.session.profileImg = null;
+    }
     return res.json({ success: true, message: 'Avatar removed.' });
   } catch (err) {
     console.error('DELETE /api/profile/me/avatar error:', err);

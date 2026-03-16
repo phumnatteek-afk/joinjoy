@@ -1876,3 +1876,33 @@ textarea {
     color: #F28695;
     font-size: 18px;
 }
+
+/* กล่อง Last day to join */
+.trip-limit-box {
+    background-color: #f8d7da;
+    border-radius: 12px;
+    padding: 10px 25px;
+    margin: 5px 3px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.trip-limit-box .limit-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: #000;
+}
+
+.trip-limit-box .limit-time-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #842029;
+    font-weight: 600;
+    font-size: 12px;
+}
+
+.trip-limit-box iconify-icon {
+    font-size: 15px;
+}

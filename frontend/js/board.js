@@ -17,8 +17,8 @@ function normalizeName(value) {
 
 function getStoredUserId() {
     const direct = localStorage.getItem('userId') ||
-                                 localStorage.getItem('user_id') ||
-                                 localStorage.getItem('currentUserId');
+        localStorage.getItem('user_id') ||
+        localStorage.getItem('currentUserId');
     if (direct) return direct;
 
     const user = getStoredUser();
@@ -105,24 +105,24 @@ function renderTrips(trips) {
 
     trips.forEach(trip => {
 
-        const coverImg = trip.cover_image 
-            ? `/${trip.cover_image}` 
+        const coverImg = trip.cover_image
+            ? `/${trip.cover_image}`
             : '../img/default-trip.jpg';
 
         const hasAvatar = trip.user_avatar && trip.user_avatar !== 'null';
-const imgSrc = hasAvatar
-    ? (trip.user_avatar.startsWith('http')
-        ? trip.user_avatar
-        : `${trip.user_avatar}`)
-    : null;
+        const imgSrc = hasAvatar
+            ? (trip.user_avatar.startsWith('http')
+                ? trip.user_avatar
+                : `${trip.user_avatar}`)
+            : null;
 
-const avatarHtml = imgSrc
-    ? `<img class="avatar" src="${imgSrc}" alt="avatar" 
+        const avatarHtml = imgSrc
+            ? `<img class="avatar" src="${imgSrc}" alt="avatar" 
          onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
        <div class="avatar" style="display:none;background:#F28695;align-items:center;justify-content:center;color:#fff;font-weight:500;font-size:16px;">
          ${(trip.user_name || '?')[0].toUpperCase()}
        </div>`
-    : `<div class="avatar" style="background:#F28695;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:500;font-size:16px;">
+            : `<div class="avatar" style="background:#F28695;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:500;font-size:16px;">
          ${(trip.user_name || '?')[0].toUpperCase()}
        </div>`;
 
@@ -138,7 +138,16 @@ const avatarHtml = imgSrc
             ? `${Number(trip.budget_min).toLocaleString()} - ${Number(trip.budget_max).toLocaleString()}`
             : 'ไม่ระบุ';
 
+        const budgetType = trip.budget_type === 'person'
+            ? '/ person'
+            : trip.budget_type === 'trip'
+            ? '/ trip'
+            : '';
         const isFull = Number(trip.current_member || 0) >= Number(trip.max_member || 0);
+        const now = new Date();
+        const limitDate = trip.limit_date_accept ? new Date(trip.limit_date_accept) : null;
+        const isExpired = limitDate && now > limitDate;
+
         const effectiveUserId = currentUserId || getStoredUserId() || trip.me_user_id || null;
         const effectiveUserName = currentUserName || (getStoredUser() && getStoredUser().user_name) || null;
         const isHostById = Number(trip.is_host) === 1 || (effectiveUserId && Number(trip.creator_id) === Number(effectiveUserId));
@@ -152,9 +161,15 @@ const avatarHtml = imgSrc
             joinButtonHtml = `<button class="joy-btn" disabled>⏳ Pending</button>`;
         } else if (trip.my_join_status === 'Joined') {
             joinButtonHtml = `<button class="joy-btn" disabled>✅ Joined</button>`;
+        } else if (isExpired) {
+            joinButtonHtml = `<button class="joy-btn" disabled style="background:#ccc;">Entry Closed</button>`;
         } else if (isFull) {
             joinButtonHtml = `<button class="joy-btn" disabled>Full</button>`;
         }
+
+        const limitDisplay = limitDate
+            ? limitDate.toLocaleString('th-TH')
+            : 'ไม่ระบุ';
 
         const postHTML = `
         <div class="post-card">
@@ -208,7 +223,15 @@ const avatarHtml = imgSrc
                     </div>
                     <div class="trip-budget-row">
                         <iconify-icon icon="mdi:cash"></iconify-icon>
-                        <span>${budgetDisplay} ฿</span>
+                        <span>${budgetDisplay} ฿ <small>${budgetType}</small></span>
+                    </div>
+                </div>
+
+                <div class="trip-limit-box">
+                    <span class="limit-label">Last day to join</span>
+                    <div class="limit-time-row">
+                        <iconify-icon icon="solar:clock-circle-outline"></iconify-icon>
+                        <span>${limitDisplay}</span>
                     </div>
                 </div>
 
@@ -243,6 +266,14 @@ function searchTrips(query) {
 async function joinTrip(tripId, btn, creatorId, meUserIdFromTrip) {
     const uid = currentUserId || getStoredUserId() || meUserIdFromTrip;
     const trip = allTrips.find(item => Number(item.trip_id) === Number(tripId));
+    // ตรวจสอบ Expired อีกครั้งก่อนส่ง Request
+    if (trip && trip.limit_date_accept) {
+        if (new Date() > new Date(trip.limit_date_accept)) {
+            alert('ขออภัย ทริปนี้ปิดรับสมาชิกแล้ว');
+            return;
+        }
+    }
+
     const isHostByName = currentUserName && trip && normalizeName(trip.user_name) === normalizeName(currentUserName);
     if (!uid) {
         alert('กรุณาล็อกอินก่อน');

@@ -5,10 +5,12 @@ const cors = require('cors');
 const path = require('path');
 const passport = require('passport');
 const session = require('express-session');
-// ── Routes ที่ลี่สร้างเพิ่ม ─────────────────────────────────
+
 const createTripRouter = require('./routes/create-trip');
 const detailRouter = require('./routes/trip-detail');
 const reviewRouter = require('./routes/review');
+const tripMemberRouter = require('./routes/trip-member');
+
 
 const app = express();
 
@@ -214,6 +216,7 @@ app.post('/api/join-trip', async (req, res) => {
     }
 });
 app.use('/api', reviewRouter); // สำหรับ /api/review
+app.use('/api', tripMemberRouter);
 
 const profileRouter = require('./routes/Profile');
 app.use('/api/profile', profileRouter); // GET/PUT /api/profile/me, POST /api/profile/me/avatar
@@ -221,6 +224,7 @@ app.use('/api/profile', profileRouter); // GET/PUT /api/profile/me, POST /api/pr
 app.get('/', (req, res) => {
     res.redirect('/html/homepage.html'); // ✅ frontend serve จาก /frontend → path คือ /html/...
 });
+
 
 // ── Start ────────────────────────────────────────────────────
 const PORT = process.env.PORT || 3000;
