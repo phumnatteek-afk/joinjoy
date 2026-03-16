@@ -20,12 +20,14 @@
       flex-shrink: 0;
     }
     .sch-cancel-btn {
-      padding: 5px 12px;
+      position: relative;
+      top: -5px;
+      padding: 2px 4px;
       border-radius: 999px;
       border: 1.5px solid #ff6f8f;
       background: #fff;
       color: #ff6f8f;
-      font-size: 11px;
+      font-size: 9px;
       font-weight: 600;
       font-family: 'Poppins', sans-serif;
       cursor: pointer;
@@ -45,7 +47,18 @@
 <body>
 
 <div class="toast" id="toast"></div>
-
+<!-- ── Confirm Cancel Popup ── -->
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-box">
+    <div class="confirm-icon">🚫</div>
+    <div class="confirm-title">ยกเลิกการเข้าร่วม?</div>
+    <div class="confirm-msg">คุณแน่ใจหรือไม่ว่าต้องการยกเลิกการเข้าร่วมทริปนี้</div>
+    <div class="confirm-actions">
+      <button class="confirm-no"  id="confirmNo">ไม่ใช่</button>
+      <button class="confirm-yes" id="confirmYes">ยืนยัน</button>
+    </div>
+  </div>
+</div>
 <!-- ── HEADER ── -->
 <header class="header">
   <div class="logo-row">
@@ -353,17 +366,19 @@ function tripCard(t) {
   let btnHtml;
   if (isHost) {
     btnHtml = `<button class="join-btn joined" disabled>Host</button>`;
-  } else if (t.my_join_status === 'Pending') {
-    btnHtml = `<button class="join-btn joined" disabled>Pending</button>`;
+} else if (t.my_join_status === 'Pending') {
+  btnHtml = `<button class="join-btn pending" disabled>
+    <svg xmlns="http://www.w3.org/2000/svg" width="14px" height="14px" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"><circle cx="12" cy="12" r="9"/><path d="M11 8v5h5"/></g></svg> Pending
+  </button>`;
   } else if (t.my_join_status === 'Joined') {
     btnHtml = `<button class="join-btn joined" disabled>✓ Joined</button>`;
   } else if (full) {
     btnHtml = `<button class="join-btn joined" disabled>Full</button>`;
   } else {
-    btnHtml = `<button class="join-btn" onclick="joinTrip(${t.trip_id},this,${t.creator_id})">join</button>`;
+    btnHtml = `<button class="join-btn" onclick="event.stopPropagation();joinTrip(${t.trip_id},this,${t.creator_id})">join</button>`;
   }
   return `
-  <div class="card">
+  <div class="card" onclick="window.location.href='tripdetail.html?trip_id=${t.trip_id}'" style="cursor:pointer">
     <div class="card-top">
       <div class="mbadge"><span class="dot"></span>Member: ${joined}/${t.max_member}</div>
       <div class="cname">${t.trip_name}</div>
@@ -415,8 +430,10 @@ function schCard(t) {
     : em(t.category);
 
   // ปุ่ม Cancel — แสดงเฉพาะ member ที่ไม่ใช่ host
-  const cancelBtn = isHost ? '' : `
-    <button class="sch-cancel-btn" onclick="leaveTrip(${t.trip_id}, this)">Cancel</button>`;
+ const cancelBtn = isHost ? '' : `
+    <button class="sch-cancel-btn" onclick="leaveTrip(${t.trip_id}, this)">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:middle;margin-right:3px"><path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10S22 17.53 22 12 17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"/></svg>Cancel
+    </button>`;
 
   return `
   <div class="sch-card" id="sch-${t.trip_id}">
@@ -430,48 +447,52 @@ function schCard(t) {
       </div>
     </div>
     <div class="sch-right">
-      <div class="day-pill ${cls}">${text}</div>
       ${cancelBtn}
+      <div class="day-pill ${cls}">${text}</div>
     </div>
   </div>`;
 }
 
 /* ── LEAVE TRIP ── */
 async function leaveTrip(tripId, btn) {
-  if (!confirm('ยืนยันการยกเลิกเข้าร่วมทริปนี้?')) return;
+  // เปิด popup แทน confirm()
+  const overlay = document.getElementById('confirmOverlay');
+  overlay.classList.add('open');
 
-  btn.disabled    = true;
-  btn.textContent = '...';
+  document.getElementById('confirmNo').onclick = () => {
+    overlay.classList.remove('open');
+  };
 
-  try {
-    const res  = await fetch(`${API}/trips/${tripId}/leave`, {
-      method:      'DELETE',
-      credentials: 'include',
-    });
-    const data = await res.json();
+  document.getElementById('confirmYes').onclick = async () => {
+    overlay.classList.remove('open');
 
-    if (data.success) {
-      // ลบการ์ดออกจาก DOM
-      const card = document.getElementById(`sch-${tripId}`);
-      if (card) card.remove();
+    btn.disabled  = true;
+    btn.innerHTML = '...';
 
-      // ถ้าไม่เหลือการ์ดใดเลย ซ่อน section My Schedule
-      if (!document.querySelector('.sch-card')) {
-        $('schTitle').style.display = 'none';
+    try {
+      const res  = await fetch(`${API}/trips/${tripId}/leave`, {
+        method: 'DELETE', credentials: 'include'
+      });
+      const data = await res.json();
+      const cancelHtml = `<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:middle;margin-right:3px"><path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10S22 17.53 22 12 17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"/></svg>Cancel`;
+
+      if (data.success) {
+        const card = document.getElementById(`sch-${tripId}`);
+        if (card) card.remove();
+        if (!document.querySelector('.sch-card')) $('schTitle').style.display = 'none';
+        showToast('ยกเลิกการเข้าร่วมทริปแล้ว ✓', 'ok');
+      } else {
+        btn.disabled  = false;
+        btn.innerHTML = cancelHtml;
+        showToast(data.error || 'เกิดข้อผิดพลาด', 'err');
       }
-
-      showToast('ยกเลิกการเข้าร่วมทริปแล้ว ✓', 'ok');
-    } else {
-      btn.disabled    = false;
-      btn.textContent = 'Cancel';
-      showToast(data.error || 'เกิดข้อผิดพลาด', 'err');
+    } catch (err) {
+      console.error(err);
+      btn.disabled  = false;
+      btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:middle;margin-right:3px"><path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10S22 17.53 22 12 17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"/></svg>Cancel`;
+      showToast('ไม่สามารถเชื่อมต่อ server ได้', 'err');
     }
-  } catch (err) {
-    console.error(err);
-    btn.disabled    = false;
-    btn.textContent = 'Cancel';
-    showToast('ไม่สามารถเชื่อมต่อ server ได้', 'err');
-  }
+  };
 }
 
 /* ── LOAD ── */
@@ -538,7 +559,7 @@ async function loadUpcoming() {
   try {
     const q = currentUserId ? `?user_id=${currentUserId}` : '';
     const { trips = [] } = await apiFetch(`/trips/upcoming${q}`);
-    $('upcomingGrid').innerHTML = trips.length ? trips.slice(0,4).map(tripCard).join('') : '<div class="empty">ยังไม่มีทริปที่กำลังจะมาถึง 🌸</div>';
+    $('upcomingGrid').innerHTML = trips.length ? trips.map(tripCard).join('') :  '<div class="empty">ยังไม่มีทริปที่กำลังจะมาถึง 🌸</div>';
   } catch { $('upcomingGrid').innerHTML = '<div class="empty">โหลดข้อมูลไม่ได้</div>'; }
 }
 
@@ -548,7 +569,7 @@ async function loadRecommended() {
     const data = await apiFetch(`/trips/recommended${q}`);
     $('recSub').textContent = data?.personalized ? '(เพื่อคุณ ✦)' : '(ยอดนิยม)';
     const trips = data?.trips || [];
-    $('recommendedGrid').innerHTML = trips.length ? trips.slice(0,4).map(tripCard).join('') : '<div class="empty">ยังไม่มีทริปแนะนำ</div>';
+    $('recommendedGrid').innerHTML = trips.length ? trips.map(tripCard).join('') : '<div class="empty">ยังไม่มีทริปแนะนำ</div>';
   } catch { $('recommendedGrid').innerHTML = '<div class="empty">โหลดข้อมูลไม่ได้</div>'; }
 }
 
@@ -599,9 +620,10 @@ async function joinTrip(tripId, btn, creatorId) {
       body: JSON.stringify({ trip_id: tripId, user_id: uid })
     });
     const data = await res.json();
-    if (res.ok && data.success) {
-      btn.textContent = 'Pending'; btn.classList.add('joined');
-      showToast('ส่งคำขอเข้าร่วมแล้ว! รอเจ้าของโพสตตอบรับ ✌️', 'ok');
+  if (res.ok && data.success) {
+   btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14px" height="14px" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"><circle cx="12" cy="12" r="9"/><path d="M11 8v5h5"/></g></svg> Pending`;
+  btn.classList.add('pending');
+  showToast('ส่งคำขอเข้าร่วมแล้ว! รอเจ้าของโพสต์ตอบรับ ✌️', 'ok');
     } else {
       btn.disabled = false; btn.textContent = 'join';
       showToast(data.error || data.message || 'เกิดข้อผิดพลาด', 'err');
@@ -624,7 +646,7 @@ $('chipsRow').addEventListener('click', async e => {
     const uidQ = uid ? `&user_id=${uid}` : '';
     const path = cat ? `/trips?category=${encodeURIComponent(cat)}${uidQ}` : `/trips/upcoming?user_id=${uid}`;
     const { trips = [] } = await apiFetch(path);
-    $('upcomingGrid').innerHTML = trips.length ? trips.slice(0,4).map(tripCard).join('') : '<div class="empty">ไม่พบทริปในหมวดนี้</div>';
+    $('upcomingGrid').innerHTML = trips.length ? trips.map(tripCard).join('') : '<div class="empty">ไม่พบทริปในหมวดนี้</div>';
   } catch { $('upcomingGrid').innerHTML = '<div class="empty">โหลดข้อมูลไม่ได้</div>'; }
 });
 
@@ -639,7 +661,7 @@ $('searchInput').addEventListener('input', e => {
       const uid = currentUserId || getStoredUserId() || '';
       const uidQ = uid ? `&user_id=${uid}` : '';
       const { trips = [] } = await apiFetch(`/trips?search=${encodeURIComponent(q)}${uidQ}`);
-      $('upcomingGrid').innerHTML = trips.length ? trips.map(tripCard).join('') : '<div class="empty">ไม่พบทริปที่ค้นหา 🔍</div>';
+      $('upcomingGrid').innerHTML = trips.length ? trips.map(tripCard).join(''): '<div class="empty">ไม่พบทริปที่ค้นหา 🔍</div>';
     } catch { $('upcomingGrid').innerHTML = '<div class="empty">โหลดข้อมูลไม่ได้</div>'; }
   }, 380);
 });

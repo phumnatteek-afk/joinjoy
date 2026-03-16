@@ -70,6 +70,42 @@ router.delete('/trips/:tripId/leave', requireLogin, async (req, res) => {
             );
         }
 
+        // 5) ดึงชื่อ user ที่ออก
+        const [[leavingUser]] = await db.query(
+            `SELECT u.user_name, up.frist_name, up.last_name
+             FROM User u
+             LEFT JOIN User_profile up ON up.user_id = u.user_id
+             WHERE u.user_id = ?`,
+            [userId]
+        );
+
+        const displayName = leavingUser
+            ? (leavingUser.frist_name
+                ? `${leavingUser.frist_name} ${leavingUser.last_name || ''}`.trim()
+                : leavingUser.user_name)
+            : `User #${userId}`;
+
+        // 6) ดึงชื่อทริป
+        const [[tripInfo]] = await db.query(
+            `SELECT trip_name FROM Trip WHERE trip_id = ?`,
+            [tripId]
+        );
+        const tripName = tripInfo?.trip_name || `Trip #${tripId}`;
+
+        // 7) สร้าง notification แจ้ง host
+        await db.query(
+            `INSERT INTO Notification
+                (user_id, from_user_id, trip_id, notification_title, notification_detail, is_unread, create_at)
+             VALUES (?, ?, ?, ?, ?, 1, NOW())`,
+            [
+                trip.creator_id,                          // host คือผู้รับแจ้งเตือน
+                userId,                                   // user ที่ออก
+                tripId,
+                `${displayName} ออกจากทริปของคุณ`,
+                `${displayName} ได้ยกเลิกการเข้าร่วมทริป "${tripName}"`
+            ]
+        );
+
         res.json({ success: true, message: 'ยกเลิกการเข้าร่วมทริปแล้ว' });
 
     } catch (err) {

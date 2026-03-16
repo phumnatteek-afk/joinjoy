@@ -4,7 +4,6 @@
   const sectionLabelEl = document.getElementById('section-label');
 
   const state = { notifications: [] };
-  let resolvedUserId = null;
 
   const getUserId = () => {
     const params = new URLSearchParams(window.location.search);
@@ -13,33 +12,8 @@
       localStorage.getItem('userId') ||
       localStorage.getItem('user_id') ||
       localStorage.getItem('currentUserId');
-    return fromQuery || resolvedUserId || fromStorage || null;
+    return fromQuery || fromStorage || '1';
   };
-
-  try {
-    const meRes = await fetch('/api/user/me', { credentials: 'include' });
-    if (meRes.ok) {
-      const meData = await meRes.json();
-      const uid =
-        meData.user_id ||
-        meData.id ||
-        (meData.user && (meData.user.user_id || meData.user.id));
-
-      if (uid) {
-        resolvedUserId = String(uid);
-        localStorage.setItem('userId', resolvedUserId);
-        localStorage.setItem('user_id', resolvedUserId);
-        localStorage.setItem('currentUserId', resolvedUserId);
-      }
-    }
-  } catch {
-    // fallback to localStorage/query only
-  }
-
-  if (!getUserId()) {
-    window.location.href = '../html/homelogin.html';
-    return;
-  }
 
   const escapeHtml = (text) => {
     if (text === null || text === undefined) return '';
@@ -63,8 +37,8 @@
     const value = String(imagePath || '').trim();
     if (!value) return '';
     if (/^https?:\/\//i.test(value)) return value;
-    if (value.startsWith('/')) return value;
-    return `/${value}`;
+    if (value.startsWith('/')) return `${window.location.origin}${value}`;
+    return `${window.location.origin}/${value}`;
   };
 
   const isJoinRequest = (item) =>
@@ -78,43 +52,54 @@
   };
 
   const enrichMissingRequesterId = async (item) => {
-    if (!String(item.notification_title || '').includes('มีคนขอเข้าร่วมทริป')) return item;
-
     let resolved = item;
-    if (resolved.from_user_profile_img && Number(resolved.from_user_id) > 0) return resolved;
 
-    if (Number(resolved.from_user_id) <= 0) {
+    // Prefer marker-based user id (supports join-request + review notifications)
+    // Marker formats supported: [REQ_USER_ID:123] or [FROM_USER_ID:123]
+    const markerMatch = String(resolved.notification_detail || '').match(/\[(?:REQ_USER_ID|FROM_USER_ID):(\d+)\]/i);
+    const markerUserId = markerMatch ? Number(markerMatch[1]) : 0;
+
+    if (markerUserId > 0 && Number(resolved.from_user_id) !== markerUserId) {
+      resolved = { ...resolved, from_user_id: markerUserId };
+    }
+
+    // For join requests without a marker (older notifications), fall back to resolving by username
+    if (!resolved.from_user_id && String(resolved.notification_title || '').includes('มีคนขอเข้าร่วมทริป')) {
       const requesterName = extractRequesterName(resolved.notification_detail);
-      if (!requesterName) return resolved;
+      if (requesterName) {
+        try {
+          const response = await fetch(`/api/notification/resolve-user?username=${encodeURIComponent(requesterName)}`, {
+            credentials: 'include'
+          });
+          if (response.ok) {
+            const payload = await response.json();
+            const resolvedUserId = Number(payload.user_id || 0);
+            if (resolvedUserId) {
+              resolved = { ...resolved, from_user_id: resolvedUserId };
+            }
+          }
+        } catch {
+          // ignore
+        }
+      }
+    }
 
+    // If we have a user id but no profile image, fetch it from the user-profile API
+    if (Number(resolved.from_user_id) > 0 && !resolved.from_user_profile_img) {
       try {
-        const response = await fetch(`/api/notification/resolve-user?username=${encodeURIComponent(requesterName)}`, {
+        const response = await fetch(`/api/notification/user-profile/${encodeURIComponent(resolved.from_user_id)}`, {
           credentials: 'include'
         });
         if (response.ok) {
           const payload = await response.json();
-          const resolvedUserId = Number(payload.user_id || 0);
-          if (resolvedUserId) {
-            resolved = { ...resolved, from_user_id: resolvedUserId };
-          }
+          resolved = { ...resolved, from_user_profile_img: payload.profile_img || '' };
         }
       } catch {
-        return resolved;
+        // ignore
       }
     }
 
-    if (resolved.from_user_profile_img || Number(resolved.from_user_id) <= 0) return resolved;
-
-    try {
-      const response = await fetch(`/api/notification/user-profile/${encodeURIComponent(resolved.from_user_id)}`, {
-        credentials: 'include'
-      });
-      if (!response.ok) return resolved;
-      const payload = await response.json();
-      return { ...resolved, from_user_profile_img: payload.profile_img || '' };
-    } catch {
-      return resolved;
-    }
+    return resolved;
   };
 
   const extractHostContact = (item) => {
@@ -135,6 +120,22 @@
       if (!response.ok) return 0;
       const payload = await response.json();
       return Number(payload.user_id || 0);
+    } catch {
+      return 0;
+    }
+  };
+
+  const resolveHostIdByTrip = async (tripId) => {
+    const id = Number(tripId || 0);
+    if (!id) return 0;
+
+    try {
+      const response = await fetch(`/api/notification/trip-host/${encodeURIComponent(id)}`, {
+        credentials: 'include'
+      });
+      if (!response.ok) return 0;
+      const payload = await response.json();
+      return Number(payload.host_user_id || 0);
     } catch {
       return 0;
     }
@@ -170,7 +171,6 @@
       emptyEl.style.display = 'flex';
       return;
     }
-
     const grouped = state.notifications.reduce((acc, item) => {
       const key = item.date_group || 'This week';
       if (!acc[key]) acc[key] = [];
@@ -191,18 +191,38 @@
         const requesterName = extractRequesterName(item.notification_detail);
         const isRequest = isJoinRequest(item);
         const isAccepted = String(item.notification_title || '').includes('ได้รับการตอบรับแล้ว');
+        const isRejected =
+          String(item.notification_title || '').includes('ปฏิเสธ') ||
+          String(item.notification_detail || '').includes('ปฏิเสธ');
         const isUnread = Boolean(item.is_unread);
         const memberStatus = item.member_status || null;
-        const canOpenProfile = isRequest && (Number(item.from_user_id) > 0 || requesterName);
+        const hostUserId = Number(item.host_user_id || 0);
+        const profileUserId = isAccepted ? hostUserId : Number(item.from_user_id || 0);
+        const canOpenProfile =
+          (isRequest && (profileUserId > 0 || requesterName)) ||
+          (isAccepted && profileUserId > 0);
         const profileTargetId = item.notification_id;
+        const statusTone =
+          isAccepted || memberStatus === 'Joined'
+            ? 'accepted'
+            : isRejected || memberStatus === 'Cancelled'
+              ? 'rejected'
+              : 'pending';
+        const fallbackIcon =
+          statusTone === 'accepted'
+            ? '✅'
+            : statusTone === 'rejected'
+              ? '❌'
+              : '⏳';
         const profileImageSource = isAccepted ? (item.host_profile_img || '') : (item.from_user_profile_img || '');
         const profileImage = resolveProfileImage(profileImageSource);
+        const iconToneClass = profileImage ? '' : ` tone-${statusTone}`;
         const iconContent = profileImage
           ? `<img class="notif-avatar-img" src="${escapeHtml(profileImage)}" alt="profile">`
-          : iconSvg;
+          : `<span class="notif-status-emoji">${fallbackIcon}</span>`;
         const iconHtml = canOpenProfile
-          ? `<button class="notif-icon notif-icon-btn" type="button" data-action="profile" data-user-id="${item.from_user_id || ''}" data-requester-name="${escapeHtml(requesterName)}" data-target-id="${profileTargetId}" aria-label="Open profile">${iconContent}</button>`
-          : `<div class="notif-icon">${iconContent}</div>`;
+          ? `<button class="notif-icon notif-icon-btn${iconToneClass}" type="button" data-action="profile" data-user-id="${profileUserId || ''}" data-requester-name="${escapeHtml(isAccepted ? '' : requesterName)}" data-profile-type="${isAccepted ? 'host' : 'requester'}" data-trip-id="${item.trip_id || ''}" data-target-id="${profileTargetId}" aria-label="Open profile">${iconContent}</button>`
+          : `<div class="notif-icon${iconToneClass}">${iconContent}</div>`;
 
         const hostContact = extractHostContact(item);
         const detailCleaned = isAccepted
@@ -222,9 +242,9 @@
               </div>
             `;
           } else if (memberStatus === 'Joined') {
-            actionHtml = `<div class="notif-status-done accepted">✓ ยืนยันแล้ว</div>`;
+            actionHtml = `<div class="notif-status-done accepted">✅ ตอบรับแล้ว</div>`;
           } else if (memberStatus === 'Cancelled') {
-            actionHtml = `<div class="notif-status-done rejected">✕ ปฏิเสธแล้ว</div>`;
+            actionHtml = `<div class="notif-status-done rejected">❌ ปฏิเสธแล้ว</div>`;
           } else {
             actionHtml = `<div class="notif-status-done">${escapeHtml(memberStatus)}</div>`;
           }
@@ -288,6 +308,7 @@
     const action = button.dataset.action;
     let userId = Number(button.dataset.userId || 0);
     const requesterName = button.dataset.requesterName || '';
+    const profileType = button.dataset.profileType || 'requester';
     const tripId = Number(button.dataset.tripId || 0);
 
     if (!userId && requesterName) {
@@ -297,9 +318,16 @@
       }
     }
 
+    if (!userId && profileType === 'host' && tripId > 0) {
+      userId = await resolveHostIdByTrip(tripId);
+      if (userId) {
+        button.dataset.userId = String(userId);
+      }
+    }
+
     try {
       if (action === 'profile') {
-        if (!userId) throw new Error('ไม่พบข้อมูลผู้ขอเข้าร่วม');
+        if (!userId) throw new Error('ไม่พบข้อมูลโปรไฟล์');
         const targetId = button.dataset.targetId;
         const container = document.getElementById(`profile-${targetId}`);
         if (!container) return;
@@ -372,14 +400,6 @@
   try {
     await loadNotifications();
     await markAllAsRead();
-
-    setInterval(async () => {
-      try {
-        await loadNotifications();
-      } catch (error) {
-        console.error('Notification auto-refresh error:', error);
-      }
-    }, 10000);
   } catch (error) {
     console.error('Notification load error:', error);
     listEl.style.display = 'none';

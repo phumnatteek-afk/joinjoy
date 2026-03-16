@@ -9,6 +9,11 @@ const db = require("../db");
 
 const router = express.Router();
 
+function isGoogleHostedImage(url) {
+    const value = String(url || '').trim().toLowerCase();
+    return value.includes('googleusercontent.com') || value.includes('google.com');
+}
+
 // ── Serialize / Deserialize (store user_id in session) ─────────────────────
 passport.serializeUser((user, done) => {
     done(null, user.user_id);
@@ -98,12 +103,28 @@ passport.use(
               WHERE user_id = ?`, [user.user_id]
                     );
 
-                    // Also update profile_img in case they changed their Google photo
-                    await db.query(
-                        `UPDATE User_profile
-                SET profile_img = ?
-              WHERE user_id = ?`, [picture, user.user_id]
+                    const [profileRows] = await db.query(
+                        'SELECT profile_id, profile_img FROM User_profile WHERE user_id = ? LIMIT 1',
+                        [user.user_id]
                     );
+
+                    if (!profileRows.length) {
+                        await db.query(
+                            `INSERT INTO User_profile (user_id, profile_img)
+               VALUES (?, ?)`, [user.user_id, picture || null]
+                        );
+                    } else {
+                        const currentImg = String(profileRows[0].profile_img || '').trim();
+                        const shouldKeepExisting = currentImg && !isGoogleHostedImage(currentImg);
+
+                        if (!shouldKeepExisting) {
+                            await db.query(
+                                `UPDATE User_profile
+                 SET profile_img = ?
+               WHERE user_id = ?`, [picture || null, user.user_id]
+                            );
+                        }
+                    }
 
                     console.log("[Google OAuth] Existing user logged in:", email);
                 }

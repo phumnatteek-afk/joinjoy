@@ -53,7 +53,9 @@ function renderUserUI(user) {
   // รูปโปรไฟล์
   const imgEl = document.getElementById('userAvatar');
   if (imgEl && user.profile_img) {
-    imgEl.src = user.profile_img;
+    const src = (typeof user.profile_img === 'string' ? user.profile_img.trim() : '');
+    const resolved = src.startsWith('http') ? src : `${window.location.origin}${src.startsWith('/') ? '' : '/'}${src}`;
+    imgEl.src = resolved;
     imgEl.alt = user.first_name || user.user_name;
   }
 
