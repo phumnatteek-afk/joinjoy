@@ -1,0 +1,292 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+/* ── VARIABLES ── */
+:root {
+    --rose:      #F28695;
+    --rose-dk:   #e06070;
+    --rose-lt:   #fce8ec;
+    --cream:     #FDF6F0;
+    --warm:      #F2E6B8;
+    --warm-dk:   #e8d49a;
+    --ink:       #2D2328;
+    --ink-md:    #6B5B5F;
+    --ink-lt:    #b8a8ac;
+    --white:     #ffffff;
+    --card-bg:   #ffffff;
+    --sidebar:   #2D2328;
+    --success:   #6DBF8A;
+    --warning:   #F5A623;
+    --danger:    #E05C6A;
+    --shadow-sm: 0 2px 8px rgba(45,35,40,0.06);
+    --shadow-md: 0 4px 20px rgba(45,35,40,0.10);
+    --shadow-lg: 0 8px 40px rgba(45,35,40,0.14);
+    --radius:    16px;
+    --radius-sm: 10px;
+}
+
+/* ── RESET ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── BODY ── */
+body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    min-height: 100vh;
+    display: flex;
+}
+
+/* ── SIDEBAR ── */
+.sidebar {
+    width: 240px;
+    min-height: 100vh;
+    background: var(--sidebar);
+    display: flex;
+    flex-direction: column;
+    padding: 32px 0;
+    position: fixed;
+    top: 0; left: 0;
+    z-index: 100;
+}
+
+.sidebar-brand {
+    padding: 0 28px 32px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.brand-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.brand-icon {
+    width: 36px; height: 36px;
+    background: var(--rose);
+    border-radius: 10px;
+    display: grid;
+    place-items: center;
+    font-size: 18px;
+}
+
+.brand-name {
+    font-family: 'Playfair Display', serif;
+    color: var(--white);
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.brand-sub {
+    color: var(--ink-lt);
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-top: 2px;
+}
+
+.nav-section {
+    flex: 1;
+    padding: 24px 16px;
+}
+
+.nav-label {
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.3);
+    padding: 0 12px;
+    margin-bottom: 8px;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 14px;
+    border-radius: var(--radius-sm);
+    color: rgba(255,255,255,0.55);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    margin-bottom: 2px;
+}
+
+.nav-item:hover {
+    background: rgba(255,255,255,0.07);
+    color: rgba(255,255,255,0.9);
+}
+
+.nav-item.active {
+    background: var(--rose);
+    color: var(--white);
+    box-shadow: 0 4px 14px rgba(242,134,149,0.4);
+}
+
+.nav-item iconify-icon { font-size: 18px; }
+
+.sidebar-footer {
+    padding: 16px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+}
+
+.logout-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 14px;
+    border-radius: var(--radius-sm);
+    color: rgba(255,255,255,0.4);
+    text-decoration: none;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.logout-btn:hover {
+    background: rgba(224,96,112,0.15);
+    color: var(--rose);
+}
+
+/* ── MAIN AREA ── */
+.main {
+    margin-left: 240px;
+    flex: 1;
+    padding: 36px 40px;
+    min-height: 100vh;
+}
+
+/* ── PAGE HEADER ── */
+.page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 28px;
+}
+
+.page-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--ink);
+}
+
+.page-subtitle {
+    color: var(--ink-md);
+    font-size: 14px;
+    margin-top: 4px;
+}
+
+/* ── FILTER BAR (shared) ── */
+.filter-bar {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    margin-bottom: 24px;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid rgba(45,35,40,0.06);
+    flex-wrap: wrap;
+}
+
+.search-wrap {
+    flex: 1;
+    min-width: 200px;
+    position: relative;
+}
+
+.search-wrap iconify-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--ink-lt);
+    font-size: 18px;
+}
+
+.search-input {
+    width: 100%;
+    padding: 10px 14px 10px 42px;
+    border: 1.5px solid rgba(45,35,40,0.1);
+    border-radius: var(--radius-sm);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--ink);
+    background: var(--cream);
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.search-input:focus { border-color: var(--rose); }
+
+.filter-select {
+    padding: 10px 14px;
+    border: 1.5px solid rgba(45,35,40,0.1);
+    border-radius: var(--radius-sm);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--ink);
+    background: var(--cream);
+    outline: none;
+    cursor: pointer;
+}
+
+.filter-select:focus { border-color: var(--rose); }
+
+.filter-count {
+    font-size: 13px;
+    color: var(--ink-md);
+    white-space: nowrap;
+}
+
+/* ── EMPTY STATE (shared) ── */
+.empty-state {
+    padding: 60px;
+    text-align: center;
+    color: var(--ink-lt);
+}
+
+.empty-state iconify-icon {
+    font-size: 48px;
+    display: block;
+    margin-bottom: 12px;
+}
+
+/* ── MODAL BASE (shared) ── */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(45,35,40,0.5);
+    backdrop-filter: blur(4px);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-overlay.open { display: flex; }
+
+/* ── ANIMATIONS (shared) ── */
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes popIn {
+    from { opacity: 0; transform: scale(0.9); }
+    to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}
+
+.animate { animation: fadeUp 0.4s ease both; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 1100px) {
+    .main { margin-left: 0; padding: 24px 20px; }
+    .sidebar { display: none; }
+}

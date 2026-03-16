@@ -1,0 +1,307 @@
+/* ── STATUS TABS ── */
+.status-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 24px;
+}
+
+.tab-btn {
+    padding: 8px 18px;
+    border-radius: 20px;
+    border: 1.5px solid rgba(45,35,40,0.1);
+    background: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--ink-md);
+    transition: all 0.2s;
+}
+
+.tab-btn:hover { border-color: var(--rose); color: var(--rose); }
+
+.tab-btn.active {
+    background: var(--rose);
+    border-color: var(--rose);
+    color: white;
+    box-shadow: 0 4px 12px rgba(242,134,149,0.3);
+}
+
+/* ── TRIPS CARD GRID ── */
+.trips-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 20px;
+}
+
+.trip-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid rgba(45,35,40,0.06);
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+    animation: fadeUp 0.4s ease both;
+}
+
+.trip-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+/* ── TRIP COVER ── */
+.trip-cover {
+    height: 130px;
+    background: linear-gradient(135deg, var(--rose-lt), var(--warm));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+    position: relative;
+}
+
+.trip-status-badge {
+    position: absolute;
+    top: 14px; right: 14px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.status-Open   { background: rgba(109,191,138,0.9); color: white; }
+.status-Full   { background: rgba(245,166,35,0.9);  color: white; }
+.status-Closed { background: rgba(45,35,40,0.6);    color: white; }
+
+/* ── TRIP BODY ── */
+.trip-body     { padding: 20px; }
+
+.trip-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 17px;
+    font-weight: 700;
+    margin-bottom: 6px;
+}
+
+.trip-location {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 13px;
+    color: var(--ink-md);
+    margin-bottom: 14px;
+}
+
+.trip-meta {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    color: var(--ink-md);
+}
+
+/* ── PROGRESS BAR ── */
+.trip-progress  { margin-bottom: 16px; }
+
+.progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--ink-md);
+    margin-bottom: 6px;
+}
+
+.progress-bar {
+    height: 6px;
+    background: var(--cream);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: var(--rose);
+    border-radius: 10px;
+    transition: width 0.6s ease;
+}
+
+/* ── TRIP ACTIONS ── */
+.trip-actions { display: flex; gap: 8px; }
+
+.btn-view {
+    flex: 1;
+    padding: 9px 14px;
+    background: var(--rose-lt);
+    color: var(--rose-dk);
+    border: none;
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+}
+
+.btn-view:hover { background: var(--rose); color: white; }
+
+.btn-close-trip {
+    padding: 9px 14px;
+    background: rgba(45,35,40,0.06);
+    color: var(--ink-md);
+    border: none;
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.btn-close-trip:hover { background: rgba(224,92,106,0.1); color: var(--danger); }
+
+/* ── TRIP DETAIL MODAL ── */
+.modal {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 0;
+    width: 560px;
+    max-height: 85vh;
+    overflow-y: auto;
+    box-shadow: var(--shadow-lg);
+    animation: popIn 0.25s cubic-bezier(.34,1.56,.64,1);
+}
+
+.modal-cover {
+    height: 160px;
+    background: linear-gradient(135deg, var(--rose-lt), var(--warm));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 64px;
+    position: relative;
+}
+
+.modal-close {
+    position: absolute;
+    top: 14px; right: 14px;
+    width: 32px; height: 32px;
+    background: rgba(255,255,255,0.8);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    font-size: 18px;
+    transition: all 0.2s;
+}
+
+.modal-close:hover { background: white; }
+
+.modal-content  { padding: 28px; }
+
+.modal-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.modal-location {
+    font-size: 14px;
+    color: var(--ink-md);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.detail-item {
+    background: var(--cream);
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+}
+
+.detail-lbl {
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--ink-lt);
+    margin-bottom: 4px;
+}
+
+.detail-val {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--ink);
+}
+
+.description-box {
+    background: var(--cream);
+    border-radius: var(--radius-sm);
+    padding: 16px;
+    font-size: 14px;
+    color: var(--ink-md);
+    line-height: 1.7;
+    margin-bottom: 20px;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+/* ── MODAL BUTTONS ── */
+.btn-danger {
+    padding: 10px 20px;
+    background: var(--danger);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-danger:hover { background: #c0404e; }
+
+.btn-ghost {
+    padding: 10px 20px;
+    background: var(--cream);
+    color: var(--ink-md);
+    border: 1.5px solid rgba(45,35,40,0.1);
+    border-radius: var(--radius-sm);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-ghost:hover { background: rgba(45,35,40,0.05); }
+
+/* ── EMPTY STATE (trips grid) ── */
+.empty-state { grid-column: 1 / -1; }

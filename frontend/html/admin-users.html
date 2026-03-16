@@ -1,87 +1,232 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="th">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JoinJoy — Users</title>
     <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
-    <link rel="stylesheet" href="../css/admin-manageuser.css">
-    <title>Manage Users</title>
+    <link rel="stylesheet" href="../css/admin-shared.css">
+    <link rel="stylesheet" href="../css/admin-users.css">
+
 </head>
-
 <body>
-    <div class="dashboard-wrapper">
-    <nav class="sidebar">
-        <div class="sidebar-top">
-            <img src="../img/joinjoylogo.png" alt="Logo" class="sidebar-logo">
-            <div class="menu-items">
-                <a href="admin-dashboard.html" class="menu-item">
-                    <iconify-icon icon="si:dashboard-fill"></iconify-icon>
-                    Dashboard
-                </a>
-                <a href="#" class="menu-item active">
-                    <iconify-icon icon="gridicons:user"></iconify-icon>
-                    User
-                </a>
+
+<nav class="sidebar">
+    <div class="sidebar-brand">
+        <div class="brand-logo">
+            <div class="brand-icon">🌸</div>
+            <div>
+                <div class="brand-name">JoinJoy</div>
+                <div class="brand-sub">Admin Panel</div>
             </div>
         </div>
-        <a href="#" class="logout-btn">
-            <iconify-icon icon="material-symbols:logout-rounded"></iconify-icon>
-            Log Out
+    </div>
+    <div class="nav-section">
+        <div class="nav-label">Main Menu</div>
+        <a href="admin-dashboard.html" class="nav-item">
+            <iconify-icon icon="si:dashboard-fill"></iconify-icon> Dashboard
         </a>
-    </nav>
+        <a href="admin-users.html" class="nav-item active">
+            <iconify-icon icon="gridicons:user"></iconify-icon> Users
+        </a>
+        <a href="admin-trips.html" class="nav-item">
+            <iconify-icon icon="mdi:map-marker-path"></iconify-icon> Trips
+        </a>
+        
+    </div>
+    <div class="sidebar-footer">
+        <a href="admin-login.html" class="logout-btn" id="logoutBtn">
+            <iconify-icon icon="material-symbols:logout-rounded"></iconify-icon> ออกจากระบบ
+        </a>
+    </div>
+</nav>
 
-    <main class="content">
-        <div class="user-header">
-            <div class="user-title-section">
-                <h1>USER</h1>
-                <p><iconify-icon icon="gridicons:user"></iconify-icon> Total <span id="total-users-count">0</span></p>
-            </div>
-            
-            <div class="user-controls">
-                <div class="search-box">
-                    <input type="text" id="user-search" placeholder="Search">
-                    <iconify-icon icon="tabler:search"></iconify-icon>
-                </div>
-                <select id="status-filter">
-                    <option value="">Status</option>
-                    <option value="active">Active</option>
-                    <option value="banned">Banned</option>
-                </select>
-            </div>
+<main class="main">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">User Management</h1>
+            <p class="page-subtitle">จัดการและตรวจสอบผู้ใช้งานทั้งหมด</p>
         </div>
+    </div>
 
-        <div class="table-container">
-            <table class="user-table">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Password</th>
-                        <th>Role</th>
-                        <th>Status</th>
-                        <th>Reason</th>
-                    </tr>
-                </thead>
-                <tbody id="user-list">
-                    </tbody>
-            </table>
+    <div class="filter-bar animate">
+        <div class="search-wrap">
+            <iconify-icon icon="mdi:magnify"></iconify-icon>
+            <input type="text" class="search-input" id="searchInput" placeholder="ค้นหาชื่อหรืออีเมล...">
         </div>
-    </main>
-</div>
+        <select class="filter-select" id="statusFilter">
+            <option value="">สถานะทั้งหมด</option>
+            <option value="active">Active</option>
+            <option value="banned">Banned</option>
+        </select>
+        <span class="filter-count" id="user-count">โหลดข้อมูล...</span>
+    </div>
 
-<div id="ban-modal" class="modal">
-    <div class="modal-content">
-        <h3>ระบุเหตุผลการแบนผู้ใช้นี้</h3>
-        <textarea id="ban-reason-input" placeholder="ใส่เหตุผลที่นี่..."></textarea>
+    <div class="table-card animate" style="animation-delay:0.1s;">
+        <table>
+            <thead>
+                <tr>
+                    <th>ผู้ใช้</th>
+                    <th>บทบาท</th>
+                    <th>สถานะ</th>
+                    <th>เหตุผลการแบน</th>
+                    <th>วันที่สมัคร</th>
+                    <th>จัดการ</th>
+                </tr>
+            </thead>
+            <tbody id="users-body">
+                <tr>
+                    <td colspan="6">
+                        <div class="empty-state">
+                            <iconify-icon icon="mdi:loading" style="animation: spin 1s linear infinite;"></iconify-icon>
+                            กำลังโหลดข้อมูล...
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+
+<!-- BAN MODAL -->
+<div class="modal-overlay" id="banModal">
+    <div class="modal">
+        <div class="modal-title">🚫 แบนผู้ใช้งาน</div>
+        <div class="modal-sub" id="ban-modal-sub">ระบุเหตุผลการแบน</div>
+        <div class="modal-label">เหตุผล *</div>
+        <textarea class="modal-textarea" id="banReason" placeholder="เช่น: ละเมิดกฎการใช้งาน, สแปม, เนื้อหาไม่เหมาะสม..."></textarea>
         <div class="modal-actions">
-            <button class="btn-cancel" onclick="closeModal()">ยกเลิก</button>
-            <button class="btn-confirm" id="submit-ban">ยืนยัน</button>
+            <button class="btn-secondary" onclick="closeBanModal()">ยกเลิก</button>
+            <button class="btn-primary" onclick="confirmBan()">ยืนยันการแบน</button>
         </div>
     </div>
 </div>
-<script src="../js/admin-users.js"></script>
-</body>
 
+
+<script>
+    const API = 'http://localhost:3000/api/admin';
+    let allUsers = [];
+    let selectedUserId = null;
+
+    async function loadUsers() {
+        const search = document.getElementById('searchInput').value;
+        const status = document.getElementById('statusFilter').value;
+        let url = `${API}/users-list?`;
+        if (search) url += `search=${encodeURIComponent(search)}&`;
+        if (status) url += `status=${status}`;
+
+        try {
+            const res = await fetch(url);
+            allUsers = await res.json();
+            renderUsers(allUsers);
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    function renderUsers(users) {
+        const tbody = document.getElementById('users-body');
+        document.getElementById('user-count').textContent = `${users.length} รายการ`;
+
+        if (!users.length) {
+            tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state">
+                <iconify-icon icon="mdi:account-off-outline"></iconify-icon>
+                ไม่พบผู้ใช้งาน
+            </div></td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = users.map(u => {
+            const initial = (u.user_name || '?')[0].toUpperCase();
+            const joined = new Date(u.created_at).toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' });
+            const isBanned = u.status === 'banned';
+
+            return `<tr>
+                <td>
+                    <div class="user-info">
+                        <div class="avatar">${initial}</div>
+                        <div>
+                            <div class="user-name">${u.user_name}</div>
+                            <div class="user-email">${u.university_email}</div>
+                        </div>
+                    </div>
+                </td>
+                <td><span class="badge badge-${u.role}">${u.role}</span></td>
+                <td><span class="badge badge-${u.status}">${isBanned ? '🚫 Banned' : '✅ Active'}</span></td>
+                <td>${u.reason ? `<div class="reason-text" title="${u.reason}">${u.reason}</div>` : '<span style="color:var(--ink-lt)">—</span>'}</td>
+                <td style="color:var(--ink-md);font-size:13px;">${joined}</td>
+                <td>
+                    ${isBanned
+                        ? `<button class="action-btn btn-unban" onclick="unbanUser(${u.user_id})">
+                            <iconify-icon icon="mdi:account-check-outline"></iconify-icon> ปลดแบน
+                           </button>`
+                        : `<button class="action-btn btn-ban" onclick="openBanModal(${u.user_id}, '${u.user_name}')">
+                            <iconify-icon icon="mdi:account-cancel-outline"></iconify-icon> แบน
+                           </button>`
+                    }
+                </td>
+            </tr>`;
+        }).join('');
+    }
+
+    function openBanModal(userId, name) {
+        selectedUserId = userId;
+        document.getElementById('ban-modal-sub').textContent = `แบนผู้ใช้: ${name}`;
+        document.getElementById('banReason').value = '';
+        document.getElementById('banModal').classList.add('open');
+    }
+
+    function closeBanModal() {
+        document.getElementById('banModal').classList.remove('open');
+        selectedUserId = null;
+    }
+
+    async function confirmBan() {
+        const reason = document.getElementById('banReason').value.trim();
+        if (!reason) { alert('กรุณากรอกเหตุผลการแบน'); return; }
+
+        await fetch(`${API}/ban-user`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ user_id: selectedUserId, admin_id: 1, reason })
+        });
+        closeBanModal();
+        loadUsers();
+    }
+
+    async function unbanUser(userId) {
+        if (!confirm('ปลดแบนผู้ใช้งานนี้?')) return;
+        await fetch(`${API}/ban-user`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ user_id: userId, admin_id: 1, reason: '' })
+        });
+        loadUsers();
+    }
+
+    // Debounce search
+    let timer;
+    document.getElementById('searchInput').addEventListener('input', () => {
+        clearTimeout(timer);
+        timer = setTimeout(loadUsers, 350);
+    });
+    document.getElementById('statusFilter').addEventListener('change', loadUsers);
+
+    // Logout
+    document.getElementById('logoutBtn').addEventListener('click', e => {
+        e.preventDefault();
+        if (confirm('คุณแน่ใจหรือไม่ว่าต้องการออกจากระบบ?')) {
+            localStorage.removeItem('adminToken');
+            window.location.href = 'admin-login.html';
+        }
+    });
+
+    // Close modal on backdrop click
+    document.getElementById('banModal').addEventListener('click', e => {
+        if (e.target === e.currentTarget) closeBanModal();
+    });
+
+    loadUsers();
+</script>
+</body>
 </html>

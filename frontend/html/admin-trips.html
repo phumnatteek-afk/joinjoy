@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JoinJoy — Trips</title>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <link rel="stylesheet" href="../css/admin-shared.css">
+    <link rel="stylesheet" href="../css/admin-trips.css">
+</head>
+<body>
+
+<nav class="sidebar">
+    <div class="sidebar-brand">
+        <div class="brand-logo">
+            <div class="brand-icon">🌸</div>
+            <div>
+                <div class="brand-name">JoinJoy</div>
+                <div class="brand-sub">Admin Panel</div>
+            </div>
+        </div>
+    </div>
+    <div class="nav-section">
+        <div class="nav-label">Main Menu</div>
+        <a href="admin-dashboard.html" class="nav-item"><iconify-icon icon="si:dashboard-fill"></iconify-icon> Dashboard</a>
+        <a href="admin-users.html" class="nav-item"><iconify-icon icon="gridicons:user"></iconify-icon> Users</a>
+        <a href="admin-trips.html" class="nav-item active"><iconify-icon icon="mdi:map-marker-path"></iconify-icon> Trips</a>
+       
+    </div>
+    <div class="sidebar-footer">
+        <a href="admin-login.html" class="logout-btn" id="logoutBtn"><iconify-icon icon="material-symbols:logout-rounded"></iconify-icon> ออกจากระบบ</a>
+    </div>
+</nav>
+
+<main class="main">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">Trip Management</h1>
+            <p class="page-subtitle">จัดการทริปทั้งหมดในระบบ</p>
+        </div>
+    </div>
+
+    <div class="filter-bar">
+        <div class="search-wrap">
+            <iconify-icon icon="mdi:magnify"></iconify-icon>
+            <input type="text" class="search-input" id="searchInput" placeholder="ค้นหาชื่อทริปหรือสถานที่...">
+        </div>
+        <span class="filter-count" id="trip-count">โหลดข้อมูล...</span>
+    </div>
+
+    <div class="status-tabs">
+        <button class="tab-btn active" data-status="">ทั้งหมด</button>
+        <button class="tab-btn" data-status="Open">Open</button>
+        <button class="tab-btn" data-status="Full">Full</button>
+        <button class="tab-btn" data-status="Closed">Closed</button>
+    </div>
+
+    <div class="trips-grid" id="trips-container">
+        <div class="empty-state">
+            <iconify-icon icon="mdi:loading" style="animation: spin 1s linear infinite;"></iconify-icon>
+            กำลังโหลดทริป...
+        </div>
+    </div>
+</main>
+
+<!-- DETAIL MODAL -->
+<div class="modal-overlay" id="tripModal">
+    <div class="modal">
+        <div class="modal-cover">
+            <span id="modal-emoji">🗺️</span>
+            <button class="modal-close" onclick="closeModal()">✕</button>
+        </div>
+        <div class="modal-content">
+            <div class="modal-title" id="modal-name">—</div>
+            <div class="modal-location">
+                <iconify-icon icon="mdi:map-marker"></iconify-icon>
+                <span id="modal-location">—</span>
+            </div>
+            <div class="detail-grid">
+                <div class="detail-item">
+                    <div class="detail-lbl">สมาชิก</div>
+                    <div class="detail-val" id="modal-members">—</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-lbl">งบประมาณ</div>
+                    <div class="detail-val" id="modal-budget">—</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-lbl">วันเริ่มต้น</div>
+                    <div class="detail-val" id="modal-start">—</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-lbl">วันสิ้นสุด</div>
+                    <div class="detail-val" id="modal-end">—</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-lbl">สถานะ</div>
+                    <div class="detail-val" id="modal-status">—</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-lbl">หมวดหมู่</div>
+                    <div class="detail-val" id="modal-category">—</div>
+                </div>
+            </div>
+            <div class="description-box" id="modal-desc">—</div>
+            <div class="modal-footer">
+                <button class="btn-ghost" onclick="closeModal()">ปิด</button>
+                <button class="btn-danger" id="modal-close-btn" onclick="closeTripFromModal()">ปิดทริป</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+</style>
+
+<script>
+    const API = 'http://localhost:3000/api/admin';
+    const EMOJIS = { default: '🗺️', nature: '🌿', food: '🍜', culture: '🎎', beach: '🏖️', mountain: '⛰️', city: '🌆' };
+    let currentTripId = null;
+    let currentStatus = '';
+
+    async function loadTrips() {
+        const search = document.getElementById('searchInput').value;
+        let url = `${API}/trips?`;
+        if (search) url += `search=${encodeURIComponent(search)}&`;
+        if (currentStatus) url += `status=${currentStatus}`;
+
+        try {
+            const res = await fetch(url);
+            const trips = await res.json();
+            renderTrips(trips);
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    function getEmoji(category) {
+        if (!category) return '🗺️';
+        const lower = category.toLowerCase();
+        for (const key of Object.keys(EMOJIS)) {
+            if (lower.includes(key)) return EMOJIS[key];
+        }
+        return '🗺️';
+    }
+
+    function renderTrips(trips) {
+        const container = document.getElementById('trips-container');
+        document.getElementById('trip-count').textContent = `${trips.length} ทริป`;
+
+        if (!trips.length) {
+            container.innerHTML = `<div class="empty-state">
+                <iconify-icon icon="mdi:map-off-outline"></iconify-icon>
+                ไม่พบทริป
+            </div>`;
+            return;
+        }
+
+        container.innerHTML = trips.map((t, i) => {
+            const pct = t.max_member > 0 ? Math.round((t.current_member / t.max_member) * 100) : 0;
+            const emoji = getEmoji(t.category);
+            const start = t.start_time ? new Date(t.start_time).toLocaleDateString('th-TH', { month: 'short', day: 'numeric' }) : '—';
+            const end = t.end_time ? new Date(t.end_time).toLocaleDateString('th-TH', { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
+            const budget = t.budget_min && t.budget_max ? `฿${Number(t.budget_min).toLocaleString()}–${Number(t.budget_max).toLocaleString()}` : '—';
+            const canClose = t.trip_status !== 'Closed';
+
+            return `<div class="trip-card" style="animation-delay:${i * 0.05}s;">
+                <div class="trip-cover">
+                    ${emoji}
+                    <span class="trip-status-badge status-${t.trip_status}">${t.trip_status}</span>
+                </div>
+                <div class="trip-body">
+                    <div class="trip-name">${t.trip_name}</div>
+                    <div class="trip-location">
+                        <iconify-icon icon="mdi:map-marker"></iconify-icon>
+                        ${t.location_name || '—'}
+                    </div>
+                    <div class="trip-meta">
+                        <div class="meta-item"><iconify-icon icon="mdi:calendar-range"></iconify-icon> ${start} – ${end}</div>
+                        <div class="meta-item"><iconify-icon icon="mdi:currency-usd"></iconify-icon> ${budget}</div>
+                    </div>
+                    <div class="trip-progress">
+                        <div class="progress-label">
+                            <span>สมาชิก</span>
+                            <span>${t.current_member || 0}/${t.max_member || 0} คน (${pct}%)</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width:${pct}%"></div>
+                        </div>
+                    </div>
+                    <div class="trip-actions">
+                        <button class="btn-view" onclick="showDetail(${JSON.stringify(t).replace(/"/g, '&quot;')})">
+                            <iconify-icon icon="mdi:eye-outline"></iconify-icon> ดูรายละเอียด
+                        </button>
+                        ${canClose ? `<button class="btn-close-trip" onclick="closeTrip(${t.trip_id})">
+                            <iconify-icon icon="mdi:close-circle-outline"></iconify-icon> ปิดทริป
+                        </button>` : ''}
+                    </div>
+                </div>
+            </div>`;
+        }).join('');
+    }
+
+    function showDetail(trip) {
+        currentTripId = trip.trip_id;
+        const emoji = getEmoji(trip.category);
+        document.getElementById('modal-emoji').textContent = emoji;
+        document.getElementById('modal-name').textContent = trip.trip_name;
+        document.getElementById('modal-location').textContent = trip.location_name || '—';
+        document.getElementById('modal-members').textContent = `${trip.current_member || 0} / ${trip.max_member || 0} คน`;
+        document.getElementById('modal-budget').textContent = trip.budget_min ? `฿${Number(trip.budget_min).toLocaleString()}–${Number(trip.budget_max).toLocaleString()}` : '—';
+        document.getElementById('modal-start').textContent = trip.start_time ? new Date(trip.start_time).toLocaleDateString('th-TH') : '—';
+        document.getElementById('modal-end').textContent = trip.end_time ? new Date(trip.end_time).toLocaleDateString('th-TH') : '—';
+        document.getElementById('modal-status').textContent = trip.trip_status;
+        document.getElementById('modal-category').textContent = trip.category || '—';
+        document.getElementById('modal-desc').textContent = trip.description || 'ไม่มีคำอธิบาย';
+        document.getElementById('modal-close-btn').style.display = trip.trip_status !== 'Closed' ? 'block' : 'none';
+        document.getElementById('tripModal').classList.add('open');
+    }
+
+    function closeModal() {
+        document.getElementById('tripModal').classList.remove('open');
+    }
+
+    async function closeTripFromModal() {
+        if (!confirm('คุณต้องการปิดทริปนี้?')) return;
+        await closeTrip(currentTripId);
+        closeModal();
+    }
+
+    async function closeTrip(tripId) {
+        try {
+            await fetch(`${API}/close-trip/${tripId}`, { method: 'PATCH' });
+            loadTrips();
+        } catch (e) {
+            alert('เกิดข้อผิดพลาด');
+        }
+    }
+
+    // Tabs
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentStatus = btn.dataset.status;
+            loadTrips();
+        });
+    });
+
+    let timer;
+    document.getElementById('searchInput').addEventListener('input', () => {
+        clearTimeout(timer);
+        timer = setTimeout(loadTrips, 350);
+    });
+
+    document.getElementById('tripModal').addEventListener('click', e => {
+        if (e.target === e.currentTarget) closeModal();
+    });
+
+    document.getElementById('logoutBtn').addEventListener('click', e => {
+        e.preventDefault();
+        if (confirm('ออกจากระบบ?')) { localStorage.removeItem('adminToken'); window.location.href = 'admin-login.html'; }
+    });
+
+    loadTrips();
+</script>
+</body>
+</html>
