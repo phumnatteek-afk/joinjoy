@@ -152,4 +152,58 @@ router.post("/login", async (req, res) => {
     }
 });
 
+// ─────────────────────────────────────────────────────────────
+//  GET /api/auth/me  — Current authenticated user (used by frontend)
+// ─────────────────────────────────────────────────────────────
+router.get('/me', async (req, res) => {
+    const userId = (req.session && req.session.userId) ? req.session.userId : (req.user && req.user.user_id ? req.user.user_id : null);
+    if (!userId) {
+        return res.status(401).json({ success: false, message: 'Not authenticated' });
+    }
+
+    try {
+        const [[user]] = await db.query(
+            `SELECT u.user_id, u.user_name, u.university_email, u.role, u.status,
+                    up.frist_name AS first_name, up.last_name, up.bio,
+                    up.brith_date AS birth_date, up.gender, up.faculty,
+                    up.social_media, up.tags, up.profile_img
+             FROM User u
+             LEFT JOIN User_profile up ON up.user_id = u.user_id
+             WHERE u.user_id = ?`,
+            [userId]
+        );
+
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+
+        const tags = user.tags
+            ? user.tags.split(',').map(t => t.trim()).filter(Boolean)
+            : [];
+
+        return res.json({
+            success: true,
+            user: {
+                user_id:          user.user_id,
+                user_name:        user.user_name,
+                university_email: user.university_email,
+                role:             user.role,
+                status:           user.status,
+                first_name:       user.first_name || '',
+                last_name:        user.last_name || '',
+                bio:              user.bio || '',
+                birth_date:       user.birth_date || '',
+                gender:           user.gender || '',
+                faculty:          user.faculty || '',
+                social_media:     user.social_media || '',
+                tags,
+                profile_img:      user.profile_img || null,
+            },
+        });
+    } catch (err) {
+        console.error('GET /api/auth/me error:', err);
+        return res.status(500).json({ success: false, message: 'Server error' });
+    }
+});
+
 module.exports = router;
