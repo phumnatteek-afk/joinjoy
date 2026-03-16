@@ -152,7 +152,7 @@ body {
 .card:nth-child(4) { animation-delay: .21s; }
 .card-top    { padding: 10px 12px 6px; height: 110px;  
   overflow: hidden; }
-.mbadge      { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 500; color: #f28695; margin-bottom: 4px; }
+.mbadge      { display: inline-flex; align-items: center; gap: 4px; font-size: 14px; font-weight: 500; color: #f28695; margin-bottom: 4px; }
 .mbadge .dot { width: 7px; height: 7px; border-radius: 50%; background: #F28695; }
 .cname {
   font-size: 15px;
@@ -196,25 +196,62 @@ body {
 }
 .join-btn:hover    { background: #fff; transform: scale(1.04); color: #F28695;  border: 1.5px solid #F28695;}
 .join-btn:disabled { background: #ccc; box-shadow: none; cursor: not-allowed; transform: none; }
-.join-btn.joined   { background: #7bd07f; }
-.join-btn.pending svg{
-width: 20px;   /* ลดขนาดลง */
-  height: 20px;
-  flex-shrink: 0;
-}
-.join-btn.pending:hover{
-  color: #f28695;
-  background: #ffff;
-}
-.join-btn.pending {background: #f4d571;   width: 20px;
+.join-btn.joined   {  pointer-events: none;
+   border: 1.5px solid #fff;
+   background: #7bd07f; pointer-events: none;  color: #fff;  
+  width: 100px;
   display: flex;
+  padding: 10px;
   align-items: center;
   justify-content: center;
   gap: 5px;
   /* padding: 10px 10px; */
-  font-size: 14px;
-  margin-right: 10px;
+  font-size: 13px;
+  margin-right: -2px;
   height: 40px;}
+
+.join-btn.pending svg , .join-btn.joined svg,.join-btn.host svg{
+width: 16px !important;
+  height: 16px !important;
+  flex-shrink: 0;
+  fill: white !important;
+  color: white !important;
+}
+.join-btn.pending:hover{
+  background: transparent; 
+}
+.join-btn.pending{
+  pointer-events: none;
+   border: 1.5px solid #fff;
+ background: #f4bb6c;
+ color: #fff;  
+  width: 100px;
+  display: flex;
+  padding: 10px;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  /* padding: 10px 10px; */
+  font-size: 13px;
+  margin-right: -2px;
+  height: 40px;}
+
+.join-btn.host{
+  pointer-events: none;
+  background: #5c82ff;
+    border: 1.5px solid #fff;
+    color: #fff;  
+  width: 100px;
+  display: flex;
+  padding: 10px;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  /* padding: 10px 10px; */
+  font-size: 13px;
+  margin-right: -2px;
+  height: 40px;
+}
 .tag-badge {
   position: absolute; top: 8px; right: 8px;
   background: var(--pink-dark); color: white;

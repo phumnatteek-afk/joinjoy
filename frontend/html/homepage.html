@@ -365,15 +365,15 @@ function tripCard(t) {
   // แสดงปุ่มตามสถานะ
   let btnHtml;
   if (isHost) {
-    btnHtml = `<button class="join-btn joined" disabled>Host</button>`;
+    btnHtml = `<button class="join-btn host" disabled><svg xmlns="http://www.w3.org/2000/svg" width="14px" height="14px" viewBox="0 0 24 24"><path fill="currentColor" d="M9.175 10.825Q8 9.65 8 8t1.175-2.825T12 4t2.825 1.175T16 8t-1.175 2.825T12 12t-2.825-1.175M4 18v-.8q0-.85.438-1.562T5.6 14.55q1.55-.775 3.15-1.162T12 13t3.25.388t3.15 1.162q.725.375 1.163 1.088T20 17.2v.8q0 .825-.587 1.413T18 20H6q-.825 0-1.412-.587T4 18"/></svg>Host</button>`;
 } else if (t.my_join_status === 'Pending') {
   btnHtml = `<button class="join-btn pending" disabled>
     <svg xmlns="http://www.w3.org/2000/svg" width="14px" height="14px" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"><circle cx="12" cy="12" r="9"/><path d="M11 8v5h5"/></g></svg> Pending
   </button>`;
   } else if (t.my_join_status === 'Joined') {
-    btnHtml = `<button class="join-btn joined" disabled>✓ Joined</button>`;
+    btnHtml = `<button class="join-btn joined" disabled><svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" viewBox="0 0 24 24"><path fill="currentColor" d="m9 20.42l-6.21-6.21l2.83-2.83L9 14.77l9.88-9.89l2.83 2.83z"/></svg>Joined</button>`;
   } else if (full) {
-    btnHtml = `<button class="join-btn joined" disabled>Full</button>`;
+    btnHtml = `<button class="join-btn joined" disabled><svg xmlns="http://www.w3.org/2000/svg" width="14px" height="14px" viewBox="0 0 24 24"><path fill="currentColor" d="M9.175 10.825Q8 9.65 8 8t1.175-2.825T12 4t2.825 1.175T16 8t-1.175 2.825T12 12t-2.825-1.175M4 18v-.8q0-.85.438-1.562T5.6 14.55q1.55-.775 3.15-1.162T12 13t3.25.388t3.15 1.162q.725.375 1.163 1.088T20 17.2v.8q0 .825-.587 1.413T18 20H6q-.825 0-1.412-.587T4 18"/></svg>Full</button>`;
   } else {
     btnHtml = `<button class="join-btn" onclick="event.stopPropagation();joinTrip(${t.trip_id},this,${t.creator_id})">join</button>`;
   }
@@ -615,8 +615,8 @@ async function joinTrip(tripId, btn, creatorId) {
   }
   if (Number(uid) === Number(creatorId)) {
     btn.disabled = true;
-    btn.textContent = 'Host';
-    btn.classList.add('joined');
+    btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14px" height="14px" viewBox="0 0 24 24"><path fill="currentColor" d="M9.175 10.825Q8 9.65 8 8t1.175-2.825T12 4t2.825 1.175T16 8t-1.175 2.825T12 12t-2.825-1.175M4 18v-.8q0-.85.438-1.562T5.6 14.55q1.55-.775 3.15-1.162T12 13t3.25.388t3.15 1.162q.725.375 1.163 1.088T20 17.2v.8q0 .825-.587 1.413T18 20H6q-.825 0-1.412-.587T4 18"/></svg> Host`;
+    btn.classList.add('host');
     showToast('เจ้าของโพสไม่สามารถ join ทริปตัวเองได้', 'err');
     return;
   }
