@@ -338,12 +338,8 @@ document.addEventListener('DOMContentLoaded', () => {
             searchTrips(e.target.value);
         });
 
-<<<<<<< HEAD
-});
-=======
 });
 
-//*************** */ 
 function openJoinModal(tripId, btn, creatorId, meUserIdFromTrip){
 
     pendingJoinData = {tripId, btn, creatorId, meUserIdFromTrip};
@@ -366,4 +362,3 @@ function confirmJoin(){
 
     joinTrip(tripId, btn, creatorId, meUserIdFromTrip);
 }
->>>>>>> c97eb2c0b04b29b4e8f396f4febd4ddd3c235a26
