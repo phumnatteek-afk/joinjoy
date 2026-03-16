@@ -45,8 +45,8 @@ async function loadCurrentUser() {
 
     try {
         const meUrl = storedId
-            ? `http://localhost:3000/api/user/me?user_id=${encodeURIComponent(storedId)}`
-            : 'http://localhost:3000/api/user/me';
+            ? `/api/user/me?user_id=${encodeURIComponent(storedId)}`
+            : '/api/user/me';
         const response = await fetch(meUrl, { credentials: 'include' });
         if (!response.ok) return;
         const data = await response.json();
@@ -69,8 +69,8 @@ async function fetchTrips() {
     try {
         const uid = currentUserId || getStoredUserId();
         const url = uid
-            ? `http://localhost:3000/api/board/trips?user_id=${encodeURIComponent(uid)}`
-            : 'http://localhost:3000/api/board/trips';
+            ? `/api/board/trips?user_id=${encodeURIComponent(uid)}`
+            : '/api/board/trips';
         const response = await fetch(url, { credentials: 'include' });
         const trips = await response.json();
 
@@ -106,14 +106,14 @@ function renderTrips(trips) {
     trips.forEach(trip => {
 
         const coverImg = trip.cover_image 
-            ? `http://localhost:3000/${trip.cover_image}` 
+            ? `/${trip.cover_image}` 
             : '../img/default-trip.jpg';
 
         const hasAvatar = trip.user_avatar && trip.user_avatar !== 'null';
 const imgSrc = hasAvatar
     ? (trip.user_avatar.startsWith('http')
         ? trip.user_avatar
-        : `http://localhost:3000${trip.user_avatar}`)
+        : `${trip.user_avatar}`)
     : null;
 
 const avatarHtml = imgSrc
@@ -256,7 +256,7 @@ async function joinTrip(tripId, btn, creatorId, meUserIdFromTrip) {
     btn.disabled = true;
     btn.textContent = '...';
     try {
-        const res = await fetch('http://localhost:3000/api/notification/join-request', {
+        const res = await fetch('/api/notification/join-request', {
             method: 'POST',
             credentials: 'include',
             headers: { 'Content-Type': 'application/json' },
