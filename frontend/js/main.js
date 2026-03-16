@@ -67,3 +67,30 @@ if (coverInput && uploadBox) {
         }
     });
 }
+const groupLinkInput = document.getElementById('group_link');
+const linkBox = document.getElementById('link-box');
+const linkError = document.getElementById('link-error');
+
+groupLinkInput.addEventListener('input', function() {
+    const val = this.value.trim();
+
+    // Pattern สำหรับเช็คว่าเป็นลิงก์ (ขึ้นต้นด้วย http, https หรือมีจุดแบบโดเมน)
+    const urlPattern = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/;
+
+    if (val === "") {
+        // ถ้าว่างเปล่า (เพราะเป็น Optional) ให้กลับเป็นสีปกติ
+        linkBox.style.borderColor = "#F28B95";
+        linkError.style.color = "#F28B95";
+        linkError.textContent = "* ลิงก์นี้จะปรากฏให้เห็นเฉพาะคนที่ได้รับอนุมัติให้เข้าร่วมทริปแล้วเท่านั้น";
+    } else if (!urlPattern.test(val)) {
+        // ถ้าพิมพ์แล้วไม่ใช่ลิงก์ ให้แสดงสีแดงเตือน
+        linkBox.style.borderColor = "#ff4d4d";
+        linkError.style.color = "#ff4d4d";
+        linkError.textContent = "⚠️ กรุณาใส่ลิงก์ที่ถูกต้อง (เช่น https://line.me/...)";
+    } else {
+        // ถ้าถูกต้อง ให้เป็นสีชมพู/เขียวปกติ
+        linkBox.style.borderColor = "#2ecc71"; // หรือใช้สีชมพู #F28B95 ตามเดิม
+        linkError.style.color = "#2ecc71";
+        linkError.textContent = "link Verified";
+    }
+});
