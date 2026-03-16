@@ -138,6 +138,11 @@ function renderTrips(trips) {
             ? `${Number(trip.budget_min).toLocaleString()} - ${Number(trip.budget_max).toLocaleString()}`
             : 'ไม่ระบุ';
 
+        const budgetType = trip.budget_type === 'person'
+            ? '/ person'
+            : trip.budget_type === 'trip'
+            ? '/ trip'
+            : '';
         const isFull = Number(trip.current_member || 0) >= Number(trip.max_member || 0);
         const now = new Date();
         const limitDate = trip.limit_date_accept ? new Date(trip.limit_date_accept) : null;
@@ -218,7 +223,7 @@ function renderTrips(trips) {
                     </div>
                     <div class="trip-budget-row">
                         <iconify-icon icon="mdi:cash"></iconify-icon>
-                        <span>${budgetDisplay} ฿</span>
+                        <span>${budgetDisplay} ฿ <small>${budgetType}</small></span>
                     </div>
                 </div>
 

@@ -20,12 +20,14 @@
       flex-shrink: 0;
     }
     .sch-cancel-btn {
-      padding: 5px 12px;
+      position: relative;
+      top: -5px;
+      padding: 2px 4px;
       border-radius: 999px;
       border: 1.5px solid #ff6f8f;
       background: #fff;
       color: #ff6f8f;
-      font-size: 11px;
+      font-size: 9px;
       font-weight: 600;
       font-family: 'Poppins', sans-serif;
       cursor: pointer;
@@ -45,7 +47,18 @@
 <body>
 
 <div class="toast" id="toast"></div>
-
+<!-- ── Confirm Cancel Popup ── -->
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-box">
+    <div class="confirm-icon">🚫</div>
+    <div class="confirm-title">ยกเลิกการเข้าร่วม?</div>
+    <div class="confirm-msg">คุณแน่ใจหรือไม่ว่าต้องการยกเลิกการเข้าร่วมทริปนี้</div>
+    <div class="confirm-actions">
+      <button class="confirm-no"  id="confirmNo">ไม่ใช่</button>
+      <button class="confirm-yes" id="confirmYes">ยืนยัน</button>
+    </div>
+  </div>
+</div>
 <!-- ── HEADER ── -->
 <header class="header">
   <div class="logo-row">
@@ -415,8 +428,10 @@ function schCard(t) {
     : em(t.category);
 
   // ปุ่ม Cancel — แสดงเฉพาะ member ที่ไม่ใช่ host
-  const cancelBtn = isHost ? '' : `
-    <button class="sch-cancel-btn" onclick="leaveTrip(${t.trip_id}, this)">Cancel</button>`;
+ const cancelBtn = isHost ? '' : `
+    <button class="sch-cancel-btn" onclick="leaveTrip(${t.trip_id}, this)">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:middle;margin-right:3px"><path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10S22 17.53 22 12 17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"/></svg>Cancel
+    </button>`;
 
   return `
   <div class="sch-card" id="sch-${t.trip_id}">
@@ -430,48 +445,52 @@ function schCard(t) {
       </div>
     </div>
     <div class="sch-right">
-      <div class="day-pill ${cls}">${text}</div>
       ${cancelBtn}
+      <div class="day-pill ${cls}">${text}</div>
     </div>
   </div>`;
 }
 
 /* ── LEAVE TRIP ── */
 async function leaveTrip(tripId, btn) {
-  if (!confirm('ยืนยันการยกเลิกเข้าร่วมทริปนี้?')) return;
+  // เปิด popup แทน confirm()
+  const overlay = document.getElementById('confirmOverlay');
+  overlay.classList.add('open');
 
-  btn.disabled    = true;
-  btn.textContent = '...';
+  document.getElementById('confirmNo').onclick = () => {
+    overlay.classList.remove('open');
+  };
 
-  try {
-    const res  = await fetch(`${API}/trips/${tripId}/leave`, {
-      method:      'DELETE',
-      credentials: 'include',
-    });
-    const data = await res.json();
+  document.getElementById('confirmYes').onclick = async () => {
+    overlay.classList.remove('open');
 
-    if (data.success) {
-      // ลบการ์ดออกจาก DOM
-      const card = document.getElementById(`sch-${tripId}`);
-      if (card) card.remove();
+    btn.disabled  = true;
+    btn.innerHTML = '...';
 
-      // ถ้าไม่เหลือการ์ดใดเลย ซ่อน section My Schedule
-      if (!document.querySelector('.sch-card')) {
-        $('schTitle').style.display = 'none';
+    try {
+      const res  = await fetch(`${API}/trips/${tripId}/leave`, {
+        method: 'DELETE', credentials: 'include'
+      });
+      const data = await res.json();
+      const cancelHtml = `<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:middle;margin-right:3px"><path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10S22 17.53 22 12 17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"/></svg>Cancel`;
+
+      if (data.success) {
+        const card = document.getElementById(`sch-${tripId}`);
+        if (card) card.remove();
+        if (!document.querySelector('.sch-card')) $('schTitle').style.display = 'none';
+        showToast('ยกเลิกการเข้าร่วมทริปแล้ว ✓', 'ok');
+      } else {
+        btn.disabled  = false;
+        btn.innerHTML = cancelHtml;
+        showToast(data.error || 'เกิดข้อผิดพลาด', 'err');
       }
-
-      showToast('ยกเลิกการเข้าร่วมทริปแล้ว ✓', 'ok');
-    } else {
-      btn.disabled    = false;
-      btn.textContent = 'Cancel';
-      showToast(data.error || 'เกิดข้อผิดพลาด', 'err');
+    } catch (err) {
+      console.error(err);
+      btn.disabled  = false;
+      btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:middle;margin-right:3px"><path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10S22 17.53 22 12 17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"/></svg>Cancel`;
+      showToast('ไม่สามารถเชื่อมต่อ server ได้', 'err');
     }
-  } catch (err) {
-    console.error(err);
-    btn.disabled    = false;
-    btn.textContent = 'Cancel';
-    showToast('ไม่สามารถเชื่อมต่อ server ได้', 'err');
-  }
+  };
 }
 
 /* ── LOAD ── */
