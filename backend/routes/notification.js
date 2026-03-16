@@ -35,6 +35,28 @@ function getActorUserId(req) {
     return sessionUserId || passportUserId || queryUserId || null
 }
 
+let ensureNotificationFromUserIdColumnPromise = null
+
+function ensureNotificationFromUserIdColumn() {
+    if (!ensureNotificationFromUserIdColumnPromise) {
+        ensureNotificationFromUserIdColumnPromise = (async () => {
+            const [cols] = await pool.query(
+                "SHOW COLUMNS FROM Notification LIKE 'from_user_id'"
+            )
+            if (!cols.length) {
+                await pool.query(
+                    'ALTER TABLE Notification ADD COLUMN from_user_id INT NULL'
+                )
+            }
+        })().catch((err) => {
+            ensureNotificationFromUserIdColumnPromise = null
+            throw err
+        })
+    }
+
+    return ensureNotificationFromUserIdColumnPromise
+}
+
 // FLOW 1: User กด JOIN
 router.post('/join-request', async(req, res) => {
     const { trip_id, user_id } = req.body
@@ -51,6 +73,8 @@ router.post('/join-request', async(req, res) => {
     }
 
     try {
+        await ensureNotificationFromUserIdColumn()
+
         // ดึงข้อมูล User + Trip จาก Database จริง
         const [users] = await pool.query(
             'SELECT user_id, user_name FROM User WHERE user_id = ?', [requesterId]
@@ -91,16 +115,24 @@ router.post('/join-request', async(req, res) => {
         // INSERT Notification ให้ Host แจ้งว่ามีคนขอเข้าร่วมทริป
         await pool.query(
             `INSERT INTO Notification 
-       (trip_id, user_id, notification_title, notification_detail, create_at)
-       VALUES (?, ?, ?, ?, ${SQL_NOW_TH})`, [
+       (trip_id, user_id, notification_title, notification_detail, from_user_id, create_at)
+       VALUES (?, ?, ?, ?, ?, ${SQL_NOW_TH})`, [
                 trip_id,
                 trip.creator_id,
                 'มีคนขอเข้าร่วมทริป',
-                joinRequestDetail
+                joinRequestDetail,
+                requesterId
             ]
         )
 
         // Socket emit ไปหา Host ทันที ส่งข้อมูล User + Trip ไปด้วย
+        // (รวม profile image สำหรับแสดงไว้นอกการ refresh list)
+        const [requesterProfileRows] = await pool.query(
+            'SELECT profile_img FROM User_profile WHERE user_id = ? LIMIT 1',
+            [requesterId]
+        )
+        const requesterProfileImg = requesterProfileRows.length ? requesterProfileRows[0].profile_img : null
+
         const io = req.app.get('io')
         if (io) {
             io.to(`room:${trip.creator_id}`).emit('new_notification', {
@@ -108,7 +140,8 @@ router.post('/join-request', async(req, res) => {
                 title: 'มีคนขอเข้าร่วมทริป',
                 detail: joinRequestDetail,
                 trip_id,
-                from_user_id: requesterId
+                from_user_id: requesterId,
+                from_user_profile_img: requesterProfileImg
             })
         }
 
@@ -171,6 +204,8 @@ router.patch('/respond', async(req, res) => {
     }
 
     try {
+        await ensureNotificationFromUserIdColumn()
+
         // ดึงข้อมูล Trip + contact Host จาก Database จริง
         const [trips] = await pool.query(
             `SELECT t.trip_name, t.creator_id, up.social_media AS host_contact
@@ -237,11 +272,17 @@ router.patch('/respond', async(req, res) => {
         // INSERT Notification ให้ User แจ้งผลการตอบรับ
         await pool.query(
             `INSERT INTO Notification
-       (trip_id, user_id, notification_title, notification_detail, create_at)
-       VALUES (?, ?, ?, ?, ${SQL_NOW_TH})`, [trip_id, user_id, title, detail]
+       (trip_id, user_id, notification_title, notification_detail, from_user_id, create_at)
+       VALUES (?, ?, ?, ?, ?, ${SQL_NOW_TH})`, [trip_id, user_id, title, detail, actorUserId]
         )
 
         // Socket emit ไปหา User ทันที ส่งข้อมูล contact Host ไปด้วยถ้า ACCEPT
+        const [hostProfileRows] = await pool.query(
+            'SELECT profile_img FROM User_profile WHERE user_id = ? LIMIT 1',
+            [actorUserId]
+        )
+        const hostProfileImg = hostProfileRows.length ? hostProfileRows[0].profile_img : null
+
         const io = req.app.get('io')
         if (io) {
             io.to(`room:${user_id}`).emit('new_notification', {
@@ -249,6 +290,8 @@ router.patch('/respond', async(req, res) => {
                 title,
                 detail,
                 trip_id,
+                from_user_id: actorUserId,
+                from_user_profile_img: hostProfileImg,
                 // ถ้า Accept ส่ง contact Host ไปด้วยเลย ถ้า Reject ส่ง null
                 host_contact: isAccepted ? trip.host_contact : null
             })
@@ -343,15 +386,18 @@ router.get('/:user_id', async(req, res) => {
 
     try {
                 await ensureNotificationSeenTable()
+                await ensureNotificationFromUserIdColumn()
 
         const [rows] = await pool.query(
             `SELECT 
          n.notification_id,
          n.trip_id,
          n.user_id,
+         n.from_user_id,
          n.notification_title,
          n.notification_detail,
          n.create_at,
+         up.profile_img AS from_user_profile_img,
                  CASE
                      WHEN ns.notification_id IS NULL THEN 1
                      ELSE 0
@@ -364,6 +410,7 @@ router.get('/:user_id', async(req, res) => {
            ELSE 'This week'
          END AS date_group
              FROM Notification n
+             LEFT JOIN User_profile up ON up.user_id = n.from_user_id
              LEFT JOIN Notification_seen ns
                  ON ns.notification_id = n.notification_id
                 AND ns.user_id = n.user_id
@@ -377,11 +424,15 @@ router.get('/:user_id', async(req, res) => {
             const notificationTitle = String(row.notification_title || '')
             const detail = String(row.notification_detail || '')
 
-            // Allow converting notification text markers into a user_id for fetching the latest profile image.
-            // - `[REQ_USER_ID:xxx]` is used for join requests (old flow)
-            // - `[FROM_USER_ID:xxx]` is used for review notifications
-            const markerMatch = detail.match(/\[(?:REQ_USER_ID|FROM_USER_ID):(\d+)\]/i)
-            let fromUserId = markerMatch ? Number(markerMatch[1]) : null
+            // Prefer explicit from_user_id column (always reflects latest profile image).
+            let fromUserId = row.from_user_id ? Number(row.from_user_id) : null
+            let fromUserProfileImg = row.from_user_profile_img || null
+
+            // Fallback: parse the notification detail text (old flow)
+            if (!fromUserId) {
+                const markerMatch = detail.match(/\[(?:REQ_USER_ID|FROM_USER_ID):(\d+)\]/i)
+                fromUserId = markerMatch ? Number(markerMatch[1]) : null
+            }
 
             const cleanedDetail = detail
                 .replace(/\s*\[(?:REQ_USER_ID|FROM_USER_ID):\d+\]/gi, '')
@@ -403,7 +454,6 @@ router.get('/:user_id', async(req, res) => {
             }
 
             let memberStatus = null
-            let fromUserProfileImg = null
             let hostContact = null
             let hostProfileImg = null
             if (fromUserId && Number(row.trip_id) > 0 &&
@@ -415,7 +465,7 @@ router.get('/:user_id', async(req, res) => {
                 memberStatus = memberRows.length ? memberRows[0].status : null
             }
 
-            if (fromUserId) {
+            if (fromUserId && !fromUserProfileImg) {
                 const [profileRows] = await pool.query(
                     'SELECT profile_img FROM User_profile WHERE user_id = ? LIMIT 1',
                     [fromUserId]
@@ -514,6 +564,8 @@ router.post('/review', async(req, res) => {
     const { trip_id, user_id, review_text, rating } = req.body
 
     try {
+        await ensureNotificationFromUserIdColumn()
+
         // INSERT ลง Reviews table
         await pool.query(
             `INSERT INTO Reviews 
@@ -531,25 +583,33 @@ router.post('/review', async(req, res) => {
         const trip = trips[0]
 
         // INSERT Notification ให้ Host รู้ว่ามีคนรีวิว
-        // - include marker for reviewer ID so we can fetch the latest profile image later
         await pool.query(
             `INSERT INTO Notification
-       (trip_id, user_id, notification_title, notification_detail, create_at)
-       VALUES (?, ?, ?, ?, ${SQL_NOW_TH})`, [
+       (trip_id, user_id, notification_title, notification_detail, from_user_id, create_at)
+       VALUES (?, ?, ?, ?, ?, ${SQL_NOW_TH})`, [
                 trip_id,
                 trip.creator_id,
                 '⭐ มีคนรีวิวทริปของคุณ',
-                `${trip.user_name} ได้รีวิวทริป "${trip.trip_name}" [FROM_USER_ID:${user_id}]`,
+                `${trip.user_name} ได้รีวิวทริป "${trip.trip_name}"`,
+                user_id
             ]
         )
 
         // Socket emit ไปหา Host ทันที
+        const [reviewerProfileRows] = await pool.query(
+            'SELECT profile_img FROM User_profile WHERE user_id = ? LIMIT 1',
+            [user_id]
+        )
+        const reviewerProfileImg = reviewerProfileRows.length ? reviewerProfileRows[0].profile_img : null
+
         const io = req.app.get('io')
         io.to(`room:${trip.creator_id}`).emit('new_notification', {
             type: 'new_review',
             title: '⭐ มีคนรีวิวทริปของคุณ',
             detail: `${trip.user_name} ได้รีวิวทริป "${trip.trip_name}"`,
-            trip_id
+            trip_id,
+            from_user_id: user_id,
+            from_user_profile_img: reviewerProfileImg
         })
 
         res.json({ success: true, message: 'ส่ง Review แล้ว' })

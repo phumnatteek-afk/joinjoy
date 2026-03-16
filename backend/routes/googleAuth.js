@@ -91,19 +91,37 @@ passport.use(
                         return done(null, false, { message: "banned" });
                     }
 
-                    // Update last login timestamp + refresh profile picture
+                    // Update last login timestamp
                     await db.query(
                         `UPDATE User
                 SET last_login = NOW()
               WHERE user_id = ?`, [user.user_id]
                     );
 
-                    // Also update profile_img in case they changed their Google photo
-                    await db.query(
-                        `UPDATE User_profile
-                SET profile_img = ?
-              WHERE user_id = ?`, [picture, user.user_id]
+                    // Only set profile_img from Google if the user hasn't set a custom avatar yet.
+                    // This prevents overwriting a user-uploaded photo when they log in again.
+                    const [profileRows] = await db.query(
+                        'SELECT profile_img FROM User_profile WHERE user_id = ? LIMIT 1',
+                        [user.user_id]
                     );
+
+                    if (!profileRows.length) {
+                        // For backward compatibility, create profile row if missing
+                        await db.query(
+                            `INSERT INTO User_profile (user_id, profile_img) VALUES (?, ?)`,
+                            [user.user_id, picture]
+                        );
+                    } else {
+                        const existingProfileImg = profileRows[0].profile_img || '';
+                        if (!existingProfileImg.trim()) {
+                            await db.query(
+                                `UPDATE User_profile
+                         SET profile_img = ?
+                       WHERE user_id = ?`,
+                                [picture, user.user_id]
+                            );
+                        }
+                    }
 
                     console.log("[Google OAuth] Existing user logged in:", email);
                 }
