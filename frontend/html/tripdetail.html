@@ -46,20 +46,22 @@
       </div>
     </div>
 
-    <!-- DATE ROW -->
-    <div class="td-dates">
-      <div class="td-date-chip">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#F06292" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
-        </svg>
-        <span id="startDate">—</span>
-      </div>
-      <span class="td-date-arrow">→</span>
-      <div class="td-date-chip">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#F06292" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
-        </svg>
-        <span id="endDate">—</span>
+    <!-- DATE CHIPS -->
+    <div class="td-date-block">
+      <div class="td-dates">
+        <div class="td-date-chip">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#F06292" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+          </svg>
+          <span id="startDate">—</span>
+        </div>
+        <span class="td-date-arrow">→</span>
+        <div class="td-date-chip">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#F06292" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+          </svg>
+          <span id="endDate">—</span>
+        </div>
       </div>
     </div>
 
@@ -98,6 +100,17 @@
           </svg>
         </span>
         <span class="td-info-text" id="tripMembers">— Member</span>
+      </div>
+    </div>
+
+    <!-- LAST DAY TO JOIN — standalone pink card -->
+    <div class="td-deadline-row" id="deadlineRow" style="display:none">
+      <span class="td-deadline-label">Last day to join</span>
+      <div class="td-deadline-value-row">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#e53935" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+        </svg>
+        <span class="td-deadline-value" id="limitDate">—</span>
       </div>
     </div>
 
