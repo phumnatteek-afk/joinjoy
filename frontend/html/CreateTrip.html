@@ -87,17 +87,38 @@
 
                 <div class="form-row-grid">
                     <div class="list-item no-border">
-                        <iconify-icon icon="solar:banknote-2-bold" class="list-icon pink"></iconify-icon>
-                        <div class="list-text select-wrapper">
-                            <label>Budget</label>
-                            <input type="text" id="budget_range" list="budget-options" class="select-input" placeholder="Enter or Select" />
-                            <datalist id="budget-options">
-                                <option value="500-1000"></option>
-                                <option value="1001-3000"></option>
-                                <option value="3001-5000"></option>
-                            </datalist>
-                            <iconify-icon icon="solar:alt-arrow-down-outline" class="dropdown-icon"></iconify-icon>
-                        </div>
+    
+    <iconify-icon icon="solar:banknote-2-bold" class="list-icon pink"></iconify-icon>
+
+    <div class="list-text select-wrapper">
+
+        <label>Budget</label>
+
+        <input
+        type="text"
+        id="budget_range"
+        list="budget-options"
+        class="select-input"
+        placeholder="Enter or Select"
+        />
+
+        <datalist id="budget-options">
+            <option value="500-1000"></option>
+            <option value="1001-3000"></option>
+            <option value="3001-5000"></option>
+        </datalist>
+
+        <select id="budget_type" class="select-input budget-type-select">
+            <option value="" disabled selected>Enter or Select</option>
+            <option value="person">Per Person</option>
+            <option value="trip">Per Trip</option>
+        </select>
+
+    </div>
+
+</div>
+
+</div>
                     </div>
 
                     <div class="list-item no-border">
