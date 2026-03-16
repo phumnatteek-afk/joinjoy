@@ -300,7 +300,7 @@ async function joinTrip(tripId, btn, creatorId, meUserIdFromTrip) {
         } else {
             btn.disabled = false;
             btn.textContent = 'Join';
-            alert(data.error || data.message || 'เกิดข้อผิดพลาด');
+            alert(data.error || data.message || 'เกิดข้อผิดพลาด!');
         }
     } catch (err) {
         btn.disabled = false;
