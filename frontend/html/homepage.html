@@ -10,6 +10,37 @@
     />
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Kanit:wght@400;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../css/homepage.css" />
+  <style>
+    /* ── My Schedule: ด้านขวามี pill + ปุ่ม Cancel ── */
+    .sch-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+    .sch-cancel-btn {
+      padding: 5px 12px;
+      border-radius: 999px;
+      border: 1.5px solid #ff6f8f;
+      background: #fff;
+      color: #ff6f8f;
+      font-size: 11px;
+      font-weight: 600;
+      font-family: 'Poppins', sans-serif;
+      cursor: pointer;
+      transition: all 0.18s;
+      white-space: nowrap;
+    }
+    .sch-cancel-btn:hover {
+      background: #ff6f8f;
+      color: #fff;
+    }
+    .sch-cancel-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  </style>
 </head>
 <body>
 
@@ -376,14 +407,19 @@ function schCard(t) {
   const joined = t.joined_count ?? t.current_member ?? 0;
   const dRaw   = t.days_until != null ? parseInt(t.days_until) : Math.round((new Date(t.start_time) - new Date()) / 86400000);
   const { text, cls } = pillInfo(dRaw);
+  const uid    = currentUserId || getStoredUserId();
+  const isHost = uid && Number(t.creator_id) === Number(uid);
 
-  // icon: ถ้ามี cover_image ใช้รูปจริง ถ้าไม่มีใช้ emoji
   const iconHtml = t.cover_image
-  ? `<img src="${MEDIA}/${t.cover_image}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`
-  : em(t.category);
+    ? `<img src="${MEDIA}/${t.cover_image}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`
+    : em(t.category);
+
+  // ปุ่ม Cancel — แสดงเฉพาะ member ที่ไม่ใช่ host
+  const cancelBtn = isHost ? '' : `
+    <button class="sch-cancel-btn" onclick="leaveTrip(${t.trip_id}, this)">Cancel</button>`;
 
   return `
-  <div class="sch-card">
+  <div class="sch-card" id="sch-${t.trip_id}">
     <div class="sch-icon" style="background:${t.cover_image ? '#eee' : gr(t.category)}">${iconHtml}</div>
     <div class="sch-info">
       <div class="sch-mbadge"><span class="dot"></span>Member: ${joined}/${t.max_member}</div>
@@ -393,8 +429,49 @@ function schCard(t) {
         <span class="sch-mi"><svg viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/></svg>${formatDate(t.start_time)}</span>
       </div>
     </div>
-    <div class="day-pill ${cls}">${text}</div>
+    <div class="sch-right">
+      <div class="day-pill ${cls}">${text}</div>
+      ${cancelBtn}
+    </div>
   </div>`;
+}
+
+/* ── LEAVE TRIP ── */
+async function leaveTrip(tripId, btn) {
+  if (!confirm('ยืนยันการยกเลิกเข้าร่วมทริปนี้?')) return;
+
+  btn.disabled    = true;
+  btn.textContent = '...';
+
+  try {
+    const res  = await fetch(`${API}/trips/${tripId}/leave`, {
+      method:      'DELETE',
+      credentials: 'include',
+    });
+    const data = await res.json();
+
+    if (data.success) {
+      // ลบการ์ดออกจาก DOM
+      const card = document.getElementById(`sch-${tripId}`);
+      if (card) card.remove();
+
+      // ถ้าไม่เหลือการ์ดใดเลย ซ่อน section My Schedule
+      if (!document.querySelector('.sch-card')) {
+        $('schTitle').style.display = 'none';
+      }
+
+      showToast('ยกเลิกการเข้าร่วมทริปแล้ว ✓', 'ok');
+    } else {
+      btn.disabled    = false;
+      btn.textContent = 'Cancel';
+      showToast(data.error || 'เกิดข้อผิดพลาด', 'err');
+    }
+  } catch (err) {
+    console.error(err);
+    btn.disabled    = false;
+    btn.textContent = 'Cancel';
+    showToast('ไม่สามารถเชื่อมต่อ server ได้', 'err');
+  }
 }
 
 /* ── LOAD ── */
@@ -585,5 +662,3 @@ $('bellBtn').addEventListener('click', async () => {
 <script src="../js/main.js"></script>
 </body>
 </html>
-
-
