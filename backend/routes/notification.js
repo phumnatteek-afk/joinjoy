@@ -346,20 +346,20 @@ router.get('/:user_id', async(req, res) => {
 
         const [rows] = await pool.query(
             `SELECT 
-         notification_id,
-         trip_id,
-         user_id,
-         notification_title,
-         notification_detail,
-         create_at,
+         n.notification_id,
+         n.trip_id,
+         n.user_id,
+         n.notification_title,
+         n.notification_detail,
+         n.create_at,
                  CASE
                      WHEN ns.notification_id IS NULL THEN 1
                      ELSE 0
                  END AS is_unread,
          CASE
-                 WHEN DATE(create_at) = ${SQL_TODAY_TH}
+                 WHEN DATE(n.create_at) = ${SQL_TODAY_TH}
              THEN 'Today'
-                 WHEN DATE(create_at) = DATE_SUB(${SQL_TODAY_TH}, INTERVAL 1 DAY)
+                 WHEN DATE(n.create_at) = DATE_SUB(${SQL_TODAY_TH}, INTERVAL 1 DAY)
              THEN 'Yesterday'
            ELSE 'This week'
          END AS date_group

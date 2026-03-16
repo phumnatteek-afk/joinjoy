@@ -4,6 +4,7 @@
   const sectionLabelEl = document.getElementById('section-label');
 
   const state = { notifications: [] };
+  let resolvedUserId = null;
 
   const getUserId = () => {
     const params = new URLSearchParams(window.location.search);
@@ -12,8 +13,33 @@
       localStorage.getItem('userId') ||
       localStorage.getItem('user_id') ||
       localStorage.getItem('currentUserId');
-    return fromQuery || fromStorage || '1';
+    return fromQuery || resolvedUserId || fromStorage || null;
   };
+
+  try {
+    const meRes = await fetch('/api/user/me', { credentials: 'include' });
+    if (meRes.ok) {
+      const meData = await meRes.json();
+      const uid =
+        meData.user_id ||
+        meData.id ||
+        (meData.user && (meData.user.user_id || meData.user.id));
+
+      if (uid) {
+        resolvedUserId = String(uid);
+        localStorage.setItem('userId', resolvedUserId);
+        localStorage.setItem('user_id', resolvedUserId);
+        localStorage.setItem('currentUserId', resolvedUserId);
+      }
+    }
+  } catch {
+    // fallback to localStorage/query only
+  }
+
+  if (!getUserId()) {
+    window.location.href = '../html/homelogin.html';
+    return;
+  }
 
   const escapeHtml = (text) => {
     if (text === null || text === undefined) return '';
@@ -37,8 +63,8 @@
     const value = String(imagePath || '').trim();
     if (!value) return '';
     if (/^https?:\/\//i.test(value)) return value;
-    if (value.startsWith('/')) return `http://localhost:3000${value}`;
-    return `http://localhost:3000/${value}`;
+    if (value.startsWith('/')) return value;
+    return `/${value}`;
   };
 
   const isJoinRequest = (item) =>
@@ -346,6 +372,14 @@
   try {
     await loadNotifications();
     await markAllAsRead();
+
+    setInterval(async () => {
+      try {
+        await loadNotifications();
+      } catch (error) {
+        console.error('Notification auto-refresh error:', error);
+      }
+    }, 10000);
   } catch (error) {
     console.error('Notification load error:', error);
     listEl.style.display = 'none';
