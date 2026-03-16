@@ -9,6 +9,74 @@ function getActorUserId(req) {
     return sessionUserId || passportUserId || queryUserId || null
 }
 
+async function createReviewNotificationsForTrip(trip_id, io = null) {
+    // ตรวจสอบสถานะทริปก่อน (Closed เท่านั้น)
+    const [trips] = await pool.query('SELECT creator_id, trip_name, trip_status FROM Trip WHERE trip_id = ?', [trip_id])
+    if (!trips.length) {
+        throw new Error('ไม่พบทริป')
+    }
+    const trip = trips[0]
+    if (String(trip.trip_status).toLowerCase() !== 'closed') {
+        return { skipped: true }
+    }
+
+    // ดึงสมาชิกที่เข้าร่วม (Joined) และ Host (creator_id) ด้วย UNION
+    const [members] = await pool.query(
+        `SELECT user_id FROM (
+           SELECT tm.user_id
+           FROM Trip_member tm
+           WHERE tm.trip_id = ? AND tm.status = 'Joined'
+           UNION
+           SELECT t.creator_id AS user_id
+           FROM Trip tแ
+           WHERE t.trip_id = ?
+         ) x`,
+        [trip_id, trip_id]
+    )
+
+    // กำหนด link สำหรับให้ผู้ใช้ไปเขียนรีวิว
+    const reviewLink = `review.html?trip_id=${trip_id}`
+    const detailText = `ทริป "${trip.trip_name}" จบแล้ว! มาแชร์ความรู้สึกกันเถอะ (${reviewLink})`
+
+    let notified = 0
+    for (const member of members) {
+        const userId = member.user_id
+        // ป้องกันสร้างซ้ำ (ถ้ามีแล้ว)
+        const [existing] = await pool.query(
+            `SELECT 1 FROM Notification WHERE trip_id = ? AND user_id = ? AND notification_title = ? LIMIT 1`,
+            [trip_id, userId, '⭐ รีวิวทริปของคุณ']
+        )
+        if (existing.length) continue
+
+        await pool.query(
+            `INSERT INTO Notification
+             (trip_id, user_id, notification_title, notification_detail, create_at, is_read)
+             VALUES (?, ?, ?, ?, NOW(), 0)`,
+            [
+                trip_id,
+                userId,
+                '⭐ รีวิวทริปของคุณ',
+                detailText
+            ]
+        )
+
+        if (io) {
+            io.to(`room:${userId}`).emit('new_notification', {
+                type: 'review_reminder',
+                title: '⭐ รีวิวทริปของคุณ',
+                detail: detailText,
+                trip_id
+            })
+        }
+        notified += 1
+    }
+
+    return { notified }
+}
+
+// expose helper for other routes
+router.createReviewNotificationsForTrip = createReviewNotificationsForTrip
+
 // FLOW 1: User กด JOIN
 router.post('/join-request', async(req, res) => {
     const { trip_id, user_id } = req.body
@@ -65,8 +133,8 @@ router.post('/join-request', async(req, res) => {
         // INSERT Notification ให้ Host แจ้งว่ามีคนขอเข้าร่วมทริป
         await pool.query(
             `INSERT INTO Notification 
-       (trip_id, user_id, notification_title, notification_detail, create_at)
-       VALUES (?, ?, ?, ?, NOW())`, [
+       (trip_id, user_id, notification_title, notification_detail, create_at, is_read)
+       VALUES (?, ?, ?, ?, NOW(), 0)`, [
                 trip_id,
                 trip.creator_id,
                 'มีคนขอเข้าร่วมทริป',
@@ -182,8 +250,8 @@ router.patch('/respond', async(req, res) => {
         // INSERT Notification ให้ User แจ้งผลการตอบรับ
         await pool.query(
             `INSERT INTO Notification
-       (trip_id, user_id, notification_title, notification_detail, create_at)
-       VALUES (?, ?, ?, ?, NOW())`, [trip_id, user_id, title, detail]
+       (trip_id, user_id, notification_title, notification_detail, create_at, is_read)
+       VALUES (?, ?, ?, ?, NOW(), 0)`, [trip_id, user_id, title, detail]
         )
 
         // Socket emit ไปหา User ทันที ส่งข้อมูล contact Host ไปด้วยถ้า ACCEPT
@@ -242,6 +310,7 @@ router.get('/:user_id', async(req, res) => {
          notification_title,
          notification_detail,
          create_at,
+         is_read,
          CASE
            WHEN DATE(create_at) = CURDATE() 
              THEN 'Today'
@@ -304,47 +373,13 @@ router.get('/:user_id', async(req, res) => {
 
 // FLOW 5: หลังทริปจบ → แจ้งเตือนให้ Review
 // เรียกใช้เมื่อ trip_status = 'Closed'
-router.post('/review-reminder', async(req, res) => {
+router.post('/review-reminder', async (req, res) => {
     const { trip_id } = req.body
 
     try {
-        // ดึง members ทุกคนที่ status = Joined
-        const [members] = await pool.query(
-            `SELECT tm.user_id, t.trip_name
-       FROM Trip_member tm
-       JOIN Trip t ON t.trip_id = tm.trip_id
-       WHERE tm.trip_id = ? AND tm.status = 'Joined'`, [trip_id]
-        )
-
         const io = req.app.get('io')
-
-        // แจ้งเตือนทุกคนพร้อมกัน
-        for (const member of members) {
-            // INSERT Notification ให้ทุกคน
-            await pool.query(
-                `INSERT INTO Notification
-         (trip_id, user_id, notification_title, notification_detail, create_at)
-         VALUES (?, ?, ?, ?, NOW())`, [
-                    trip_id,
-                    member.user_id,
-                    '⭐ รีวิวทริปของคุณ',
-                    `ทริป "${member.trip_name}" จบแล้ว! มาแชร์ความรู้สึกกันเถอะ`
-                ]
-            )
-
-            // Socket emit ทุกคนพร้อมกัน
-            if (io) {
-                io.to(`room:${member.user_id}`).emit('new_notification', {
-                    type: 'review_reminder',
-                    title: '⭐ รีวิวทริปของคุณ',
-                    detail: `ทริป "${member.trip_name}" จบแล้ว! มาแชร์ความรู้สึกกันเถอะ`,
-                    trip_id
-                })
-            }
-        }
-
-        res.json({ success: true, notified: members.length })
-
+        const result = await createReviewNotificationsForTrip(trip_id, io)
+        res.json({ success: true, ...result })
     } catch (err) {
         console.error('❌ review-reminder error:', err.message)
         res.status(500).json({ error: err.message })
@@ -376,8 +411,8 @@ router.post('/review', async(req, res) => {
         // INSERT Notification ให้ Host รู้ว่ามีคนรีวิว
         await pool.query(
             `INSERT INTO Notification
-       (trip_id, user_id, notification_title, notification_detail, create_at)
-       VALUES (?, ?, ?, ?, NOW())`, [
+       (trip_id, user_id, notification_title, notification_detail, create_at, is_read)
+       VALUES (?, ?, ?, ?, NOW(), 0)`, [
                 trip_id,
                 trip.creator_id,
                 '⭐ มีคนรีวิวทริปของคุณ',
