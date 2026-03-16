@@ -402,7 +402,6 @@ router.get('/:user_id', async(req, res) => {
          n.notification_title,
          n.notification_detail,
          n.create_at,
-         up.profile_img AS from_user_profile_img,
                  CASE
                      WHEN ns.notification_id IS NULL THEN 1
                      ELSE 0
@@ -415,7 +414,6 @@ router.get('/:user_id', async(req, res) => {
            ELSE 'This week'
          END AS date_group
              FROM Notification n
-             LEFT JOIN User_profile up ON up.user_id = n.from_user_id
              LEFT JOIN Notification_seen ns
                  ON ns.notification_id = n.notification_id
                 AND ns.user_id = n.user_id
@@ -472,12 +470,30 @@ router.get('/:user_id', async(req, res) => {
                 memberStatus = memberRows.length ? memberRows[0].status : null
             }
 
-            if (fromUserId) {
-                const [profileRows] = await pool.query(
-                    'SELECT profile_img FROM User_profile WHERE user_id = ? LIMIT 1',
-                    [fromUserId]
-                )
-                fromUserProfileImg = profileRows.length ? profileRows[0].profile_img : null
+            // Resolve profile image for fromUserId (supports numeric ID or username)
+            if (fromUserId && !fromUserProfileImg) {
+                const fromUserIdStr = String(fromUserId || '').trim();
+                // If it is numeric, use as user_id; else treat as username
+                if (/^\d+$/.test(fromUserIdStr)) {
+                    const [profileRows] = await pool.query(
+                        'SELECT profile_img FROM User_profile WHERE user_id = ? LIMIT 1',
+                        [Number(fromUserIdStr)]
+                    )
+                    fromUserProfileImg = profileRows.length ? profileRows[0].profile_img : null
+                } else {
+                    const [userRows] = await pool.query(
+                        'SELECT u.user_id, up.profile_img FROM User u LEFT JOIN User_profile up ON up.user_id = u.user_id WHERE u.user_name = ? LIMIT 1',
+                        [fromUserIdStr]
+                    )
+                    if (userRows.length) {
+                        fromUserProfileImg = userRows[0].profile_img || null
+                        // Also ensure future loads use numeric id
+                        await pool.query(
+                            'UPDATE Notification SET from_user_id = ? WHERE notification_id = ?',
+                            [userRows[0].user_id, row.notification_id]
+                        )
+                    }
+                }
             }
 
             if (Number(row.trip_id) > 0 && notificationTitle.includes('ได้รับการตอบรับแล้ว')) {
