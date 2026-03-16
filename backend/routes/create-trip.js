@@ -41,7 +41,7 @@ router.get('/trips', async(req, res) => {
 // ─────────────────────────────────────────
 // POST /api/trips  — สร้างทริปใหม่ (ต้อง login)
 // ─────────────────────────────────────────
-router.post('/trips', requireLogin, upload.single('cover_image'), async(req, res) => {
+router.post('/', requireLogin, upload.single('cover_image'), async(req, res) => {
 
     // ดึง creator_id จาก session — รองรับทั้ง Google OAuth (req.user) และ login ปกติ (req.session.userId)
     const creator_id = (req.user && req.user.user_id) || req.session.userId;
@@ -58,7 +58,8 @@ router.post('/trips', requireLogin, upload.single('cover_image'), async(req, res
         end_time,
         limit_date_accept,
         description,
-        trip_detail
+        trip_detail,
+        group_link
     } = req.body;
 
     const cover_image = req.file ? `uploads/${req.file.filename}` : null;
@@ -76,9 +77,9 @@ router.post('/trips', requireLogin, upload.single('cover_image'), async(req, res
     INSERT INTO Trip
         (creator_id, trip_name, category, location_name,
          budget_min, budget_max,budget_type, max_member, current_member,
-         start_time, end_time, limit_date_accept,description, trip_detail,
+         start_time, end_time, limit_date_accept,description, trip_detail,group_link,
          cover_image, trip_status, created_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?, ?, 'open', NOW())
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?, ?, ?,'open', NOW())
 `;
 
         const values = [
@@ -95,6 +96,7 @@ router.post('/trips', requireLogin, upload.single('cover_image'), async(req, res
             limit_date_accept,
             description || null,
             trip_detail || null,
+            group_link || null,
             cover_image
         ];
 
@@ -114,7 +116,7 @@ router.post('/trips', requireLogin, upload.single('cover_image'), async(req, res
 // ─────────────────────────────────────────
 // GET /api/trips/:id  — ดึงทริปเดียว
 // ─────────────────────────────────────────
-router.get('/trips/:id', async(req, res) => {
+router.get('/', async(req, res) => {
     try {
         const [rows] = await db.query('SELECT * FROM Trip WHERE trip_id = ?', [req.params.id]);
         if (rows.length === 0) return res.status(404).json({ error: 'ไม่พบทริปนี้' });
