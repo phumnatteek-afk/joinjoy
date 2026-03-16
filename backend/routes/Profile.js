@@ -79,38 +79,58 @@ router.get('/me', async (req, res) => {
 // ══════════════════════════════════════════════════════════════
 //  GET /api/profile/:userId
 // ══════════════════════════════════════════════════════════════
+// ── 1. GET /api/profile/my-trips (ต้องอยู่อันนี้ก่อน!) ────────
+router.get('/my-trips', async (req, res) => {
+    const userId = getUserId(req);
+    console.log("Fetching trips for User ID:", userId);
+
+    if (!userId) {
+        return res.status(401).json({ success: false, message: 'Not authenticated' });
+    }
+
+    try {
+        // ดึงข้อมูลจากตาราง Trip ตามชื่อคอลัมน์ในรูป DB ของคุณ
+        const [trips] = await db.query(
+            `SELECT trip_id, trip_name, location_name, cover_image, trip_status 
+             FROM Trip 
+             WHERE creator_id = ? 
+             ORDER BY created_at DESC`, 
+            [userId]
+        );
+
+        console.log(`Found ${trips.length} trips for user 18`);
+        return res.json({ success: true, trips });
+    } catch (err) {
+        console.error('GET /api/profile/my-trips error:', err);
+        return res.status(500).json({ success: false, message: 'Server error' });
+    }
+});
+
+// ── 2. GET /api/profile/:userId (อันนี้ต้องอยู่ทีหลัง) ────────
 router.get('/:userId', async (req, res) => {
     const { userId } = req.params;
 
+    // ถ้า userId ไม่ใช่ตัวเลข (เช่น เป็นคำว่า 'my-trips') มันจะติดตรงนี้ถ้าเราวางผิดลำดับ
     if (!Number.isInteger(Number(userId))) {
         return res.status(400).json({ success: false, message: 'Invalid user ID' });
     }
 
     try {
         const [[profile]] = await db.query(
-            `SELECT
-                u.user_id, u.user_name,
-                up.frist_name  AS first_name,
-                up.last_name, up.bio,
-                up.brith_date  AS birth_date,
-                up.gender, up.faculty, up.social_media, up.tags, up.profile_img
+            `SELECT u.user_id, u.user_name, up.frist_name AS first_name, up.last_name, 
+                    up.bio, up.brith_date AS birth_date, up.gender, up.faculty, 
+                    up.social_media, up.tags, up.profile_img
              FROM User u
              LEFT JOIN User_profile up ON up.user_id = u.user_id
              WHERE u.user_id = ? AND u.status = 'active'`,
             [userId]
         );
 
-        if (!profile) {
-            return res.status(404).json({ success: false, message: 'User not found' });
-        }
-
-        profile.tags = profile.tags
-            ? profile.tags.split(',').map((t) => t.trim()).filter(Boolean)
-            : [];
-
+        if (!profile) return res.status(404).json({ success: false, message: 'User not found' });
+        
+        profile.tags = profile.tags ? profile.tags.split(',').map(t => t.trim()).filter(Boolean) : [];
         return res.json({ success: true, profile });
     } catch (err) {
-        console.error(`GET /api/profile/${userId} error:`, err);
         return res.status(500).json({ success: false, message: 'Server error' });
     }
 });
