@@ -599,9 +599,11 @@ async function loadSchedule() {
 
 async function loadNotif() {
   try {
-   const { count = 0 } = await apiFetch('/notification/unread-count');
+    const { count = 0 } = await apiFetch('/notification/unread-count');
     if (count > 0) $('notifDot').style.display = 'block';
-  } catch (e) { console.error('loadNotif:', e); }
+  } catch (e) {
+    // ไม่ต้อง log error — ถ้า 401 แค่ไม่แสดง dot
+  }
 }
 
 /* ── JOIN ── */
