@@ -428,18 +428,21 @@ router.get('/:user_id', async(req, res) => {
         for (const row of rows) {
             const notificationTitle = String(row.notification_title || '')
             const detail = String(row.notification_detail || '')
-            const markerMatch = detail.match(/\[REQ_USER_ID:(\d+)\]/i)
+            const markerMatch = detail.match(/\[(?:REQ_USER_ID|FROM_USER_ID):(\d+)\]/i)
             let fromUserId = markerMatch ? Number(markerMatch[1]) : null
             let fromUserProfileImg = row.from_user_profile_img || null
 
             const cleanedDetail = detail
-                .replace(/\s*\[REQ_USER_ID:\d+\]/gi, '')
+                .replace(/\s*\[(?:REQ_USER_ID|FROM_USER_ID):\d+\]/gi, '')
                 .replace(/\s*กลับไป Join ใหม่ได้เลย/gi, '')
                 .trim()
 
-            if (!fromUserId) {
-                const markerMatch = detail.match(/\[REQ_USER_ID:(\d+)\]/i)
-                fromUserId = markerMatch ? Number(markerMatch[1]) : null
+            // Backfill old notifications: store from_user_id for future JOINs
+            if (fromUserId && !row.from_user_id) {
+                await pool.query(
+                    'UPDATE Notification SET from_user_id = ? WHERE notification_id = ?',
+                    [fromUserId, row.notification_id]
+                )
             }
 
             if (!fromUserId && notificationTitle.includes('มีคนขอเข้าร่วมทริป')) {
