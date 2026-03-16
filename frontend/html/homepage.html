@@ -455,10 +455,17 @@ function schCard(t) {
 
 /* ── LEAVE TRIP ── */
 async function leaveTrip(tripId, btn) {
-  // เปิด popup แทน confirm()
-  const overlay = document.getElementById('confirmOverlay');
+  const overlay    = document.getElementById('confirmOverlay');
+  const confirmYes = document.getElementById('confirmYes');
+  const confirmNo  = document.getElementById('confirmNo');
+
   overlay.classList.add('open');
 
+  // ── ล้าง event เก่าก่อนทุกครั้ง ──
+  confirmNo.replaceWith(confirmNo.cloneNode(true));
+  confirmYes.replaceWith(confirmYes.cloneNode(true));
+
+  // ดึง element ใหม่หลัง clone
   document.getElementById('confirmNo').onclick = () => {
     overlay.classList.remove('open');
   };
@@ -592,9 +599,11 @@ async function loadSchedule() {
 
 async function loadNotif() {
   try {
-   const { count = 0 } = await apiFetch('/notification/unread-count');
+    const { count = 0 } = await apiFetch('/notification/unread-count');
     if (count > 0) $('notifDot').style.display = 'block';
-  } catch (e) { console.error('loadNotif:', e); }
+  } catch (e) {
+    // ไม่ต้อง log error — ถ้า 401 แค่ไม่แสดง dot
+  }
 }
 
 /* ── JOIN ── */
@@ -670,7 +679,7 @@ $('bellBtn').addEventListener('click', async () => {
   try {
     await apiFetch('/notifications/read-all', { method: 'PUT', headers: authHeaders() });
     $('notifDot').style.display = 'none';
-    showToast('อ่านการแจ้งเตือนทั้งหมดแล้ว', 'info');
+    showToast('อ่านการแจ้งเตือนทั้งหมด', 'info');
   } catch (e) { console.error('bell:', e); }
 });
 
@@ -680,6 +689,7 @@ $('bellBtn').addEventListener('click', async () => {
   await loadUser();
   Promise.all([loadUpcoming(), loadRecommended(), loadExp(), loadSchedule(), loadNotif()]);
 })();
+// test
 </script>
 <script src="../js/main.js"></script>
 </body>

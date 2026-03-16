@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>JoinJoy — Board</title>
+  <title>JoinJoy Board</title>
      <link
       href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
       rel="stylesheet"
@@ -148,7 +148,40 @@
 
         <div class="container" id="postContainer"></div>
 
+        </div>
+
+        <!-- JOIN CONFIRM POPUP -->
+<div id="joinModal" class="modal-overlay">
+
+  <div class="modal-box">
+
+    <div class="modal-close" onclick="closeJoinModal()">✕</div>
+
+    <div class="modal-header">
+      <span class="warning-icon">⚠️</span>
+      <h2>ยืนยันการเข้าร่วมทริป</h2>
     </div>
+
+    <hr>
+
+    <div class="modal-content">
+      <p>
+        <span class="note">หมายเหตุ:</span> ค่าใช้จ่ายต่อคนอาจมีการเปลี่ยนแปลง<br>
+        หากจำนวนผู้เข้าร่วมไม่ครบตามที่กำหนด<br><br>
+        กรุณารับทราบเงื่อนไขก่อนยืนยันการเข้าร่วม
+      </p>
+    </div>
+
+    <hr>
+
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeJoinModal()">ยกเลิก</button>
+      <button class="btn-confirm" onclick="confirmJoin()">ยอมรับและเข้าร่วม</button>
+    </div>
+
+  </div>
+
+</div>
 
 </div>
 <script src="../js/board.js?v=20260316-2"></script>

@@ -95,14 +95,14 @@ router.delete('/trips/:tripId/leave', requireLogin, async (req, res) => {
         // 7) สร้าง notification แจ้ง host
         await db.query(
             `INSERT INTO Notification
-                (user_id, from_user_id, trip_id, notification_title, notification_detail, is_unread, create_at)
-             VALUES (?, ?, ?, ?, ?, 1, NOW())`,
+                (user_id, from_user_id, trip_id, notification_title, notification_detail, is_read, create_at)
+             VALUES (?, ?, ?, ?, ?, 0, NOW())`,
             [
-                trip.creator_id,                          // host คือผู้รับแจ้งเตือน
-                userId,                                   // user ที่ออก
+                trip.creator_id,
+                userId,
                 tripId,
                 `${displayName} ออกจากทริปของคุณ`,
-                `${displayName} ได้ยกเลิกการเข้าร่วมทริป "${tripName}"`
+                `${displayName} ได้ยกเลิกการเข้าร่วมทริป "${tripName}" [FROM_USER_ID:${userId}]`
             ]
         );
 

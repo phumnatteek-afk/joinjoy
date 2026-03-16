@@ -1906,3 +1906,127 @@ textarea {
 .trip-limit-box iconify-icon {
     font-size: 15px;
 }
+
+/* ************ */
+.modal-overlay{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.45);
+  backdrop-filter:blur(4px);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  opacity:0;
+  pointer-events:none;
+  transition:0.25s;
+  z-index:9999;
+}
+
+.modal-overlay.active{
+  opacity:1;
+  pointer-events:auto;
+}
+
+.modal-box{
+  background:#f5f6f7;
+  width:520px;
+  border-radius:20px;
+  padding:28px 35px;
+  text-align:center;
+  box-shadow:0 20px 40px rgba(0,0,0,0.25);
+  position:relative;
+}
+
+.modal-close{
+  position:absolute;
+  right:20px;
+  top:15px;
+  font-size:20px;
+  cursor:pointer;
+}
+
+.modal-header{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+}
+
+.warning-icon{
+  font-size:28px;
+}
+
+.modal-header h2{
+  font-size:24px;
+}
+
+.modal-box hr{
+  border:none;
+  border-top:1px solid #ddd;
+  margin:18px 0;
+}
+
+.modal-content{
+  font-size:18px;
+  line-height:1.6;
+}
+
+.note{
+  color:#e74c3c;
+  font-weight:700;
+}
+.modal-actions{
+  display:flex;
+  justify-content:center;
+  gap:22px;
+  margin-top:10px;
+}
+
+/* ปุ่มยกเลิก */
+.btn-cancel{
+  padding:12px 36px;
+  border-radius:12px;
+  border:none;
+  font-size:16px;
+  font-weight:600;
+  color:#fff;
+  background:linear-gradient(180deg,#7a8795,#5e6b78);
+  box-shadow:0 4px 10px rgba(0,0,0,0.15);
+  cursor:pointer;
+  transition:all .2s ease;
+}
+
+.btn-cancel:hover{
+  transform:translateY(-2px);
+  box-shadow:0 6px 14px rgba(0,0,0,0.18);
+}
+
+.btn-cancel:active{
+  transform:scale(0.96);
+}
+
+/* ปุ่มเข้าร่วม */
+.btn-confirm{
+  padding:12px 36px;
+  border-radius:12px;
+  border:none;
+  font-size:16px;
+  font-weight:600;
+  color:white;
+  background:linear-gradient(180deg,#f38b95,#e36c78);
+  box-shadow:0 4px 10px rgba(227,108,120,0.35);
+  cursor:pointer;
+  transition:all .2s ease;
+}
+
+.btn-confirm:hover{
+  transform:translateY(-2px);
+  box-shadow:0 6px 16px rgba(227,108,120,0.45);
+}
+
+.btn-confirm:active{
+  transform:scale(0.96);
+}

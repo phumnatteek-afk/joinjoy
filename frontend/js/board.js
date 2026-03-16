@@ -1,6 +1,7 @@
 let allTrips = [];
 let currentUserId = null;
 let currentUserName = null;
+let pendingJoinData = null;
 
 function getStoredUser() {
     try {
@@ -141,13 +142,13 @@ function renderTrips(trips) {
             : 'ไม่ระบุ';
 
         const budgetDisplay = (trip.budget_min && trip.budget_max)
-            ? `${Number(trip.budget_min).toLocaleString()} - ${Number(trip.budget_max).toLocaleString()}`
+            ? `${Number(trip.budget_min).toLocaleString()} - ${Number(trip.budget_max).toLocaleString()} ฿`
             : 'ไม่ระบุ';
 
-        const budgetType = trip.budget_type === 'person'
-            ? '/ person'
-            : trip.budget_type === 'trip'
-            ? '/ trip'
+        const budgetType = trip.budget_type === 'Person'
+            ? ' / person'
+            : trip.budget_type === 'Trip'
+            ? ' / trip'
             : '';
         const isFull = Number(trip.current_member || 0) >= Number(trip.max_member || 0);
         const now = new Date();
@@ -159,7 +160,7 @@ function renderTrips(trips) {
         const isHostById = Number(trip.is_host) === 1 || (effectiveUserId && Number(trip.creator_id) === Number(effectiveUserId));
         const isHostByName = effectiveUserName && normalizeName(trip.user_name) === normalizeName(effectiveUserName);
         const isHost = isHostById || isHostByName;
-        let joinButtonHtml = `<button class="joy-btn" onclick="joinTrip(${trip.trip_id}, this, ${trip.creator_id}, ${trip.me_user_id || 'null'})">Join</button>`;
+        let joinButtonHtml = `<button class="joy-btn"onclick="openJoinModal(${trip.trip_id}, this, ${trip.creator_id}, ${trip.me_user_id || 'null'})">Join</button>`;
 
         if (isHost) {
             joinButtonHtml = `<button class="joy-btn" disabled>Host</button>`;
@@ -229,7 +230,7 @@ function renderTrips(trips) {
                     </div>
                     <div class="trip-budget-row">
                         <iconify-icon icon="mdi:cash"></iconify-icon>
-                        <span>${budgetDisplay} ฿ <small>${budgetType}</small></span>
+                        <span>${budgetDisplay}<span style="font-size: 0.85em; color: #7f8c8d; font-weight: 400;">${budgetType}</span></span>
                     </div>
                 </div>
 
@@ -306,7 +307,7 @@ async function joinTrip(tripId, btn, creatorId, meUserIdFromTrip) {
         } else {
             btn.disabled = false;
             btn.textContent = 'Join';
-            alert(data.error || data.message || 'เกิดข้อผิดพลาด');
+            alert(data.error || data.message || 'เกิดข้อผิดพลาด!');
         }
     } catch (err) {
         btn.disabled = false;
@@ -337,4 +338,32 @@ document.addEventListener('DOMContentLoaded', () => {
             searchTrips(e.target.value);
         });
 
+<<<<<<< HEAD
 });
+=======
+});
+
+//*************** */ 
+function openJoinModal(tripId, btn, creatorId, meUserIdFromTrip){
+
+    pendingJoinData = {tripId, btn, creatorId, meUserIdFromTrip};
+
+    document.getElementById("joinModal").classList.add("active");
+}
+
+function closeJoinModal(){
+
+    document.getElementById("joinModal").classList.remove("active");
+}
+
+function confirmJoin(){
+
+    if(!pendingJoinData) return;
+
+    const {tripId, btn, creatorId, meUserIdFromTrip} = pendingJoinData;
+
+    closeJoinModal();
+
+    joinTrip(tripId, btn, creatorId, meUserIdFromTrip);
+}
+>>>>>>> c97eb2c0b04b29b4e8f396f4febd4ddd3c235a26
