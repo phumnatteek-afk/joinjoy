@@ -20,12 +20,12 @@
     <!-- ── HEADER ── -->
     <header class="header1">
         <div class="top-bar">
-            <svg width="23" height="20" viewBox="0 0 23 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- <svg width="23" height="20" viewBox="0 0 23 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M1.25 18.25L11.25 9.75L21.25 18.25M21.25 1.25L11.2481 9.75L1.25 1.25" stroke="currentColor"
                     stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
-            </svg>
+            </svg> -->
             <span>Create Trips</span>
-            <button class="saver" id="btn-save" type="button">save</button>
+            <!-- <button class="saver" id="btn-save" type="button">save</button> -->
         </div>
     </header>
 
@@ -88,32 +88,32 @@
                 </div>
 
                 <div class="form-row-grid">
-                    <div class="list-item no-border">
+                  <div class="list-item no-border">
+  <iconify-icon icon="solar:banknote-2-bold" class="list-icon pink"></iconify-icon>
+  <div style="display:flex; gap:70px; align-items:flex-end; width:100%; min-width:0;">
+    
+    <div class="select-wrapper" style="flex:1; min-width:0;">
+      <label style="font-size: 13px; font-weight: 600;">Budget</label>
+      <input type="text" id="budget_range" list="budget-options" class="select-input"
+  placeholder="Enter your budget" style="width:160px;" />
+      <datalist id="budget-options">
+        <option value="500-1000"></option>
+        <option value="1001-3000"></option>
+        <option value="3001-5000"></option>
+      </datalist>
+    </div>
 
-                        <iconify-icon icon="solar:banknote-2-bold" class="list-icon pink"></iconify-icon>
+    <div style="width:110px; flex-shrink:0; position:relative; display:flex; align-items:center; border-bottom:1px solid #e0e0e0; padding-bottom:5px;">
+      <select id="budget_type" class="select-input budget-type-select" style="appearance:none; padding-right:20px; width:100%;">
+        <option value="" disabled selected>/ Person</option>
+        <option value="Person">Per Person</option>
+        <option value="Trip">Per Trip</option>
+      </select>
+      <iconify-icon icon="solar:alt-arrow-down-outline" style="position:absolute; right:0; color:#ccc; pointer-events:none;"></iconify-icon>
+    </div>
 
-                        <div class="list-text select-wrapper">
-
-                            <label>Budget</label>
-
-                            <input type="text" id="budget_range" list="budget-options" class="select-input"
-                                placeholder="Enter or Select" />
-
-                            <datalist id="budget-options">
-                                <option value="500-1000"></option>
-                                <option value="1001-3000"></option>
-                                <option value="3001-5000"></option>
-                            </datalist>
-
-                            <select id="budget_type" class="select-input budget-type-select">
-                                <option value="" disabled selected>Enter or Select</option>
-                                <option value="Person">Per Person</option>
-                                <option value="Trip">Per Trip</option>
-                            </select>
-
-                        </div>
-
-                    </div>
+  </div>
+</div>
 
                 </div>
             </div>

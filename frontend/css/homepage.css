@@ -615,9 +615,12 @@ width: 16px !important;
 .top-bar span{
     font-weight: 600;
     font-size: 16px;
-    padding-left: 50px;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+  width: 100%;
   }
-  .saver{
+  /* .saver{
     font-size: 16px;
     font-weight: 500;
     background-color: #f28695;
@@ -635,7 +638,7 @@ width: 16px !important;
   .top-bar svg{
     margin-left: 8px;
     color: #f28695;
-  }
+  } */
   .top-bar svg:hover{
     color: #fff;
     cursor: pointer;
