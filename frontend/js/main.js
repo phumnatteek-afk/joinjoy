@@ -67,3 +67,29 @@ if (coverInput && uploadBox) {
         }
     });
 }
+const groupLinkInput = document.getElementById('group_link');
+const linkBox = document.getElementById('link-box');
+const linkError = document.getElementById('link-error');
+groupLinkInput.addEventListener('input', function() {
+    const val = this.value.trim();
+
+    // บังคับต้องขึ้นต้นด้วย http:// หรือ https://
+    const urlPattern = /^https?:\/\/.+/;
+
+    if (val === "") {
+        // กรณีว่างเปล่า (Default)
+        linkBox.style.borderColor = "#F28B95";
+        linkError.style.color = "#F28B95";
+        linkError.textContent = "* ลิงก์นี้จะปรากฏให้เห็นเฉพาะคนที่ได้รับอนุมัติให้เข้าร่วมทริปแล้วเท่านั้น";
+    } else if (!urlPattern.test(val)) {
+        // กรณีพิมพ์ผิด (Error)
+        linkBox.style.borderColor = "#ff4d4d"; // แดง
+        linkError.style.color = "#ff4d4d";
+        linkError.textContent = "⚠️ Invalid Link";
+    } else {
+        // กรณีถูกต้อง (Success)
+        linkBox.style.borderColor = "#2ecc71"; // เปลี่ยนเป็นเขียว
+        linkError.style.color = "#2ecc71"; // เปลี่ยนเป็นเขียว
+        linkError.textContent = "✅ Verified Link";
+    }
+});

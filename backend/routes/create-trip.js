@@ -58,7 +58,8 @@ router.post('/trips', requireLogin, upload.single('cover_image'), async(req, res
         end_time,
         limit_date_accept,
         description,
-        trip_detail
+        trip_detail,
+        group_link
     } = req.body;
 
     const cover_image = req.file ? `uploads/${req.file.filename}` : null;
@@ -77,8 +78,8 @@ router.post('/trips', requireLogin, upload.single('cover_image'), async(req, res
         (creator_id, trip_name, category, location_name,
          budget_min, budget_max,budget_type, max_member, current_member,
          start_time, end_time, limit_date_accept,description, trip_detail,
-         cover_image, trip_status, created_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?, ?, 'open', NOW())
+         cover_image, group_link, trip_status, created_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?, ?, ?, 'open', NOW())
 `;
 
         const values = [
@@ -95,7 +96,8 @@ router.post('/trips', requireLogin, upload.single('cover_image'), async(req, res
             limit_date_accept,
             description || null,
             trip_detail || null,
-            cover_image
+            cover_image,
+            group_link || null
         ];
 
         const [result] = await db.execute(sql, values);
@@ -125,14 +127,24 @@ router.get('/trips/:id', async(req, res) => {
     }
 });
 
-router.put('/trips/:id', requireLogin, upload.single('cover_image'), async (req, res) => {
+router.put('/trips/:id', requireLogin, upload.single('cover_image'), async(req, res) => {
     const tripId = req.params.id;
     const userId = (req.user && req.user.user_id) || req.session.userId;
 
     const {
-        trip_name, category, location_name, budget_min, budget_max,
-        budget_type, max_member, start_time, end_time,
-        limit_date_accept, description, trip_detail
+        trip_name,
+        category,
+        location_name,
+        budget_min,
+        budget_max,
+        budget_type,
+        max_member,
+        start_time,
+        end_time,
+        limit_date_accept,
+        description,
+        trip_detail,
+        group_link
     } = req.body;
 
     try {
@@ -147,14 +159,14 @@ router.put('/trips/:id', requireLogin, upload.single('cover_image'), async (req,
             UPDATE Trip SET 
                 trip_name=?, category=?, location_name=?, budget_min=?, budget_max=?, 
                 budget_type=?, max_member=?, start_time=?, end_time=?, 
-                limit_date_accept=?, description=?, trip_detail=?, cover_image=?
+                limit_date_accept=?, description=?, trip_detail=?, cover_image=?, group_link=?
             WHERE trip_id = ?
         `;
 
         await db.execute(sql, [
             trip_name, category || null, location_name, budget_min || null, budget_max || null,
             budget_type, max_member, start_time, end_time,
-            limit_date_accept, description || null, trip_detail || null, cover_image,
+            limit_date_accept, description || null, trip_detail || null, cover_image, group_link || null,
             tripId
         ]);
 

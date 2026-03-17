@@ -6,9 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>JoinJoy — CreateTrip</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
-    <link
-        href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Kanit:wght@400;600;700&display=swap"
-        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Kanit:wght@400;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="../css/homepage.css" />
     <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
 </head>
@@ -88,32 +86,31 @@
                 </div>
 
                 <div class="form-row-grid">
-                  <div class="list-item no-border">
-  <iconify-icon icon="solar:banknote-2-bold" class="list-icon pink"></iconify-icon>
-  <div style="display:flex; gap:70px; align-items:flex-end; width:100%; min-width:0;">
-    
-    <div class="select-wrapper" style="flex:1; min-width:0;">
-      <label style="font-size: 13px; font-weight: 600;">Budget</label>
-      <input type="text" id="budget_range" list="budget-options" class="select-input"
-  placeholder="Enter your budget" style="width:160px;" />
-      <datalist id="budget-options">
+                    <div class="list-item no-border">
+                        <iconify-icon icon="solar:banknote-2-bold" class="list-icon pink"></iconify-icon>
+                        <div style="display:flex; gap:70px; align-items:flex-end; width:100%; min-width:0;">
+
+                            <div class="select-wrapper" style="flex:1; min-width:0;">
+                                <label style="font-size: 13px; font-weight: 600;">Budget</label>
+                                <input type="text" id="budget_range" list="budget-options" class="select-input" placeholder="Enter your budget" style="width:160px;" />
+                                <datalist id="budget-options">
         <option value="500-1000"></option>
         <option value="1001-3000"></option>
         <option value="3001-5000"></option>
       </datalist>
-    </div>
+                            </div>
 
-    <div style="width:110px; flex-shrink:0; position:relative; display:flex; align-items:center; border-bottom:1px solid #e0e0e0; padding-bottom:5px;">
-      <select id="budget_type" class="select-input budget-type-select" style="appearance:none; padding-right:20px; width:100%;">
+                            <div style="width:110px; flex-shrink:0; position:relative; display:flex; align-items:center; border-bottom:1px solid #e0e0e0; padding-bottom:5px;">
+                                <select id="budget_type" class="select-input budget-type-select" style="appearance:none; padding-right:20px; width:100%;">
         <option value="" disabled selected>/ Person</option>
         <option value="Person">Per Person</option>
         <option value="Trip">Per Trip</option>
       </select>
-      <iconify-icon icon="solar:alt-arrow-down-outline" style="position:absolute; right:0; color:#ccc; pointer-events:none;"></iconify-icon>
-    </div>
+                                <iconify-icon icon="solar:alt-arrow-down-outline" style="position:absolute; right:0; color:#ccc; pointer-events:none;"></iconify-icon>
+                            </div>
 
-  </div>
-</div>
+                        </div>
+                    </div>
 
                 </div>
             </div>
@@ -122,8 +119,7 @@
                 <iconify-icon icon="solar:users-group-rounded-bold" class="list-icon pink"></iconify-icon>
                 <div class="list-text select-wrapper">
                     <label>Member <span class="required">*</span></label>
-                    <input type="number" id="max_member" list="member-options" class="select-input"
-                        placeholder="Enter or Select" min="1" />
+                    <input type="number" id="max_member" list="member-options" class="select-input" placeholder="Enter or Select" min="1" />
                     <datalist id="member-options">
                         <option value="5"></option>
                         <option value="10"></option>
@@ -173,6 +169,25 @@
             </div>
             <label>Social Media</label>
             <input type="text" id="trip_detail" placeholder="Enter Your Social Media" class="main-input1" />
+        </div>
+
+        <!-- Group Link -->
+        <div class="group-link-container">
+            <div class="group-link-dashed-box" id="link-box">
+                <div class="group-link-icon">
+                    <iconify-icon icon="solar:link-bold" style="color: #F28B95; font-size: 28px;"></iconify-icon>
+                </div>
+                <div class="group-link-content">
+                    <div class="group-link-label-row">
+                        <span class="group-link-title">Group Chat</span>
+                        <span class="group-link-optional">(Optional)</span>
+                    </div>
+                    <input type="url" id="group_link" name="group_link" placeholder="Enter YourGroup Chat Link" class="group-link-input" />
+                </div>
+            </div>
+            <p class="group-link-helper-text" id="link-error">
+                * ลิงก์นี้จะปรากฏให้เห็นเฉพาะคนที่ได้รับอนุมัติให้เข้าร่วมทริปแล้วเท่านั้น
+            </p>
         </div>
 
         <!-- Description -->
@@ -243,7 +258,6 @@
     <!-- main.js ต้องโหลดก่อน script ด้านล่าง -->
     <script src="../js/main.js"></script>
     <script>
-
         const BASE_URL = 'http://localhost:3000/api';
 
         // ── Toast helper ─────────────────────────────────────────
@@ -260,10 +274,16 @@
             const cleaned = raw.replace(/,/g, '');
             const parts = cleaned.split('-');
             if (parts.length === 2) {
-                return { budget_min: Number(parts[0]) || null, budget_max: Number(parts[1]) || null };
+                return {
+                    budget_min: Number(parts[0]) || null,
+                    budget_max: Number(parts[1]) || null
+                };
             }
             const single = Number(cleaned) || null;
-            return { budget_min: single, budget_max: single };
+            return {
+                budget_min: single,
+                budget_max: single
+            };
         }
 
         // ── ดึง category ที่ active จาก main.js (multi-select) ───
@@ -301,9 +321,15 @@
                 return showToast('วันปิดรับสมาชิกต้องไม่เกินวันเริ่มทริป', true);
             }
 
-            const { budget_min, budget_max } = budget_raw
-                ? parseBudget(budget_raw)
-                : { budget_min: null, budget_max: null };
+            const {
+                budget_min,
+                budget_max
+            } = budget_raw
+                ?
+                parseBudget(budget_raw) : {
+                    budget_min: null,
+                    budget_max: null
+                };
 
             // FormData — ไม่ส่ง creator_id เพราะ backend ดึงจาก session เอง
             const formData = new FormData();
@@ -332,7 +358,7 @@
                 const res = await fetch(`${BASE_URL}/trips`, {
                     method: 'POST',
                     body: formData,
-                    credentials: 'include'  // ส่ง session cookie ไปด้วย
+                    credentials: 'include' // ส่ง session cookie ไปด้วย
                 });
 
                 if (res.status === 401) {
@@ -356,9 +382,6 @@
                 btnCreate.textContent = 'Create Trip';
             }
         }
-
-        document.getElementById('btn-create-trip').addEventListener('click', submitTrip);
-        document.getElementById('btn-save').addEventListener('click', submitTrip);
     </script>
 </body>
 
