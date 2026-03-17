@@ -2,7 +2,11 @@
    profile-page.css  —  JoinJoy Profile Page
 ══════════════════════════════════════════════════════════ */
 
-*, *::before, *::after { box-sizing: border-box; }
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
 
 /* Full-screen background on html so it fills behind centered body */
 html:has(body.profile-screen) {
@@ -40,7 +44,10 @@ body.profile-screen {
   transition: opacity 0.3s;
   white-space: nowrap;
 }
-.toast.show { opacity: 1; }
+
+.toast.show {
+  opacity: 1;
+}
 
 /* ── HEADER ─────────────────────────────────────────────── */
 .profile-screen .header {
@@ -48,7 +55,7 @@ body.profile-screen {
   height: 215px;
   background: #fff;
   border-radius: 0 0 42px 42px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.04);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.04);
   position: relative;
   z-index: 1;
 }
@@ -103,7 +110,7 @@ body.profile-screen {
   background: #fff;
   border-radius: 34px;
   padding: 96px 16px 24px;
-  box-shadow: 0 14px 30px rgba(0,0,0,0.07);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.07);
   position: relative;
 }
 
@@ -134,7 +141,7 @@ body.profile-screen {
   overflow: hidden;
   background: #b8dfd6;
   border: 10px solid #f8e4ea;
-  box-shadow: 0 10px 22px rgba(0,0,0,0.10);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.10);
   margin-top: -72px;
 }
 
@@ -194,7 +201,7 @@ body.profile-screen {
   background: #fff;
   border-radius: 16px;
   padding: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
 }
 
 .profile-screen .profile-info-card-full {
@@ -255,49 +262,23 @@ body.profile-screen {
   font-size: 15px;
   font-weight: 700;
   font-family: 'Poppins', sans-serif;
-  cursor: pointer;
+  position: relative;
+  z-index: 999;
+  cursor: pointer !important;
   letter-spacing: 0.3px;
   transition: opacity 0.2s;
 }
-.btn-edit-profile:hover { opacity: 0.85; }
 
-/* ══════════════════════════════════════════════════════════
-   EDIT MODAL
-══════════════════════════════════════════════════════════ */
-
-/* Dark overlay covers whole screen */
-.modal-overlay {
-  display: none;
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.5);
-  z-index: 500;
-}
-.modal-overlay.open { display: block; }
-
-/* Sheet is anchored to bottom, centered, fixed height */
-.modal-sheet {
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 100%;
-  max-width: 430px;
-  height: 88vh;
-  background: #fff;
-  border-radius: 28px 28px 0 0;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
+.btn-edit-profile:hover {
+  opacity: 0.85;
 }
 
-/* ── Scrollable form area ── */
-.modal-scroll-area {
-  flex: 1;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  padding: 24px 20px 12px;
+.profile-card-box {
+  position: relative;
+  z-index: 5;
+  overflow: visible;
 }
+
 
 /* ── Save button footer — always visible ── */
 .modal-footer {
@@ -352,11 +333,13 @@ body.profile-screen {
   box-sizing: border-box;
   background: #fff;
 }
+
 .modal-field input:focus,
 .modal-field select:focus,
 .modal-field textarea:focus {
   border-color: #ff6f8f;
 }
+
 .modal-field textarea {
   resize: vertical;
   min-height: 72px;
@@ -469,10 +452,13 @@ body.profile-screen {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(255,111,143,0.35);
+  box-shadow: 0 2px 8px rgba(255, 111, 143, 0.35);
   transition: opacity 0.2s;
 }
-.avatar-camera-btn:hover { opacity: 0.85; }
+
+.avatar-camera-btn:hover {
+  opacity: 0.85;
+}
 
 .avatar-file-name {
   font-size: 11px;
@@ -498,7 +484,10 @@ body.profile-screen {
   font-family: 'Poppins', sans-serif;
   cursor: pointer;
 }
-.btn-cancel:hover { background: #fff5f7; }
+
+.btn-cancel:hover {
+  background: #fff5f7;
+}
 
 .btn-save {
   flex: 2;
@@ -512,8 +501,15 @@ body.profile-screen {
   font-family: 'Poppins', sans-serif;
   cursor: pointer;
 }
-.btn-save:hover { opacity: 0.88; }
-.btn-save:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btn-save:hover {
+  opacity: 0.88;
+}
+
+.btn-save:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
 
 /* ══════════════════════════════════════════════════════════
    BOTTOM NAV
@@ -576,98 +572,316 @@ body.profile-screen {
 
 /* your trip */
 .user-trips-section {
-    margin-top: 25px;
-    padding: 0 20px 100px;
+  margin-top: 25px;
+  padding: 0 20px 100px;
 }
 
 .section-title {
-    font-size: 1.2rem;
-    font-weight: 700;
-    margin-bottom: 15px;
-    color: #333;
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 15px;
+  color: #333;
 }
 
 .trip-item-card {
-    background: #fff;
-    border-radius: 20px;
-    padding: 15px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-    margin-bottom: 15px;
+  background: #fff;
+  border-radius: 20px;
+  padding: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  margin-bottom: 15px;
 }
 
 .trip-info {
-    display: flex;
-    align-items: center;
-    gap: 15px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
 }
 
 .trip-icon-circle {
-    width: 50px;
-    height: 50px;
-    background: #f5c0cc;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
+  width: 50px;
+  height: 50px;
+  background: #f5c0cc;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
 }
 
 .trip-icon-circle img {
-    width: 30px;
+  width: 30px;
 }
 
 .trip-details h4 {
-    margin: 0;
-    font-size: 14px;
-    color: #333;
+  margin: 0;
+  font-size: 14px;
+  color: #333;
 }
 
 .trip-details p {
-    margin: 2px 0 0;
-    font-size: 13px;
-    color: #999;
+  margin: 2px 0 0;
+  font-size: 13px;
+  color: #999;
 }
 
 .btn-edit-trip {
-    background: #d4f8d4;
-    color: #e88fa1;
-    border: none;
-    padding: 8px 18px;
-    border-radius: 15px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: 0.2s;
+  background: #d4f8d4;
+  color: #e88fa1;
+  border: none;
+  padding: 8px 18px;
+  border-radius: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
 }
 
 .btn-edit-trip:hover {
-    background: #c2ecc2;
+  background: #c2ecc2;
 }
 
 .trip-icon-circle {
-    width: 50px;
-    height: 50px;
-    background: #fdeff2; 
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden; 
-    border: 1px solid #eee;
+  width: 50px;
+  height: 50px;
+  background: #fdeff2;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border: 1px solid #eee;
 }
 
 .trip-icon-circle img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .trip-details p {
-    display: flex;
-    align-items: center; 
-    margin-top: 4px;
-    font-size: 0.85rem;
-    color: #888;
+  display: flex;
+  align-items: center;
+  margin-top: 4px;
+  font-size: 0.85rem;
+  color: #888;
+}
+
+/* popup edit profile */
+.swal-jj-container {
+  padding: 0 10px !important;
+}
+
+.swal-jj-popup {
+  width: 88% !important;
+  max-width: 360px !important;
+  max-height: 80vh !important;
+  border-radius: 28px !important;
+  padding: 1rem !important;
+  font-family: 'Poppins', 'Kanit', sans-serif !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+  padding-top: 20px !important;
+}
+
+.swal2-title {
+  color: #ff6f8f !important;
+  font-size: 20px !important;
+  font-weight: 800 !important;
+  margin-bottom: 20px !important;
+}
+
+.swal-jj-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  text-align: left;
+}
+
+.swal-jj-field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.swal-jj-field {
+  margin-bottom: 0px;
+}
+
+.swal-jj-field label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: #ff6f8f;
+  margin-bottom: 4px;
+}
+
+.swal-jj-input {
+  width: 100% !important;
+  padding: 8px 12px !important;
+  border: 1.5px solid #ffd6de !important;
+  border-radius: 12px !important;
+  font-size: 13px !important;
+  color: #333 !important;
+  outline: none !important;
+  background: #fff !important;
+  font-family: 'Poppins', sans-serif !important;
+}
+
+.swal-jj-input:focus {
+  border-color: #ff6f8f !important;
+}
+
+.swal-jj-input.swal-jj-area {
+  resize: none !important;
+  height: 60px !important;
+}
+
+/* ── Tags Section inside Popup ── */
+.swal-jj-tags-section {
+  margin-top: 15px;
+  margin-bottom: 10px;
+}
+
+.tags-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: #ff6f8f;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.swal-jj-tags-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  max-height: 120px;
+  overflow-y: auto;
+  padding-right: 5px;
+}
+
+.swal-tag-chip {
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1.5px solid #ffc6d1;
+  color: #ff7d96;
+  font-size: 11px;
+  font-weight: 600;
+  background: #fff;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s ease;
+}
+
+.swal-tag-chip.selected {
+  background: linear-gradient(90deg, #ff6f8f, #ffb347) !important;
+  border-color: transparent !important;
+  color: #fff !important;
+}
+
+.swal2-actions {
+  margin-top: 25px !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+}
+
+.swal-jj-confirm {
+  order: 1 !important;
+  width: 100% !important;
+  padding: 12px !important;
+  border: none !important;
+  border-radius: 999px !important;
+  background: linear-gradient(90deg, #ff6f8f, #ffb347) !important;
+  color: #fff !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+}
+
+.swal-jj-cancel {
+  order: 2 !important;
+  width: 100% !important;
+  background: transparent !important;
+  color: #e88fa1 !important;
+  border: none !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  margin-left: 0 !important;
+}
+
+.swal-jj-tags-grid::-webkit-scrollbar {
+  width: 4px;
+}
+
+.swal-jj-tags-grid::-webkit-scrollbar-thumb {
+  background: #ffc6d1;
+  border-radius: 4px;
+}
+
+.swal-trip-cover-preview {
+  width: 100%;
+  height: 140px;
+  background-size: cover;
+  background-position: center;
+  border-radius: 18px;
+  position: relative;
+  margin-bottom: 15px;
+  border: 2px dashed #ffd6de;
+}
+
+
+.jj-input {
+  width: 100% !important;
+  padding: 10px !important;
+  border: 1.5px solid #ffd6de !important;
+  border-radius: 12px !important;
+  font-size: 13px !important;
+  margin-bottom: 5px;
+}
+
+.jj-area {
+  height: 60px !important;
+  resize: none !important;
+}
+
+
+.swal-jj-tags-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  max-height: 100px;
+  overflow-y: auto;
+  padding: 5px;
+}
+
+.swal-tag-chip {
+  font-size: 10px !important;
+  padding: 5px 12px !important;
+}
+
+.sw-cam-btn {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, #ff6f8f, #ffb347);
+  border: 2.5px solid #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  transition: transform 0.2s;
+}
+
+.sw-cam-btn:active {
+  transform: scale(0.9);
+}
+
+.sw-cam-btn iconify-icon {
+  display: block;
+  line-height: 0;
 }

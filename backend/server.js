@@ -93,12 +93,13 @@ app.get('/api/user/:user_id', async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 });
+
+app.use('/api', detailRouter); // สำหรับ /api/trip-detail/:id
 app.use('/api/trips', homepageRoute); // GET /api/trips/upcoming ฯลฯ
 app.use('/api/reviews', homepageRoute); // GET /api/reviews/recent
 app.use('/api/auth', loginRoute); // POST /api/auth/login, /api/auth/register
 app.use('/auth', googleAuth); // GET /auth/google, /auth/google/callback
 app.use('/api', createTripRouter); // สำหรับ /api/trip และ /api/create-trip
-app.use('/api', detailRouter); // สำหรับ /api/trip-detail/:id
 
 // ── GET /api/trip-members/:id ────────────────────────────────
 const db = require('./db');
@@ -227,4 +228,3 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}`);
 });
-

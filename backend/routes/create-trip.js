@@ -125,4 +125,44 @@ router.get('/trips/:id', async(req, res) => {
     }
 });
 
+router.put('/trips/:id', requireLogin, upload.single('cover_image'), async (req, res) => {
+    const tripId = req.params.id;
+    const userId = (req.user && req.user.user_id) || req.session.userId;
+
+    const {
+        trip_name, category, location_name, budget_min, budget_max,
+        budget_type, max_member, start_time, end_time,
+        limit_date_accept, description, trip_detail
+    } = req.body;
+
+    try {
+        // เช็คความเป็นเจ้าของ
+        const [rows] = await db.query('SELECT creator_id, cover_image FROM Trip WHERE trip_id = ?', [tripId]);
+        if (rows.length === 0) return res.status(404).json({ success: false, error: 'ไม่พบทริป' });
+        if (rows[0].creator_id !== userId) return res.status(403).json({ success: false, error: 'ไม่มีสิทธิ์แก้ไข' });
+
+        const cover_image = req.file ? `uploads/${req.file.filename}` : rows[0].cover_image;
+
+        const sql = `
+            UPDATE Trip SET 
+                trip_name=?, category=?, location_name=?, budget_min=?, budget_max=?, 
+                budget_type=?, max_member=?, start_time=?, end_time=?, 
+                limit_date_accept=?, description=?, trip_detail=?, cover_image=?
+            WHERE trip_id = ?
+        `;
+
+        await db.execute(sql, [
+            trip_name, category || null, location_name, budget_min || null, budget_max || null,
+            budget_type, max_member, start_time, end_time,
+            limit_date_accept, description || null, trip_detail || null, cover_image,
+            tripId
+        ]);
+
+        res.json({ success: true, message: 'อัปเดตสำเร็จ!' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
 module.exports = router;

@@ -1,49 +1,45 @@
-// Profile.js — frontend logic for Profile.html
+// Profile.js — Full Version (Profile Edit + Avatar Upload + Your Trips)
 
-const toast = document.getElementById('toast');
-const editModal = document.getElementById('editModal');
+// ── 1. GLOBAL HELPERS ────────────────────────────────────────
 
-// ── Toast ─────────────────────────────────────────────────────
 function showToast(msg, ok = true) {
+  const toast = document.getElementById('toast');
+  if (!toast) return;
   toast.textContent = msg;
   toast.style.background = ok ? '#2ecc71' : '#e74c3c';
   toast.classList.add('show');
   setTimeout(() => toast.classList.remove('show'), 3000);
 }
 
-// ── Render data onto the page ─────────────────────────────────
+// ── 2. RENDER FUNCTIONS ───────────────────────────────────────
+
 function renderProfile(p) {
   const fullName = [p.first_name, p.last_name].filter(Boolean).join(' ');
-  document.getElementById('profileName').textContent = fullName || p.user_name || '—';
-  document.getElementById('profileBio').textContent = p.bio || '';
-  document.getElementById('firstName').textContent = p.first_name || '—';
-  document.getElementById('lastName').textContent = p.last_name || '—';
-  document.getElementById('gender').textContent = p.gender || '—';
-  document.getElementById('faculty').textContent = p.faculty || '—';
-  document.getElementById('social').textContent = p.social_media || '—';
+  
+  if (document.getElementById('profileName')) document.getElementById('profileName').textContent = fullName || p.user_name || '—';
+  if (document.getElementById('profileBio')) document.getElementById('profileBio').textContent = p.bio || '';
+  if (document.getElementById('firstName')) document.getElementById('firstName').textContent = p.first_name || '—';
+  if (document.getElementById('lastName')) document.getElementById('lastName').textContent = p.last_name || '—';
+  if (document.getElementById('gender')) document.getElementById('gender').textContent = p.gender || '—';
+  if (document.getElementById('faculty')) document.getElementById('faculty').textContent = p.faculty || '—';
+  if (document.getElementById('social')) document.getElementById('social').textContent = p.social_media || '—';
 
-  // Birthday: YYYY-MM-DD → DD/MM/YYYY
-  if (p.birth_date) {
+  const bday = document.getElementById('birthday');
+  if (bday && p.birth_date) {
     const [y, m, d] = p.birth_date.split('T')[0].split('-');
-    document.getElementById('birthday').textContent = `${d}/${m}/${y}`;
-  } else {
-    document.getElementById('birthday').textContent = '—';
+    bday.textContent = `${d}/${m}/${y}`;
   }
 
-  // Avatar (หน้าหลัก)
-  const avatarEl = document.getElementById('profileAvatar');
-  if (p.profile_img) {
-    avatarEl.src = p.profile_img;
-    avatarEl.style.display = 'block';
+  const avatar = document.getElementById('profileAvatar');
+  if (avatar && p.profile_img) {
+    avatar.src = p.profile_img;
+    avatar.style.display = 'block';
   }
 
-  // Tags
   const tagList = document.getElementById('tagList');
-  tagList.innerHTML = '';
-  const tags = Array.isArray(p.tags) ? p.tags : [];
-  if (tags.length === 0) {
-    tagList.innerHTML = '<span style="color:#bbb;font-size:13px;">No tags yet</span>';
-  } else {
+  if (tagList) {
+    tagList.innerHTML = '';
+    const tags = Array.isArray(p.tags) ? p.tags : [];
     tags.forEach(tag => {
       const chip = document.createElement('span');
       chip.className = 'profile-tag-chip';
@@ -53,254 +49,319 @@ function renderProfile(p) {
   }
 }
 
-// ── Load Trips ───────────────────────────────────────────────
 async function loadMyTrips() {
-    const container = document.getElementById('myTripsContainer');
-    if (!container) return;
+  const container = document.getElementById('myTripsContainer');
+  if (!container) return;
 
-    container.innerHTML = '<p style="color:#bbb; text-align:center; padding: 20px;">Loading your trips...</p>';
-
-    try {
-        const res = await fetch('/api/profile/my-trips', { credentials: 'include' });
-        const data = await res.json();
-
-        if (data.success && data.trips && data.trips.length > 0) {
-            container.innerHTML = data.trips.map(trip => {
-                // ตรวจสอบและจัดการ Path ของรูปภาพ
-                let imageUrl = '../img/joinjoylogo.png'; // รูป Default
-                if (trip.cover_image) {
-                    // ถ้าใน DB เก็บแค่ชื่อไฟล์ เช่น "123.jpg" ให้ใช้แบบนี้:
-                    // imageUrl = `/uploads/${trip.cover_image}`;
-                    
-                    // แต่ถ้าใน DB เก็บเป็น "uploads/123.jpg" อยู่แล้ว ให้ใช้แบบนี้:
-                    imageUrl = `/${trip.cover_image}`;
-                }
-
-                return `
-                <div class="trip-item-card">
-                  <div class="trip-info">
-                    <div class="trip-icon-circle">
-                      <img src="${imageUrl}" 
-                           alt="trip" 
-                           style="width: 100%; height: 100%; object-fit: cover;"
-                           onerror="this.src='../img/joinjoylogo.png'">
-                    </div>
-                    <div class="trip-details">
-                      <h4>${trip.trip_name}</h4>
-                      <p>
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#e88fa1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 4px;">
-                          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 1 1 18 0z"></path>
-                          <circle cx="12" cy="10" r="3"></circle>
-                        </svg>
-                        ${trip.location_name || 'No location specified'}
-                      </p>
-                    </div>
-                  </div>
-                  <button class="btn-edit-trip" onclick="goToEditTrip(${trip.trip_id})">Edit</button>
-                </div>
-              `;
-            }).join('');
-        } else {
-            container.innerHTML = '<p style="color:#bbb; text-align:center; padding: 20px;">You haven\'t created any trips yet.</p>';
-        }
-    } catch (err) {
-        console.error('Load trips error:', err);
-        container.innerHTML = '<p style="color:#e74c3c; text-align:center;">Failed to load trips.</p>';
+  try {
+    const res = await fetch('/api/profile/my-trips', { credentials: 'include' });
+    const data = await res.json();
+    if (data.success && data.trips) {
+      container.innerHTML = data.trips.map(trip => `
+        <div class="trip-item-card">
+          <div class="trip-info">
+            <div class="trip-icon-circle">
+              <img src="${trip.cover_image ? '/' + trip.cover_image : '../img/joinjoylogo.png'}" 
+                   onerror="this.src='../img/joinjoylogo.png'">
+            </div>
+            <div class="trip-details">
+              <h4>${trip.trip_name}</h4>
+              <p>${trip.location_name || 'No location'}</p>
+            </div>
+          </div>
+          <button class="btn-edit-trip" onclick="goToEditTrip(${trip.trip_id})">Edit</button>
+        </div>
+      `).join('');
     }
+  } catch (err) {
+    console.error('Load trips error:', err);
+  }
 }
 
-// ── Load profile from API ─────────────────────────────────────
 async function loadProfile() {
-  // 1. ลองดึงจาก Cache มาแสดงก่อนเพื่อให้ UI ไม่ว่างเปล่า
   const cached = localStorage.getItem('joinjoy_user');
   if (cached) renderProfile(JSON.parse(cached));
 
   try {
     const res = await fetch('/api/profile/me', { credentials: 'include' });
-
-    if (res.status === 401) {
-      window.location.href = '/html/homelogin.html';
-      return;
-    }
-
     const data = await res.json();
     if (data.success) {
       renderProfile(data.profile);
       localStorage.setItem('joinjoy_user', JSON.stringify(data.profile));
-
-      // 2. โหลดโปรไฟล์สำเร็จ ค่อยสั่งโหลดทริป
       await loadMyTrips();
     }
   } catch (err) {
     console.error('Profile load error:', err);
-    // กรณีดึงโปรไฟล์ไม่สำเร็จ ก็ยังพยายามดึงทริปเผื่อไว้
     await loadMyTrips();
   }
 }
 
-window.goToEditTrip = function (tripId) {
-  window.location.href = `../html/EditTrip.html?id=${tripId}`;
-};
+// ── 3. EDIT TRIP MODAL (iFrame Hover) ────────────────────────
 
-// ── Tag chip selection ────────────────────────────────────────
-function getSelectedTags() {
-  return [...document.querySelectorAll('.tag-chip-option.selected')]
-    .map(el => el.querySelector('input').value);
-}
+// ── ฟังก์ชันเปิด Popup แก้ไข Trip (SweetAlert2 Version) ──────────────
 
-function setSelectedTags(tags) {
-  document.querySelectorAll('.tag-chip-option').forEach(el => {
-    const val = el.querySelector('input').value;
-    const active = tags.some(t => t.toLowerCase() === val.toLowerCase());
-    el.classList.toggle('selected', active);
-  });
-}
-
-document.querySelectorAll('.tag-chip-option').forEach(chip => {
-  chip.addEventListener('click', e => {
-    e.preventDefault();
-    chip.classList.toggle('selected');
-  });
-});
-
-// ── Avatar file picker ────────────────────────────────────────
-const avatarFileInput = document.getElementById('avatarFileInput');
-const btnPickAvatar = document.getElementById('btnPickAvatar');
-const avatarPreview = document.getElementById('avatarPreview');
-const avatarPlaceholder = document.getElementById('avatarPlaceholder');
-const avatarFileName = document.getElementById('avatarFileName');
-
-if (btnPickAvatar) {
-  btnPickAvatar.addEventListener('click', () => avatarFileInput.click());
-}
-
-if (avatarFileInput) {
-  avatarFileInput.addEventListener('change', () => {
-    const file = avatarFileInput.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = e => {
-      avatarPreview.src = e.target.result;
-      avatarPreview.style.display = 'block';
-      avatarPlaceholder.style.display = 'none';
-    };
-    reader.readAsDataURL(file);
-    avatarFileName.textContent = file.name;
-  });
-}
-
-// ── Open edit modal ───────────────────────────────────────────
-document.getElementById('btnOpenEdit').addEventListener('click', () => {
-  const p = JSON.parse(localStorage.getItem('joinjoy_user') || '{}');
-
-  document.getElementById('editFirstName').value = p.first_name || '';
-  document.getElementById('editLastName').value = p.last_name || '';
-  document.getElementById('editBio').value = p.bio || '';
-  document.getElementById('editGender').value = p.gender || '';
-  document.getElementById('editFaculty').value = p.faculty || '';
-  document.getElementById('editSocialMedia').value = p.social_media || '';
-  document.getElementById('editBirthDate').value = p.birth_date ?
-    p.birth_date.split('T')[0] : '';
-
-  if (p.profile_img) {
-    avatarPreview.src = p.profile_img;
-    avatarPreview.style.display = 'block';
-    avatarPlaceholder.style.display = 'none';
-  } else {
-    avatarPreview.style.display = 'none';
-    avatarPlaceholder.style.display = 'flex';
-  }
-  avatarFileName.textContent = '';
-  avatarFileInput.value = '';
-
-  const savedTags = Array.isArray(p.tags) ?
-    p.tags :
-    (typeof p.tags === 'string' ? p.tags.split(',').map(t => t.trim()).filter(Boolean) : []);
-  setSelectedTags(savedTags);
-
-  editModal.classList.add('open');
-  const scrollArea = editModal.querySelector('.modal-scroll-area');
-  if (scrollArea) scrollArea.scrollTop = 0;
-});
-
-// ── Close modal ───────────────────────────────────────────────
-document.getElementById('btnCancelEdit').addEventListener('click', () => {
-  editModal.classList.remove('open');
-});
-editModal.addEventListener('click', e => {
-  if (e.target === editModal) editModal.classList.remove('open');
-});
-
-// ── Save profile ─────────────────────────────────────────────
-document.getElementById('btnSaveEdit').addEventListener('click', async () => {
-  const btn = document.getElementById('btnSaveEdit');
-  const oldText = btn.textContent;
-  btn.disabled = true;
-  btn.textContent = 'Saving…';
-
+window.goToEditTrip = async function (tripId) {
   try {
-    const file = avatarFileInput.files[0];
-    let newProfileImg = null;
+    // 1. ดึงข้อมูล Trip เดิมมาเติมในฟอร์ม
+    const res = await fetch(`/api/trips/${tripId}`);
+    const trip = await res.json();
+    if (!res.ok) throw new Error(trip.error || 'Failed to fetch');
 
-    if (file) {
-      const formData = new FormData();
-      formData.append('avatar', file);
-      const avatarRes = await fetch('/api/profile/me/avatar', {
-        method: 'POST',
-        body: formData,
-        credentials: 'include',
-      });
-      const avatarData = await avatarRes.json();
-      if (avatarData.success) {
-        newProfileImg = avatarData.profile_img;
-        document.getElementById('profileAvatar').src = newProfileImg;
+    const allCategories = ["1-Day Trip", "Chill & Relaxed", "Travel Group", "Beach Trips", "Café Hopping", "Nightlife / Party", "Short Getaway", "Food", "Events", "Concert", "Healing", "Backpacking", "Camping"];
+    const savedCats = trip.category ? trip.category.split(',') : [];
+
+    const { value: formValues } = await Swal.fire({
+      title: 'Edit Trip Details',
+      width: '90%',
+      maxWidth: '430px',
+      html: `
+        <div class="swal-jj-form">
+          <div class="swal-avatar-wrap">
+  <div class="swal-trip-cover-preview" id="trip-cover-area" style="background-image: url('${trip.cover_image ? '/' + trip.cover_image : '../img/joinjoylogo.png'}')">
+    <div class="sw-cam-btn" onclick="document.getElementById('sw-trip-file').click()">
+      <iconify-icon icon="famicons:camera" style="font-size: 20px; color: #fff;"></iconify-icon>
+    </div>
+  </div>
+  <input type="file" id="sw-trip-file" hidden accept="image/*">
+</div>
+
+          <div class="swal-jj-field">
+            <label>Trip Title <span style="color:red">*</span></label>
+            <input id="sw-trip-name" class="jj-input" value="${trip.trip_name || ''}">
+          </div>
+
+          <div class="swal-jj-tags-section">
+            <label class="tags-title">Category</label>
+            <div class="swal-jj-tags-grid" id="cat-grid">
+              ${allCategories.map(cat => `
+                <div class="swal-tag-chip ${savedCats.includes(cat) ? 'selected' : ''}" data-cat="${cat}">${cat}</div>
+              `).join('')}
+            </div>
+          </div>
+
+          <div class="swal-jj-field">
+            <label>Location <span style="color:red">*</span></label>
+            <input id="sw-location" class="jj-input" value="${trip.location_name || ''}">
+          </div>
+
+          <div class="swal-jj-field-row">
+            <div class="swal-jj-field"><label>Budget Range</label><input id="sw-budget" class="jj-input" value="${(trip.budget_min && trip.budget_max) ? trip.budget_min + '-' + trip.budget_max : (trip.budget_min || '')}"></div>
+            <div class="swal-jj-field">
+              <label>Budget Type</label>
+              <select id="sw-budget-type" class="jj-input">
+                <option value="Person" ${trip.budget_type === 'Person' ? 'selected' : ''}>Per Person</option>
+                <option value="Trip" ${trip.budget_type === 'Trip' ? 'selected' : ''}>Per Trip</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="swal-jj-field"><label>Max Member</label><input id="sw-member" type="number" class="jj-input" value="${trip.max_member || ''}"></div>
+
+          <div class="swal-jj-field">
+            <label>Start Time</label>
+            <input id="sw-start" type="datetime-local" class="jj-input" value="${trip.start_time ? trip.start_time.substring(0, 16) : ''}">
+          </div>
+          <div class="swal-jj-field">
+            <label>End Time</label>
+            <input id="sw-end" type="datetime-local" class="jj-input" value="${trip.end_time ? trip.end_time.substring(0, 16) : ''}">
+          </div>
+
+          <div class="swal-jj-field"><label>Last day to join</label><input id="sw-limit" type="datetime-local" class="jj-input" value="${trip.limit_date_accept ? trip.limit_date_accept.substring(0, 16) : ''}"></div>
+          <div class="swal-jj-field"><label>Social Media (Contact)</label><input id="sw-detail" class="jj-input" value="${trip.trip_detail || ''}"></div>
+          <div class="swal-jj-field"><label>Description</label><textarea id="sw-desc" class="jj-input jj-area">${trip.description || ''}</textarea></div>
+        </div>
+      `,
+      confirmButtonText: 'Save Changes',
+      showCancelButton: true,
+      customClass: { popup: 'swal-jj-popup', confirmButton: 'swal-jj-confirm', cancelButton: 'swal-jj-cancel' },
+
+      didOpen: () => {
+        // Toggle Category
+        document.getElementById('cat-grid').addEventListener('click', (e) => {
+          if (e.target.classList.contains('swal-tag-chip')) e.target.classList.toggle('selected');
+        });
+        // Preview Cover Image
+        document.getElementById('sw-trip-file').addEventListener('change', (e) => {
+          const file = e.target.files[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = (ev) => document.getElementById('trip-cover-area').style.backgroundImage = `url(${ev.target.result})`;
+            reader.readAsDataURL(file);
+          }
+        });
+      },
+      preConfirm: () => {
+        const budgetRaw = document.getElementById('sw-budget').value;
+        const parts = budgetRaw.split('-');
+        return {
+          trip_name: document.getElementById('sw-trip-name').value,
+          location_name: document.getElementById('sw-location').value,
+          budget_min: parts[0] || null,
+          budget_max: parts[1] || null,
+          budget_type: document.getElementById('sw-budget-type').value,
+          max_member: document.getElementById('sw-member').value,
+          start_time: document.getElementById('sw-start').value,
+          end_time: document.getElementById('sw-end').value,
+          limit_date_accept: document.getElementById('sw-limit').value,
+          trip_detail: document.getElementById('sw-detail').value,
+          description: document.getElementById('sw-desc').value,
+          category: Array.from(document.querySelectorAll('#cat-grid .swal-tag-chip.selected')).map(c => c.dataset.cat).join(',')
+        }
       }
-    }
-
-    const payload = {
-      first_name: document.getElementById('editFirstName').value.trim() || null,
-      last_name: document.getElementById('editLastName').value.trim() || null,
-      bio: document.getElementById('editBio').value.trim() || null,
-      birth_date: document.getElementById('editBirthDate').value || null,
-      gender: document.getElementById('editGender').value || null,
-      faculty: document.getElementById('editFaculty').value.trim() || null,
-      social_media: document.getElementById('editSocialMedia').value.trim() || null,
-      tags: getSelectedTags(),
-    };
-
-    const res = await fetch('/api/profile/me', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify(payload),
     });
 
-    const data = await res.json();
-    if (data.success) {
-      const cached = JSON.parse(localStorage.getItem('joinjoy_user') || '{}');
-      const updated = {
-        ...cached,
-        ...payload,
-        ...(newProfileImg ? { profile_img: newProfileImg } : {}),
-      };
-      localStorage.setItem('joinjoy_user', JSON.stringify(updated));
-      renderProfile(updated);
-      editModal.classList.remove('open');
-      showToast('Profile saved! ✅');
-    } else {
-      showToast(data.message || 'Save failed.', false);
+    if (formValues) {
+      const formData = new FormData();
+      for (let key in formValues) formData.append(key, formValues[key]);
+      const file = document.getElementById('sw-trip-file').files[0];
+      if (file) formData.append('cover_image', file);
+
+      const updateRes = await fetch(`/api/trips/${tripId}`, {
+    method: 'PUT',
+    body: formData,
+    credentials: 'include'
+});
+      const data = await updateRes.json();
+      if (data.success) {
+        showToast('Trip updated! ✅');
+        loadMyTrips();
+      } else {
+        showToast(data.error, false);
+      }
     }
   } catch (err) {
-    console.error('Save error:', err);
-    showToast('Network error.', false);
-  } finally {
-    btn.disabled = false;
-    btn.textContent = oldText;
+    console.error(err);
+    showToast('Failed to load trip', false);
   }
-});
+};
 
-// ── Init ──
-document.addEventListener('DOMContentLoaded', () => {
-  loadProfile();
-});
+window.closeEditTripModal = function() {
+    const modal = document.getElementById('editTripModal');
+    if (modal) {
+        modal.classList.remove('open');
+        setTimeout(() => {
+            modal.style.display = 'none';
+            loadMyTrips(); 
+        }, 300);
+    }
+};
+
+// ── 4. EDIT PROFILE POPUP (SweetAlert2 + Avatar + Tags) ──────
+
+async function openMyModal() {
+  const p = JSON.parse(localStorage.getItem('joinjoy_user') || '{}');
+  const allTags = ["Beach", "Cafe", "Pet", "Concert", "1-Day Trip", "Sport", "Mall", "Market", "Restaurant", "Buffet", "Party", "Shopping", "Board game"];
+  const userTags = Array.isArray(p.tags) ? p.tags : [];
+
+  const { value: formValues } = await Swal.fire({
+    title: 'Edit Profile',
+    html: `
+      <div class="swal-jj-form">
+        <div class="swal-avatar-wrap">
+          <div class="swal-avatar-ring">
+            <img id="sw-preview" src="${p.profile_img || ''}" style="${p.profile_img ? '' : 'display:none;'}">
+            <div id="sw-placeholder" style="${p.profile_img ? 'display:none;' : ''}">📸</div>
+          </div>
+        </div>
+
+        <div class="swal-jj-field-row">
+          <div class="swal-jj-field"><label>First Name</label><input id="sw-fname" class="swal-jj-input" value="${p.first_name || ''}"></div>
+          <div class="swal-jj-field"><label>Last Name</label><input id="sw-lname" class="swal-jj-input" value="${p.last_name || ''}"></div>
+        </div>
+        <div class="swal-jj-field full-width"><label>Bio</label><textarea id="sw-bio" class="swal-jj-input swal-jj-area">${p.bio || ''}</textarea></div>
+        <div class="swal-jj-field-row">
+          <div class="swal-jj-field"><label>Birthday</label><input id="sw-birth" type="date" class="swal-jj-input" value="${p.birth_date ? p.birth_date.split('T')[0] : ''}"></div>
+          <div class="swal-jj-field">
+            <label>Gender</label>
+            <select id="sw-gender" class="swal-jj-input">
+              <option value="Male" ${p.gender === 'Male' ? 'selected' : ''}>Male</option>
+              <option value="Female" ${p.gender === 'Female' ? 'selected' : ''}>Female</option>
+              <option value="Other" ${p.gender === 'Other' ? 'selected' : ''}>Other</option>
+            </select>
+          </div>
+        </div>
+        <div class="swal-jj-field full-width"><label>Faculty</label><input id="sw-faculty" class="swal-jj-input" value="${p.faculty || ''}"></div>
+        <div class="swal-jj-field full-width"><label>Social Media</label><input id="sw-social" class="swal-jj-input" value="${p.social_media || ''}"></div>
+        <div class="swal-jj-tags-section">
+          <label class="tags-title">Tags</label>
+          <div class="swal-jj-tags-grid">
+            ${allTags.map(tag => {
+              const isSelected = userTags.some(t => t.toLowerCase() === tag.toLowerCase());
+              return `<div class="swal-tag-chip ${isSelected ? 'selected' : ''}" data-tag="${tag}">${tag}</div>`;
+            }).join('')}
+          </div>
+        </div>
+      </div>
+    `,
+    showCancelButton: true,
+    confirmButtonText: 'Save Changes',
+    customClass: { popup: 'swal-jj-popup', confirmButton: 'swal-jj-confirm', cancelButton: 'swal-jj-cancel' },
+    didOpen: () => {
+      // Tags Toggle
+      const tagsGrid = Swal.getHtmlContainer().querySelector('.swal-jj-tags-grid');
+      tagsGrid.addEventListener('click', (e) => {
+        const chip = e.target.closest('.swal-tag-chip');
+        if (chip) chip.classList.toggle('selected');
+      });
+
+      // Avatar Preview Logic
+      const fileInput = document.getElementById('sw-file');
+      fileInput.addEventListener('change', () => {
+        const file = fileInput.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = e => {
+            document.getElementById('sw-preview').src = e.target.result;
+            document.getElementById('sw-preview').style.display = 'block';
+            document.getElementById('sw-placeholder').style.display = 'none';
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+    },
+    preConfirm: async () => {
+      const payload = {
+        first_name: document.getElementById('sw-fname').value,
+        last_name: document.getElementById('sw-lname').value,
+        bio: document.getElementById('sw-bio').value,
+        birth_date: document.getElementById('sw-birth').value,
+        gender: document.getElementById('sw-gender').value,
+        faculty: document.getElementById('sw-faculty').value,
+        social_media: document.getElementById('sw-social').value,
+        tags: Array.from(Swal.getHtmlContainer().querySelectorAll('.swal-tag-chip.selected')).map(c => c.getAttribute('data-tag'))
+      };
+
+      // Handle Avatar Upload inside preConfirm
+      const file = document.getElementById('sw-file').files[0];
+      if (file) {
+        const formData = new FormData();
+        formData.append('avatar', file);
+        await fetch('/api/profile/me/avatar', { method: 'POST', body: formData, credentials: 'include' });
+      }
+
+      return payload;
+    }
+  });
+
+  if (formValues) {
+    try {
+      const res = await fetch('/api/profile/me', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(formValues),
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast('Profile updated! ✅');
+        loadProfile(); 
+      }
+    } catch (err) { showToast('Error saving data', false); }
+  }
+}
+
+window.openMyModal = openMyModal;
+
+// ── 5. INITIALIZATION ─────────────────────────────────────────
+
+document.addEventListener('DOMContentLoaded', loadProfile);
