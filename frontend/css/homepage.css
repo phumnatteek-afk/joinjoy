@@ -1465,7 +1465,7 @@ textarea {
     color: #F28695;
     font-family: 'Poppins';
     font-size: 8px;
-    font-weight: 500;
+    font-weight: 700;
     cursor: pointer;
     transition: all 0.2s ease;
     white-space: nowrap;
@@ -1632,7 +1632,7 @@ textarea {
 
 .to-text {
     font-size: 11px;
-    font-weight: 700;
+    font-weight: 500;
     color: #747474;
 }
 
@@ -1874,8 +1874,8 @@ textarea {
 }
 
 .group-link-title {
-    font-weight: 700;
-    font-size: 16px;
+    font-weight: 600;
+    font-size: 14px;
     color: #000;
 }
 
@@ -1889,7 +1889,7 @@ textarea {
     width: 100%;
     border: none;
     outline: none;
-    font-size: 15px;
+    font-size: 12px;
     margin-top: 2px;
     font-family: 'Kanit', sans-serif;
 }

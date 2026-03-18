@@ -376,3 +376,28 @@ window.openMyModal = openMyModal;
 // ── 5. INITIALIZATION ─────────────────────────────────────────
 
 document.addEventListener('DOMContentLoaded', loadProfile);
+// ── 6. LOGOUT ─────────────────────────────────────────────────
+
+function handleLogout() {
+  Swal.fire({
+    title: 'Log out?',
+    text: 'Are you sure you want to log out?',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Yes, log out',
+    cancelButtonText: 'Cancel',
+    confirmButtonColor: '#ff6f8f',
+    customClass: {
+      cancelButton: 'swal-jj-cancel',
+      confirmButton: 'swal-jj-confirm',
+    }
+  }).then((result) => {
+    if (result.isConfirmed) {
+      localStorage.clear();
+      sessionStorage.clear();
+      window.location.href = '../html/home.html';
+    }
+  });
+}
+
+window.handleLogout = handleLogout;
