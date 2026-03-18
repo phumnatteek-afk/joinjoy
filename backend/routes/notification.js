@@ -564,6 +564,7 @@ router.get('/:user_id', async(req, res) => {
                 member_status: memberStatus,
                 host_user_id: hostUserId,
                 host_contact: hostContact,
+                group_link: groupLink,
                 host_profile_img: hostProfileImg,
                 group_link: groupLink
             })
