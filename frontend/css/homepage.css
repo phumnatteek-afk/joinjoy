@@ -254,7 +254,7 @@ body {
 
 .card {
     flex-shrink: 0;
-    width: 180px;
+    width: 190px;
     /* ปรับขนาดตามชอบ */
     background: var(--white);
     border-radius: var(--radius);
@@ -288,7 +288,7 @@ body {
 
 .card-top {
     padding: 10px 12px 6px;
-    height: 110px;
+    height: 125px;
     overflow: hidden;
 }
 
@@ -322,7 +322,8 @@ body {
 
 .cmeta-group {
     display: flex;
-    gap: 15px;
+    flex-direction: column;  /* เปลี่ยนจาก row เป็น column */
+    gap: 4px;               /* ลด gap ลงนิดหน่อย */
     margin-top: 8px;
 }
 
@@ -358,8 +359,8 @@ body {
 }
 
 .cimg {
-    width: 100%;
-    height: 120px;
+    min-width: 200px;
+    height: 130px;
     /* กำหนดความสูงตายตัว */
     object-fit: cover;
     display: block;
@@ -1904,4 +1905,7 @@ textarea {
     margin-top: 8px;
     margin-left: 10px;
     font-style: italic;
+}
+.cmeta{
+    font-size: 10px;
 }

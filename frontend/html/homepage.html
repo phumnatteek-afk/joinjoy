@@ -517,7 +517,6 @@ function tripCard(t) {
   ${t.cover_image 
   ? `<img class="cimg" src="${MEDIA}/${t.cover_image}" alt="${t.trip_name}">` 
   : `<div class="cph" style="background:${gr(t.category)}">${em(t.category)}</div>`}
-      ${t.is_matched === 1 ? `<div class="tag-badge">✦ ${t.category}</div>` : ''}
       <div class="join-wrap">${btnHtml}</div>
     </div>
   </div>`;
