@@ -33,7 +33,12 @@
     width: 50px;
     height: 50px;
     }
-    
+
+
+.brand-name{
+        font-family: 'Poppins', sans-serif;
+    }
+
 .trips-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
@@ -122,6 +127,9 @@
     font-size: 12px;
     color: var(--ink-md);
     margin-bottom: 6px;
+}
+.page-title{
+    font-family: 'Poppins', sans-serif;
 }
 
 .progress-bar {
