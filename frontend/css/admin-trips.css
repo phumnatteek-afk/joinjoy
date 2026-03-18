@@ -18,6 +18,10 @@
     transition: all 0.2s;
 }
 
+.modal-title{
+    font-family: 'Poppins',sans-serif;
+}
+
 .tab-btn:hover { border-color: var(--rose); color: var(--rose); }
 
 .tab-btn.active {
@@ -28,6 +32,17 @@
 }
 
 /* ── TRIPS CARD GRID ── */
+
+.brand-logo img{
+    width: 50px;
+    height: 50px;
+    }
+
+
+.brand-name{
+        font-family: 'Poppins', sans-serif;
+    }
+
 .trips-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
@@ -78,9 +93,9 @@
 .trip-body     { padding: 20px; }
 
 .trip-name {
-    font-family: 'Playfair Display', serif;
+    font-family: 'Poppins', serif;
     font-size: 17px;
-    font-weight: 700;
+    font-weight: 600;
     margin-bottom: 6px;
 }
 
@@ -116,6 +131,9 @@
     font-size: 12px;
     color: var(--ink-md);
     margin-bottom: 6px;
+}
+.page-title{
+    font-family: 'Poppins', sans-serif;
 }
 
 .progress-bar {

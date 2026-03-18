@@ -1906,6 +1906,13 @@ textarea {
     margin-left: 10px;
     font-style: italic;
 }
+.card-top{
+    height: 125px;
+}
 .cmeta{
     font-size: 10px;
+}
+.cimg{
+    height: 100px;
+    width: 100%;
 }
