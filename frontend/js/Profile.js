@@ -255,36 +255,40 @@ async function openMyModal() {
 
   const { value: formValues } = await Swal.fire({
     title: 'Edit Profile',
+    width: '90%',
+    maxWidth: '400px',
     html: `
       <div class="swal-jj-form">
-        <div class="swal-avatar-wrap">
-          <div class="swal-avatar-ring">
-            <img id="sw-preview" src="${p.profile_img || ''}" style="${p.profile_img ? '' : 'display:none;'}">
-            <div id="sw-placeholder" style="${p.profile_img ? 'display:none;' : ''}">📸</div>
+        <div class="swal-avatar-wrap" style="text-align:center; margin-bottom:15px;">
+          <div class="swal-avatar-ring" style="width:100px; height:100px; border-radius:50%; background:#f0f0f0; margin:0 auto; overflow:hidden; position:relative; border:3px solid #ff6f8f;">
+            <img id="sw-preview" src="${p.profile_img || ''}" style="${p.profile_img ? 'width:100%;height:100%;object-fit:cover;' : 'display:none;'}">
+            <div id="sw-placeholder" style="${p.profile_img ? 'display:none;' : 'line-height:100px; font-size:30px;'}">📸</div>
           </div>
+          <button type="button" onclick="document.getElementById('sw-file').click()" class="sw-cam-btn" style="margin-top:8px; padding:4px 12px; border-radius:15px; border:1px solid #ff6f8f; background:#fff; color:#ff6f8f; font-size:12px; cursor:pointer;">Change Photo</button>
+          <input type="file" id="sw-file" hidden accept="image/*">
         </div>
 
         <div class="swal-jj-field-row">
-          <div class="swal-jj-field"><label>First Name</label><input id="sw-fname" class="swal-jj-input" value="${p.first_name || ''}"></div>
-          <div class="swal-jj-field"><label>Last Name</label><input id="sw-lname" class="swal-jj-input" value="${p.last_name || ''}"></div>
+          <div class="swal-jj-field"><label>First Name</label><input id="sw-fname" class="jj-input" value="${p.first_name || ''}"></div>
+          <div class="swal-jj-field"><label>Last Name</label><input id="sw-lname" class="jj-input" value="${p.last_name || ''}"></div>
         </div>
-        <div class="swal-jj-field full-width"><label>Bio</label><textarea id="sw-bio" class="swal-jj-input swal-jj-area">${p.bio || ''}</textarea></div>
+        <div class="swal-jj-field full-width"><label>Bio</label><textarea id="sw-bio" class="jj-input jj-area">${p.bio || ''}</textarea></div>
         <div class="swal-jj-field-row">
-          <div class="swal-jj-field"><label>Birthday</label><input id="sw-birth" type="date" class="swal-jj-input" value="${p.birth_date ? p.birth_date.split('T')[0] : ''}"></div>
+          <div class="swal-jj-field"><label>Birthday</label><input id="sw-birth" type="date" class="jj-input" value="${p.birth_date ? p.birth_date.split('T')[0] : ''}"></div>
           <div class="swal-jj-field">
             <label>Gender</label>
-            <select id="sw-gender" class="swal-jj-input">
+            <select id="sw-gender" class="jj-input">
               <option value="Male" ${p.gender === 'Male' ? 'selected' : ''}>Male</option>
               <option value="Female" ${p.gender === 'Female' ? 'selected' : ''}>Female</option>
               <option value="Other" ${p.gender === 'Other' ? 'selected' : ''}>Other</option>
             </select>
           </div>
         </div>
-        <div class="swal-jj-field full-width"><label>Faculty</label><input id="sw-faculty" class="swal-jj-input" value="${p.faculty || ''}"></div>
-        <div class="swal-jj-field full-width"><label>Social Media</label><input id="sw-social" class="swal-jj-input" value="${p.social_media || ''}"></div>
+        <div class="swal-jj-field full-width"><label>Faculty</label><input id="sw-faculty" class="jj-input" value="${p.faculty || ''}"></div>
+        <div class="swal-jj-field full-width"><label>Social Media</label><input id="sw-social" class="jj-input" value="${p.social_media || ''}"></div>
         <div class="swal-jj-tags-section">
           <label class="tags-title">Tags</label>
-          <div class="swal-jj-tags-grid">
+          <div class="swal-jj-tags-grid" id="sw-tags-grid">
             ${allTags.map(tag => {
               const isSelected = userTags.some(t => t.toLowerCase() === tag.toLowerCase());
               return `<div class="swal-tag-chip ${isSelected ? 'selected' : ''}" data-tag="${tag}">${tag}</div>`;
@@ -297,21 +301,19 @@ async function openMyModal() {
     confirmButtonText: 'Save Changes',
     customClass: { popup: 'swal-jj-popup', confirmButton: 'swal-jj-confirm', cancelButton: 'swal-jj-cancel' },
     didOpen: () => {
-      // Tags Toggle
-      const tagsGrid = Swal.getHtmlContainer().querySelector('.swal-jj-tags-grid');
-      tagsGrid.addEventListener('click', (e) => {
+      // จัดการ Tags
+      document.getElementById('sw-tags-grid').addEventListener('click', (e) => {
         const chip = e.target.closest('.swal-tag-chip');
         if (chip) chip.classList.toggle('selected');
       });
 
-      // Avatar Preview Logic
-      const fileInput = document.getElementById('sw-file');
-      fileInput.addEventListener('change', () => {
-        const file = fileInput.files[0];
+      // จัดการ Preview รูป
+      document.getElementById('sw-file').addEventListener('change', (e) => {
+        const file = e.target.files[0];
         if (file) {
           const reader = new FileReader();
-          reader.onload = e => {
-            document.getElementById('sw-preview').src = e.target.result;
+          reader.onload = ev => {
+            document.getElementById('sw-preview').src = ev.target.result;
             document.getElementById('sw-preview').style.display = 'block';
             document.getElementById('sw-placeholder').style.display = 'none';
           };
@@ -320,43 +322,52 @@ async function openMyModal() {
       });
     },
     preConfirm: async () => {
-      const payload = {
-        first_name: document.getElementById('sw-fname').value,
-        last_name: document.getElementById('sw-lname').value,
-        bio: document.getElementById('sw-bio').value,
-        birth_date: document.getElementById('sw-birth').value,
-        gender: document.getElementById('sw-gender').value,
-        faculty: document.getElementById('sw-faculty').value,
-        social_media: document.getElementById('sw-social').value,
-        tags: Array.from(Swal.getHtmlContainer().querySelectorAll('.swal-tag-chip.selected')).map(c => c.getAttribute('data-tag'))
-      };
+      // แสดง Loading ป้องกันการกดซ้ำ
+      Swal.showLoading();
+      
+      try {
+        const payload = {
+          first_name: document.getElementById('sw-fname').value,
+          last_name: document.getElementById('sw-lname').value,
+          bio: document.getElementById('sw-bio').value,
+          birth_date: document.getElementById('sw-birth').value,
+          gender: document.getElementById('sw-gender').value,
+          faculty: document.getElementById('sw-faculty').value,
+          social_media: document.getElementById('sw-social').value,
+          tags: Array.from(document.querySelectorAll('#sw-tags-grid .swal-tag-chip.selected')).map(c => c.getAttribute('data-tag'))
+        };
 
-      // Handle Avatar Upload inside preConfirm
-      const file = document.getElementById('sw-file').files[0];
-      if (file) {
-        const formData = new FormData();
-        formData.append('avatar', file);
-        await fetch('/api/profile/me/avatar', { method: 'POST', body: formData, credentials: 'include' });
+        // 1. ส่งข้อมูลข้อความก่อน
+        const res = await fetch('/api/profile/me', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json();
+
+        if (!data.success) throw new Error(data.message || 'Update failed');
+
+        // 2. ถ้ามีรูปให้ส่งรูปตามไป
+        const file = document.getElementById('sw-file').files[0];
+        if (file) {
+          const formData = new FormData();
+          formData.append('avatar', file);
+          const avatarRes = await fetch('/api/profile/me/avatar', { method: 'POST', body: formData, credentials: 'include' });
+          const avatarData = await avatarRes.json();
+          if (avatarData.success) payload.profile_img = avatarData.profile_img;
+        }
+
+        return payload;
+      } catch (err) {
+        Swal.showValidationMessage(`Request failed: ${err}`);
       }
-
-      return payload;
     }
   });
 
   if (formValues) {
-    try {
-      const res = await fetch('/api/profile/me', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify(formValues),
-      });
-      const data = await res.json();
-      if (data.success) {
-        showToast('Profile updated! ✅');
-        loadProfile(); 
-      }
-    } catch (err) { showToast('Error saving data', false); }
+    showToast('Profile updated! ✅');
+    loadProfile(); // รีโหลดหน้าจอหลัก
   }
 }
 
