@@ -305,3 +305,41 @@
 
 /* ── EMPTY STATE (trips grid) ── */
 .empty-state { grid-column: 1 / -1; }
+
+/* ── TRIP COVER ── */
+.trip-cover {
+    height: 130px;
+    position: relative;
+    overflow: hidden;
+    border-bottom: 1px solid rgba(45,35,40,0.05);
+    background: var(--cream); /* fallback */
+}
+
+/* รูป cover */
+.trip-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* ถ้าอยากมี gradient overlay บางๆ */
+.trip-cover::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.05), rgba(0,0,0,0.25));
+}
+
+/* status badge อยู่บนรูป */
+.trip-status-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    z-index: 2;
+}

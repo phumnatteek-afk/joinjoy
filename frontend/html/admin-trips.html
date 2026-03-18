@@ -66,11 +66,12 @@
 <!-- DETAIL MODAL -->
 <div class="modal-overlay" id="tripModal">
     <div class="modal">
-        <div class="modal-cover">
+        <!-- <div class="modal-cover">
             <span id="modal-emoji">🗺️</span>
             <button class="modal-close" onclick="closeModal()">✕</button>
-        </div>
+        </div> -->
         <div class="modal-content">
+            <img id="modal-image" src="" alt="trip image" style="width:100%; border-radius:12px; margin-bottom:12px;">
             <div class="modal-title" id="modal-name">—</div>
             <div class="modal-location">
                 <iconify-icon icon="mdi:map-marker"></iconify-icon>
@@ -167,9 +168,11 @@
 
             return `<div class="trip-card" style="animation-delay:${i * 0.05}s;">
                 <div class="trip-cover">
-                    ${emoji}
-                    <span class="trip-status-badge status-${t.trip_status}">${t.trip_status}</span>
-                </div>
+    <img src="http://localhost:3000/${t.cover_image}" 
+         alt="cover" 
+         onerror="this.style.display='none'"/>
+    <span class="trip-status-badge status-${t.trip_status}">${t.trip_status}</span>
+</div>
                 <div class="trip-body">
                     <div class="trip-name">${t.trip_name}</div>
                     <div class="trip-location">
@@ -204,8 +207,11 @@
 
     function showDetail(trip) {
         currentTripId = trip.trip_id;
+        document.getElementById('modal-image').src = trip.cover_image
+    ? `http://localhost:3000/${trip.cover_image}`
+    : 'https://via.placeholder.com/300x200?text=No+Image';
         const emoji = getEmoji(trip.category);
-        document.getElementById('modal-emoji').textContent = emoji;
+        // document.getElementById('modal-emoji').textContent = emoji;
         document.getElementById('modal-name').textContent = trip.trip_name;
         document.getElementById('modal-location').textContent = trip.location_name || '—';
         document.getElementById('modal-members').textContent = `${trip.current_member || 0} / ${trip.max_member || 0} คน`;
