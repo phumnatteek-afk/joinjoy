@@ -3,61 +3,61 @@
 // ── 1. GLOBAL HELPERS ────────────────────────────────────────
 
 function showToast(msg, ok = true) {
-  const toast = document.getElementById('toast');
-  if (!toast) return;
-  toast.textContent = msg;
-  toast.style.background = ok ? '#2ecc71' : '#e74c3c';
-  toast.classList.add('show');
-  setTimeout(() => toast.classList.remove('show'), 3000);
+    const toast = document.getElementById('toast');
+    if (!toast) return;
+    toast.textContent = msg;
+    toast.style.background = ok ? '#2ecc71' : '#e74c3c';
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 3000);
 }
 
 // ── 2. RENDER FUNCTIONS ───────────────────────────────────────
 
 function renderProfile(p) {
-  const fullName = [p.first_name, p.last_name].filter(Boolean).join(' ');
-  
-  if (document.getElementById('profileName')) document.getElementById('profileName').textContent = fullName || p.user_name || '—';
-  if (document.getElementById('profileBio')) document.getElementById('profileBio').textContent = p.bio || '';
-  if (document.getElementById('firstName')) document.getElementById('firstName').textContent = p.first_name || '—';
-  if (document.getElementById('lastName')) document.getElementById('lastName').textContent = p.last_name || '—';
-  if (document.getElementById('gender')) document.getElementById('gender').textContent = p.gender || '—';
-  if (document.getElementById('faculty')) document.getElementById('faculty').textContent = p.faculty || '—';
-  if (document.getElementById('social')) document.getElementById('social').textContent = p.social_media || '—';
+    const fullName = [p.first_name, p.last_name].filter(Boolean).join(' ');
 
-  const bday = document.getElementById('birthday');
-  if (bday && p.birth_date) {
-    const [y, m, d] = p.birth_date.split('T')[0].split('-');
-    bday.textContent = `${d}/${m}/${y}`;
-  }
+    if (document.getElementById('profileName')) document.getElementById('profileName').textContent = fullName || p.user_name || '—';
+    if (document.getElementById('profileBio')) document.getElementById('profileBio').textContent = p.bio || '';
+    if (document.getElementById('firstName')) document.getElementById('firstName').textContent = p.first_name || '—';
+    if (document.getElementById('lastName')) document.getElementById('lastName').textContent = p.last_name || '—';
+    if (document.getElementById('gender')) document.getElementById('gender').textContent = p.gender || '—';
+    if (document.getElementById('faculty')) document.getElementById('faculty').textContent = p.faculty || '—';
+    if (document.getElementById('social')) document.getElementById('social').textContent = p.social_media || '—';
 
-  const avatar = document.getElementById('profileAvatar');
-  if (avatar && p.profile_img) {
-    avatar.src = p.profile_img;
-    avatar.style.display = 'block';
-  }
+    const bday = document.getElementById('birthday');
+    if (bday && p.birth_date) {
+        const [y, m, d] = p.birth_date.split('T')[0].split('-');
+        bday.textContent = `${d}/${m}/${y}`;
+    }
 
-  const tagList = document.getElementById('tagList');
-  if (tagList) {
-    tagList.innerHTML = '';
-    const tags = Array.isArray(p.tags) ? p.tags : [];
-    tags.forEach(tag => {
-      const chip = document.createElement('span');
-      chip.className = 'profile-tag-chip';
-      chip.textContent = tag.startsWith('#') ? tag : '#' + tag;
-      tagList.appendChild(chip);
-    });
-  }
+    const avatar = document.getElementById('profileAvatar');
+    if (avatar && p.profile_img) {
+        avatar.src = p.profile_img;
+        avatar.style.display = 'block';
+    }
+
+    const tagList = document.getElementById('tagList');
+    if (tagList) {
+        tagList.innerHTML = '';
+        const tags = Array.isArray(p.tags) ? p.tags : [];
+        tags.forEach(tag => {
+            const chip = document.createElement('span');
+            chip.className = 'profile-tag-chip';
+            chip.textContent = tag.startsWith('#') ? tag : '#' + tag;
+            tagList.appendChild(chip);
+        });
+    }
 }
 
 async function loadMyTrips() {
-  const container = document.getElementById('myTripsContainer');
-  if (!container) return;
+    const container = document.getElementById('myTripsContainer');
+    if (!container) return;
 
-  try {
-    const res = await fetch('/api/profile/my-trips', { credentials: 'include' });
-    const data = await res.json();
-    if (data.success && data.trips) {
-      container.innerHTML = data.trips.map(trip => `
+    try {
+        const res = await fetch('/api/profile/my-trips', { credentials: 'include' });
+        const data = await res.json();
+        if (data.success && data.trips) {
+            container.innerHTML = data.trips.map(trip => `
         <div class="trip-item-card">
           <div class="trip-info">
             <div class="trip-icon-circle">
@@ -72,49 +72,49 @@ async function loadMyTrips() {
           <button class="btn-edit-trip" onclick="goToEditTrip(${trip.trip_id})">Edit</button>
         </div>
       `).join('');
+        }
+    } catch (err) {
+        console.error('Load trips error:', err);
     }
-  } catch (err) {
-    console.error('Load trips error:', err);
-  }
 }
 
 async function loadProfile() {
-  const cached = localStorage.getItem('joinjoy_user');
-  if (cached) renderProfile(JSON.parse(cached));
+    const cached = localStorage.getItem('joinjoy_user');
+    if (cached) renderProfile(JSON.parse(cached));
 
-  try {
-    const res = await fetch('/api/profile/me', { credentials: 'include' });
-    const data = await res.json();
-    if (data.success) {
-      renderProfile(data.profile);
-      localStorage.setItem('joinjoy_user', JSON.stringify(data.profile));
-      await loadMyTrips();
+    try {
+        const res = await fetch('/api/profile/me', { credentials: 'include' });
+        const data = await res.json();
+        if (data.success) {
+            renderProfile(data.profile);
+            localStorage.setItem('joinjoy_user', JSON.stringify(data.profile));
+            await loadMyTrips();
+        }
+    } catch (err) {
+        console.error('Profile load error:', err);
+        await loadMyTrips();
     }
-  } catch (err) {
-    console.error('Profile load error:', err);
-    await loadMyTrips();
-  }
 }
 
 // ── 3. EDIT TRIP MODAL (iFrame Hover) ────────────────────────
 
 // ── ฟังก์ชันเปิด Popup แก้ไข Trip (SweetAlert2 Version) ──────────────
 
-window.goToEditTrip = async function (tripId) {
-  try {
-    // 1. ดึงข้อมูล Trip เดิมมาเติมในฟอร์ม
-    const res = await fetch(`/api/trips/${tripId}`);
-    const trip = await res.json();
-    if (!res.ok) throw new Error(trip.error || 'Failed to fetch');
+window.goToEditTrip = async function(tripId) {
+        try {
+            // 1. ดึงข้อมูล Trip เดิมมาเติมในฟอร์ม
+            const res = await fetch(`/api/trips/${tripId}`);
+            const trip = await res.json();
+            if (!res.ok) throw new Error(trip.error || 'Failed to fetch');
 
-    const allCategories = ["1-Day Trip", "Chill & Relaxed", "Travel Group", "Beach Trips", "Café Hopping", "Nightlife / Party", "Short Getaway", "Food", "Events", "Concert", "Healing", "Backpacking", "Camping"];
-    const savedCats = trip.category ? trip.category.split(',') : [];
+            const allCategories = ["1-Day Trip", "Chill & Relaxed", "Travel Group", "Beach Trips", "Café Hopping", "Nightlife / Party", "Short Getaway", "Food", "Events", "Concert", "Healing", "Backpacking", "Camping"];
+            const savedCats = trip.category ? trip.category.split(',') : [];
 
-    const { value: formValues } = await Swal.fire({
-      title: 'Edit Trip Details',
-      width: '90%',
-      maxWidth: '430px',
-      html: `
+            const { value: formValues } = await Swal.fire({
+                        title: 'Edit Trip Details',
+                        width: '90%',
+                        maxWidth: '430px',
+                        html: `
         <div class="swal-jj-form">
           <div class="swal-avatar-wrap">
   <div class="swal-trip-cover-preview" id="trip-cover-area" style="background-image: url('${trip.cover_image ? '/' + trip.cover_image : '../img/joinjoylogo.png'}')">
@@ -168,6 +168,12 @@ window.goToEditTrip = async function (tripId) {
 
           <div class="swal-jj-field"><label>Last day to join</label><input id="sw-limit" type="datetime-local" class="jj-input" value="${trip.limit_date_accept ? trip.limit_date_accept.substring(0, 16) : ''}"></div>
           <div class="swal-jj-field"><label>Social Media (Contact)</label><input id="sw-detail" class="jj-input" value="${trip.trip_detail || ''}"></div>
+          <div class="swal-jj-field"><label>Group Chat (Link)</label><input id="group_link" class="jj-input" value="${trip.group_link || ''}" placeholder="Enter YourGroup Chat Link">
+        <button type="button" 
+                onclick="window.open(document.getElementById('group_link').value, '_blank')">
+        </button>
+    </div>
+</div>
           <div class="swal-jj-field"><label>Description</label><textarea id="sw-desc" class="jj-input jj-area">${trip.description || ''}</textarea></div>
         </div>
       `,
@@ -204,6 +210,7 @@ window.goToEditTrip = async function (tripId) {
           end_time: document.getElementById('sw-end').value,
           limit_date_accept: document.getElementById('sw-limit').value,
           trip_detail: document.getElementById('sw-detail').value,
+          group_link: document.getElementById('group_link').value,
           description: document.getElementById('sw-desc').value,
           category: Array.from(document.querySelectorAll('#cat-grid .swal-tag-chip.selected')).map(c => c.dataset.cat).join(',')
         }
