@@ -7,10 +7,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet"/>
     <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
     <link rel="stylesheet" href="../css/admin-shared.css">
     <link rel="stylesheet" href="../css/admin-users.css">
-
 </head>
 <body>
 
@@ -35,7 +33,6 @@
         <a href="admin-trips.html" class="nav-item">
             <iconify-icon icon="mdi:map-marker-path"></iconify-icon> Trips
         </a>
-        
     </div>
     <div class="sidebar-footer">
         <a href="admin-login.html" class="logout-btn" id="logoutBtn">
@@ -105,11 +102,21 @@
     </div>
 </div>
 
-
 <script>
     const API = 'http://localhost:3000/api/admin';
     let allUsers = [];
     let selectedUserId = null;
+
+    // ดึง adminId จาก localStorage — ถ้าไม่มีให้ redirect login
+    function getAdminId() {
+        const adminId = localStorage.getItem('adminId');
+        if (!adminId) {
+            alert('ไม่พบข้อมูล admin กรุณา login ใหม่');
+            window.location.href = 'admin-login.html';
+            return null;
+        }
+        return adminId;
+    }
 
     async function loadUsers() {
         const search = document.getElementById('searchInput').value;
@@ -188,21 +195,34 @@
         const reason = document.getElementById('banReason').value.trim();
         if (!reason) { alert('กรุณากรอกเหตุผลการแบน'); return; }
 
-        await fetch(`${API}/ban-user`, {
+        const adminId = getAdminId(); // ← ดึงจาก localStorage แทน hardcode 1
+        if (!adminId) return;
+
+        const res = await fetch(`${API}/ban-user`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ user_id: selectedUserId, admin_id: 1, reason })
+            body: JSON.stringify({ user_id: selectedUserId, admin_id: adminId, reason })
         });
-        closeBanModal();
-        loadUsers();
+
+        if (res.ok) {
+            closeBanModal();
+            loadUsers();
+        } else {
+            const data = await res.json();
+            alert('เกิดข้อผิดพลาด: ' + (data.error || 'ไม่ทราบสาเหตุ'));
+        }
     }
 
     async function unbanUser(userId) {
         if (!confirm('ปลดแบนผู้ใช้งานนี้?')) return;
+
+        const adminId = getAdminId(); // ← ดึงจาก localStorage แทน hardcode 1
+        if (!adminId) return;
+
         await fetch(`${API}/ban-user`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ user_id: userId, admin_id: 1, reason: '' })
+            body: JSON.stringify({ user_id: userId, admin_id: adminId, reason: '' })
         });
         loadUsers();
     }
@@ -220,6 +240,7 @@
         e.preventDefault();
         if (confirm('คุณแน่ใจหรือไม่ว่าต้องการออกจากระบบ?')) {
             localStorage.removeItem('adminToken');
+            localStorage.removeItem('adminId');
             window.location.href = 'admin-login.html';
         }
     });

@@ -13,6 +13,7 @@ router.post('/login', async (req, res) => {
             [gmail, password]
         );
         if (rows.length > 0) {
+            req.session.adminId = rows[0].user_id; // ← เก็บ adminId ใน session ด้วย
             res.status(200).json({
                 message: "Login Successful",
                 admin: rows[0],
@@ -184,6 +185,14 @@ router.get('/users-list', async (req, res) => {
 // ─────────────────────────────────────────────
 router.post('/ban-user', async (req, res) => {
     const { user_id, admin_id, reason } = req.body;
+
+    // ดึง admin_id จาก session เป็น fallback ถ้า body ไม่ส่งมา
+    const resolvedAdminId = admin_id || (req.session && req.session.adminId) || null;
+
+    if (!resolvedAdminId) {
+        return res.status(400).json({ error: 'ไม่พบข้อมูล admin กรุณา login ใหม่' });
+    }
+
     try {
         await db.query('START TRANSACTION');
 
@@ -192,7 +201,7 @@ router.post('/ban-user', async (req, res) => {
             await db.query("UPDATE User SET status = 'banned' WHERE user_id = ?", [user_id]);
             await db.query(
                 "INSERT INTO Banned_logs (user_id, admin_id, reason, banned_at) VALUES (?, ?, ?, NOW())",
-                [user_id, admin_id || 1, reason]
+                [user_id, resolvedAdminId, reason]
             );
         } else {
             // UNBAN
@@ -264,7 +273,6 @@ router.get('/trips/:tripId', async (req, res) => {
 
         if (!trip.length) return res.status(404).json({ message: "ไม่พบทริป" });
 
-        // ดึงรายชื่อสมาชิก
         const [members] = await db.query(`
             SELECT tm.user_id, tm.status, tm.joined_at, u.user_name, u.university_email
             FROM Trip_member tm
@@ -301,7 +309,6 @@ router.patch('/close-trip/:tripId', async (req, res) => {
 // ─────────────────────────────────────────────
 router.get('/trip-growth', async (req, res) => {
     try {
-
         const [rows] = await db.query(`
             SELECT 
                 DATE(created_at) as trip_date,
@@ -313,14 +320,10 @@ router.get('/trip-growth', async (req, res) => {
         `);
 
         res.status(200).json(rows);
-
     } catch (err) {
         console.error("Trip Growth Error:", err);
         res.status(500).json({ error: err.message });
     }
 });
-
-
-
 
 module.exports = router;

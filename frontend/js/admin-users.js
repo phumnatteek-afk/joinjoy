@@ -107,7 +107,7 @@ document.getElementById('submit-ban').addEventListener('click', async () => {
         return;
     }
 
-    const currentAdminId = localStorage.getItem('adminId') || 1;
+    const currentAdminId = localStorage.setItem('adminId', data.admin.user_id);
 
     try {
         const res = await fetch('http://localhost:3000/api/admin/ban-user', {
@@ -134,7 +134,7 @@ document.getElementById('submit-ban').addEventListener('click', async () => {
 });
 
 async function updateUserStatus(userId, status, reason) {
-    const currentAdminId = localStorage.getItem('adminId') || 1;
+    const currentAdminId = getAdminId();
 
     try {
         const res = await fetch('http://localhost:3000/api/admin/ban-user', {
