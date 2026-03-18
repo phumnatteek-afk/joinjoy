@@ -1,188 +1,204 @@
+/* ══════════════════════════════════════════════════════════
+   admin-dashboard.css — JoinJoy theme
+══════════════════════════════════════════════════════════ */
+
 /* ── HEADER DATE CHIP ── */
-.header-date {
-    background: var(--white);
-    border: 1px solid rgba(45,35,40,0.08);
-    border-radius: var(--radius-sm);
-    padding: 10px 18px;
-    font-size: 13px;
-    color: var(--ink-md);
-    box-shadow: var(--shadow-sm);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
 
-/* ── STATS GRID ── */
-.stats-grid {
-    display: grid;
-    grid-template-columns: 1fr 2fr;
-    gap: 24px;
-    margin-bottom: 28px;
-}
+/* ── SIDEBAR LOGO IMAGE ── */
+.sidebar-logo-img {
+    width: 52px;
+    height: 52px;
+    object-fit: contain;
+    font-family: 'Poppins',sans-serif;
+    border-radius: 14px;
+    filter: drop-shadow(0 4px 10px rgba(255, 111, 143, 0.35));
+    flex-shrink: 0;
+  }
+  
+  .brand-logo img{
+      width: 50px;
+      height: 50px;
+      }
 
-.stat-card {
-    background: var(--card-bg);
-    border-radius: var(--radius);
-    padding: 28px 32px;
-    box-shadow: var(--shadow-sm);
-    border: 1px solid rgba(45,35,40,0.06);
-    position: relative;
-    overflow: hidden;
-    animation: fadeUp 0.5s ease both;
-}
-
-.stat-card::before {
-    content: '';
-    position: absolute;
-    top: -40px; right: -40px;
-    width: 130px; height: 130px;
-    border-radius: 50%;
-    background: var(--rose-lt);
-    opacity: 0.5;
-}
-
-.stat-card .card-label {
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    color: var(--ink-lt);
-    margin-bottom: 12px;
-}
-
-.stat-card .card-value {
-    font-family: 'Playfair Display', serif;
-    font-size: 52px;
-    font-weight: 700;
-    color: var(--rose);
-    line-height: 1;
-}
-
-.stat-card .card-unit {
-    font-size: 13px;
-    color: var(--ink-md);
-    margin-top: 6px;
-}
-
-/* ── TRIP STATS CARD ── */
-.trip-stats-card {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 0;
-    padding: 0 !important;
-}
-
-.trip-stat-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 28px 20px;
-    position: relative;
-}
-
-.trip-stat-item + .trip-stat-item::before {
-    content: '';
-    position: absolute;
-    left: 0; top: 20%; height: 60%;
-    width: 1px;
-    background: rgba(45,35,40,0.08);
-}
-
-.trip-stat-badge {
-    width: 44px; height: 44px;
-    border-radius: 12px;
-    display: grid;
-    place-items: center;
-    font-size: 20px;
-    margin-bottom: 14px;
-}
-
-.badge-open   { background: rgba(109,191,138,0.15); color: var(--success); }
-.badge-full   { background: rgba(245,166,35,0.15);  color: var(--warning); }
-.badge-closed { background: rgba(178,168,172,0.15); color: var(--ink-md); }
-
-.trip-stat-val {
-    font-family: 'Playfair Display', serif;
-    font-size: 36px;
-    font-weight: 700;
-    color: var(--ink);
-    line-height: 1;
-}
-
-.trip-stat-lbl {
-    font-size: 12px;
-    color: var(--ink-lt);
-    margin-top: 4px;
-    letter-spacing: 0.5px;
-}
-
-/* ── CHARTS GRID ── */
-.charts-grid {
-    display: grid;
-    grid-template-columns: 3fr 2fr;
-    gap: 24px;
-}
-
-.chart-card {
-    background: var(--card-bg);
-    border-radius: var(--radius);
-    padding: 28px 32px;
-    box-shadow: var(--shadow-sm);
-    border: 1px solid rgba(45,35,40,0.06);
-    animation: fadeUp 0.5s ease 0.15s both;
-}
-
-.chart-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 24px;
-}
-
-.chart-title {
-    font-family: 'Playfair Display', serif;
-    font-size: 18px;
-    font-weight: 700;
-    color: var(--ink);
-}
-
-.chart-tag {
-    background: var(--rose-lt);
-    color: var(--rose-dk);
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    padding: 4px 10px;
-    border-radius: 20px;
-}
-
-.chart-wrap       { height: 220px; position: relative; }
-.chart-wrap-donut { height: 220px; position: relative; }
-
-/* ── REVIEW LEGEND ── */
-.review-summary {
-    display: flex;
-    justify-content: center;
-    gap: 24px;
-    margin-top: 18px;
-}
-
-.review-dot {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 13px;
-    color: var(--ink-md);
-}
-
-.dot        { width: 10px; height: 10px; border-radius: 50%; }
-.dot-rose   { background: var(--rose); }
-.dot-warm   { background: var(--warm-dk); }
-
-/* ── RESPONSIVE ── */
-@media (max-width: 1100px) {
-    .stats-grid  { grid-template-columns: 1fr; }
-    .charts-grid { grid-template-columns: 1fr; }
-}
+  .header-date {
+      background: var(--white);
+      border: 1.5px solid rgba(255, 111, 143, 0.15);
+      border-radius: 999px;
+      padding: 10px 20px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--ink-md);
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .brand-name{
+        font-family: 'Poppins',sans-serif;
+    }
+    .header-date iconify-icon { color: var(--rose); font-size: 16px; }
+    
+    /* ── STATS GRID ── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+    .brand-name{
+      font-family: 'Poppins', sans-serif;
+    }
+    .page-header h1{
+      font-family: 'Poppins',sans-serif;
+    }
+    
+    .stat-card {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      padding: 28px 32px;
+      box-shadow: var(--shadow-sm);
+      border: 1.5px solid rgba(255, 111, 143, 0.08);
+      position: relative;
+      overflow: hidden;
+      animation: fadeUp 0.5s ease both;
+    }
+    
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: -30px; right: -30px;
+      width: 110px; height: 110px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--rose-lt), var(--warm-lt));
+      opacity: 0.7;
+    }
+    
+    .stat-card .card-label {
+      font-size: 11px;
+      font-weight: 300;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--ink-lt);
+      margin-bottom: 14px;
+    }
+    
+    .stat-card .card-value {
+      font-family: 'Poppins', sans-serif;
+      font-size: 56px;
+      font-weight: 500;
+      background: linear-gradient(135deg, var(--rose), var(--warm));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1;
+    }
+    
+    .stat-card .card-unit {
+      font-size: 13px;
+      color: var(--ink-lt);
+      margin-top: 8px;
+      font-weight: 500;
+    }
+    
+    /* ── TRIP STATS CARD ── */
+    .trip-stats-card {
+      display: grid !important;
+      grid-template-columns: repeat(3, 1fr) !important;
+      gap: 0 !important;
+      padding: 0 !important;
+    }
+    
+    .trip-stat-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 20px;
+      position: relative;
+    }
+    
+    .trip-stat-item + .trip-stat-item::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 20%; height: 60%;
+      width: 1px;
+      background: rgba(255, 111, 143, 0.12);
+    }
+    
+    .trip-stat-badge {
+      width: 48px; height: 48px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      font-size: 22px;
+      margin-bottom: 14px;
+    }
+    
+    .badge-open   { background: rgba(76,175,135,0.12); color: var(--success); }
+    .badge-full   { background: rgba(255,179,71,0.15);  color: var(--warning); }
+    .badge-closed { background: rgba(255,111,143,0.1);  color: var(--rose); }
+    
+    .trip-stat-val {
+      font-family: 'Poppins', sans-serif;
+      font-size: 38px;
+      font-weight: 500;
+      color: var(--ink);
+      line-height: 1;
+    }
+    
+    .trip-stat-lbl {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--ink-lt);
+      margin-top: 4px;
+    }
+    
+    /* ── CHARTS GRID ── */
+    .charts-grid {
+      display: grid;
+      grid-template-columns: 3fr 2fr;
+      gap: 20px;
+    }
+    
+    .chart-card {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      padding: 28px 32px;
+      box-shadow: var(--shadow-sm);
+      border: 1.5px solid rgba(255, 111, 143, 0.08);
+      animation: fadeUp 0.5s ease 0.15s both;
+    }
+    
+    .chart-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+    
+    .chart-title {
+      font-family: 'Poppins', sans-serif;
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--ink);
+    }
+    
+    .chart-tag {
+      background: var(--rose-lt);
+      color: var(--rose-dk);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      padding: 5px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,111,143,0.2);
+    }
+    
+    .chart-wrap       { height: 220px; position: relative; }
+    .chart-wrap-donut { height: 220px; position: relative; }
+    
+    @media (max-width: 1100px) {
+      .stats-grid  { grid-template-columns: 1fr; }
+      .charts-grid { grid-template-columns: 1fr; }
+    }
