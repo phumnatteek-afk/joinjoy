@@ -39,7 +39,7 @@ let ensureNotificationFromUserIdColumnPromise = null
 
 function ensureNotificationFromUserIdColumn() {
     if (!ensureNotificationFromUserIdColumnPromise) {
-        ensureNotificationFromUserIdColumnPromise = (async () => {
+        ensureNotificationFromUserIdColumnPromise = (async() => {
             const [cols] = await pool.query(
                 "SHOW COLUMNS FROM Notification LIKE 'from_user_id'"
             )
@@ -95,8 +95,7 @@ router.post('/join-request', async(req, res) => {
 
         // ป้องกัน join ซ้ำ
         const [existing] = await pool.query(
-            'SELECT status FROM Trip_member WHERE trip_id = ? AND user_id = ?',
-            [trip_id, requesterId]
+            'SELECT status FROM Trip_member WHERE trip_id = ? AND user_id = ?', [trip_id, requesterId]
         )
         if (existing.length) {
             return res.status(409).json({ error: `คุณได้ส่งคำขอนี้แล้ว (สถานะ: ${existing[0].status})` })
@@ -197,7 +196,7 @@ router.patch('/respond', async(req, res) => {
     try {
         // ดึงข้อมูล Trip + contact Host จาก Database จริง
         const [trips] = await pool.query(
-            `SELECT t.trip_name, t.creator_id, up.social_media AS host_contact
+            `SELECT t.trip_name, t.creator_id, t.group_link, up.social_media AS host_contact
        FROM Trip t
        LEFT JOIN User_profile up ON up.user_id = t.creator_id
        WHERE t.trip_id = ?`, [trip_id]
@@ -212,7 +211,7 @@ router.patch('/respond', async(req, res) => {
         if (Number(trip.creator_id) !== Number(actorUserId)) {
             return res.status(403).json({ error: 'เฉพาะโฮสเจ้าของทริปเท่านั้นที่ตอบรับได้' })
         }
-            // กำหนดข้อความตาม status
+        // กำหนดข้อความตาม status
         const isAccepted = status === 'Joined'
 
         // UPDATE Trip_member status เป็น Joined หรือ Rejected
@@ -221,17 +220,16 @@ router.patch('/respond', async(req, res) => {
        WHERE trip_id = ? AND user_id = ?`, [status, trip_id, user_id]
         )
 
-                // ดันเวลาแจ้งเตือนคำขอเดิมของโฮสต์ให้เป็นล่าสุด
-                // เพื่อให้ขึ้นบนสุดตามเวลาที่โฮสต์เพิ่งตอบรับ/ปฏิเสธ
-                const [requesterRows] = await pool.query(
-                        'SELECT user_name FROM User WHERE user_id = ? LIMIT 1',
-                        [user_id]
-                )
-                const requesterName = requesterRows.length ? String(requesterRows[0].user_name || '').trim() : ''
-                const requesterMarker = `%[REQ_USER_ID:${Number(user_id)}]%`
-                const requesterNameLike = requesterName ? `${requesterName} ขอเข้าร่วมทริป%` : ''
-                await pool.query(
-                        `UPDATE Notification
+        // ดันเวลาแจ้งเตือนคำขอเดิมของโฮสต์ให้เป็นล่าสุด
+        // เพื่อให้ขึ้นบนสุดตามเวลาที่โฮสต์เพิ่งตอบรับ/ปฏิเสธ
+        const [requesterRows] = await pool.query(
+            'SELECT user_name FROM User WHERE user_id = ? LIMIT 1', [user_id]
+        )
+        const requesterName = requesterRows.length ? String(requesterRows[0].user_name || '').trim() : ''
+        const requesterMarker = `%[REQ_USER_ID:${Number(user_id)}]%`
+        const requesterNameLike = requesterName ? `${requesterName} ขอเข้าร่วมทริป%` : ''
+        await pool.query(
+            `UPDATE Notification
              SET create_at = ${SQL_NOW_TH}
              WHERE notification_id = (
                  SELECT latest.notification_id FROM (
@@ -248,15 +246,16 @@ router.patch('/respond', async(req, res) => {
                      LIMIT 1
                  ) AS latest
              )`, [trip_id, trip.creator_id, requesterMarker, requesterNameLike, requesterNameLike]
-                )
+        )
 
         const title = isAccepted ?
             '🎉 ได้รับการตอบรับแล้ว!' :
             '❌ คำขอถูกปฏิเสธ'
 
-        const detail = isAccepted ?
-            `ได้รับการตอบรับเข้าร่วมทริป "${trip.trip_name}" ติดต่อ Host: ${trip.host_contact}` :
-            `คำขอเข้าร่วมทริป "${trip.trip_name}" ถูกปฏิเสธ ยังมีทริปอื่นให้ร่วมจอยอยู่นะ`
+            // ถ้าโฮสตอบรับ ให้แสดงลิงก์ไลน์แทนคอนแทค
+            const detail = isAccepted ?
+                `ได้รับการตอบรับเข้าร่วมทริป "${trip.trip_name}" ลิงก์ไลน์: ${trip.host_contact}` :
+                `คำขอเข้าร่วมทริป "${trip.trip_name}" ถูกปฏิเสธ ยังมีทริปอื่นให้ร่วมจอยอยู่นะ`
 
         // INSERT Notification ให้ User แจ้งผลการตอบรับ
         await ensureNotificationFromUserIdColumn()
@@ -267,7 +266,7 @@ router.patch('/respond', async(req, res) => {
         )
 
         // Socket emit ไปหา User ทันที ส่งข้อมูล contact Host ไปด้วยถ้า ACCEPT
-        const io = req.app.get('io')
+        const io = req.app.get('io');
         if (io) {
             io.to(`room:${user_id}`).emit('new_notification', {
                 type: status,
@@ -275,8 +274,9 @@ router.patch('/respond', async(req, res) => {
                 detail,
                 trip_id,
                 // ถ้า Accept ส่ง contact Host ไปด้วยเลย ถ้า Reject ส่ง null
-                host_contact: isAccepted ? trip.host_contact : null
-            })
+                host_contact: isAccepted ? trip.host_contact : null,
+                group_link: isAccepted ? trip.group_link : null
+            });
         }
 
         res.json({ success: true, status })
@@ -333,63 +333,61 @@ router.get('/trip-host/:trip_id', async(req, res) => {
 })
 
 router.get('/unread-count', async(req, res) => {
-        const actorUserId = getActorUserId(req)
+    const actorUserId = getActorUserId(req)
 
-        if (!actorUserId) {
-                return res.status(401).json({ error: 'กรุณาล็อกอินก่อนดูจำนวนการแจ้งเตือน' })
-        }
+    if (!actorUserId) {
+        return res.status(401).json({ error: 'กรุณาล็อกอินก่อนดูจำนวนการแจ้งเตือน' })
+    }
 
-        try {
-                await ensureNotificationSeenTable()
+    try {
+        await ensureNotificationSeenTable()
 
-                const [rows] = await pool.query(
-                        `SELECT COUNT(*) AS unread_count
+        const [rows] = await pool.query(
+            `SELECT COUNT(*) AS unread_count
                          FROM Notification n
                          LEFT JOIN Notification_seen ns
                              ON ns.notification_id = n.notification_id
                             AND ns.user_id = n.user_id
                          WHERE n.user_id = ?
-                             AND ns.notification_id IS NULL`,
-                        [actorUserId]
-                )
+                             AND ns.notification_id IS NULL`, [actorUserId]
+        )
 
-                return res.json({ count: Number(rows[0]?.unread_count || 0) })
-        } catch (err) {
-                console.error('❌ unread-count error:', err.message)
-                return res.status(500).json({ error: err.message })
-        }
+        return res.json({ count: Number((rows[0] && rows[0].unread_count) || 0) });
+    } catch (err) {
+        console.error('❌ unread-count error:', err.message)
+        return res.status(500).json({ error: err.message })
+    }
 })
 
 router.put('/read-all', async(req, res) => {
-        const actorUserId = getActorUserId(req)
+    const actorUserId = getActorUserId(req)
 
-        if (!actorUserId) {
-                return res.status(401).json({ error: 'กรุณาล็อกอินก่อนอ่านการแจ้งเตือน' })
-        }
+    if (!actorUserId) {
+        return res.status(401).json({ error: 'กรุณาล็อกอินก่อนอ่านการแจ้งเตือน' })
+    }
 
-        try {
-                await ensureNotificationSeenTable()
+    try {
+        await ensureNotificationSeenTable()
 
-                await pool.query(
-                        `INSERT IGNORE INTO Notification_seen (notification_id, user_id, seen_at)
+        await pool.query(
+            `INSERT IGNORE INTO Notification_seen (notification_id, user_id, seen_at)
                      SELECT n.notification_id, n.user_id, ${SQL_NOW_TH}
                          FROM Notification n
-                         WHERE n.user_id = ?`,
-                        [actorUserId]
-                )
+                         WHERE n.user_id = ?`, [actorUserId]
+        )
 
-                return res.json({ success: true })
-        } catch (err) {
-                console.error('❌ read-all error:', err.message)
-                return res.status(500).json({ error: err.message })
-        }
+        return res.json({ success: true })
+    } catch (err) {
+        console.error('❌ read-all error:', err.message)
+        return res.status(500).json({ error: err.message })
+    }
 })
 
 router.get('/:user_id', async(req, res) => {
     const { user_id } = req.params
 
     try {
-                await ensureNotificationSeenTable()
+        await ensureNotificationSeenTable()
 
         await ensureNotificationFromUserIdColumn()
 
@@ -437,15 +435,13 @@ router.get('/:user_id', async(req, res) => {
                     fromUserId = Number(trimmed);
                 } else {
                     const [userRows] = await pool.query(
-                        'SELECT user_id FROM User WHERE user_name = ? LIMIT 1',
-                        [trimmed]
+                        'SELECT user_id FROM User WHERE user_name = ? LIMIT 1', [trimmed]
                     );
                     if (userRows.length) {
                         fromUserId = Number(userRows[0].user_id);
                         // Persist normalized user_id for future loads
                         await pool.query(
-                            'UPDATE Notification SET from_user_id = ? WHERE notification_id = ?',
-                            [fromUserId, row.notification_id]
+                            'UPDATE Notification SET from_user_id = ? WHERE notification_id = ?', [fromUserId, row.notification_id]
                         );
                     }
                 }
@@ -477,8 +473,7 @@ router.get('/:user_id', async(req, res) => {
                 if (!fromUserId && notificationTitle.includes('ได้รับการตอบรับ')) {
                     if (Number(row.trip_id) > 0) {
                         const [tripRows] = await pool.query(
-                            'SELECT creator_id FROM Trip WHERE trip_id = ? LIMIT 1',
-                            [row.trip_id]
+                            'SELECT creator_id FROM Trip WHERE trip_id = ? LIMIT 1', [row.trip_id]
                         )
                         if (tripRows.length) {
                             fromUserId = Number(tripRows[0].creator_id)
@@ -504,8 +499,7 @@ router.get('/:user_id', async(req, res) => {
             // Persist the derived user id for future reads
             if (fromUserId && !row.from_user_id) {
                 await pool.query(
-                    'UPDATE Notification SET from_user_id = ? WHERE notification_id = ?',
-                    [fromUserId, row.notification_id]
+                    'UPDATE Notification SET from_user_id = ? WHERE notification_id = ?', [fromUserId, row.notification_id]
                 )
             }
 
@@ -513,11 +507,11 @@ router.get('/:user_id', async(req, res) => {
             let hostContact = null
             let hostProfileImg = null
             let hostUserId = null
+            let groupLink = null;
             if (fromUserId && Number(row.trip_id) > 0 &&
                 notificationTitle.includes('มีคนขอเข้าร่วมทริป')) {
                 const [memberRows] = await pool.query(
-                    'SELECT status FROM Trip_member WHERE trip_id = ? AND user_id = ? LIMIT 1',
-                    [row.trip_id, fromUserId]
+                    'SELECT status FROM Trip_member WHERE trip_id = ? AND user_id = ? LIMIT 1', [row.trip_id, fromUserId]
                 )
                 memberStatus = memberRows.length ? memberRows[0].status : null
             }
@@ -528,21 +522,18 @@ router.get('/:user_id', async(req, res) => {
                 // If it is numeric, use as user_id; else treat as username
                 if (/^\d+$/.test(fromUserIdStr)) {
                     const [profileRows] = await pool.query(
-                        'SELECT profile_img FROM User_profile WHERE user_id = ? LIMIT 1',
-                        [Number(fromUserIdStr)]
+                        'SELECT profile_img FROM User_profile WHERE user_id = ? LIMIT 1', [Number(fromUserIdStr)]
                     )
                     fromUserProfileImg = profileRows.length ? profileRows[0].profile_img : null
                 } else {
                     const [userRows] = await pool.query(
-                        'SELECT u.user_id, up.profile_img FROM User u LEFT JOIN User_profile up ON up.user_id = u.user_id WHERE u.user_name = ? LIMIT 1',
-                        [fromUserIdStr]
+                        'SELECT u.user_id, up.profile_img FROM User u LEFT JOIN User_profile up ON up.user_id = u.user_id WHERE u.user_name = ? LIMIT 1', [fromUserIdStr]
                     )
                     if (userRows.length) {
                         fromUserProfileImg = userRows[0].profile_img || null
-                        // Also ensure future loads use numeric id
+                            // Also ensure future loads use numeric id
                         await pool.query(
-                            'UPDATE Notification SET from_user_id = ? WHERE notification_id = ?',
-                            [userRows[0].user_id, row.notification_id]
+                            'UPDATE Notification SET from_user_id = ? WHERE notification_id = ?', [userRows[0].user_id, row.notification_id]
                         )
                     }
                 }
@@ -550,18 +541,18 @@ router.get('/:user_id', async(req, res) => {
 
             if (Number(row.trip_id) > 0 && notificationTitle.includes('ได้รับการตอบรับแล้ว')) {
                 const [hostRows] = await pool.query(
-                    `SELECT t.creator_id AS host_user_id, up.social_media AS host_contact, up.profile_img AS host_profile_img
+                    `SELECT t.creator_id AS host_user_id, t.group_link, up.social_media AS host_contact, up.profile_img AS host_profile_img
                      FROM Trip t
                      LEFT JOIN User_profile up ON up.user_id = t.creator_id
                      WHERE t.trip_id = ?
-                     LIMIT 1`,
-                    [row.trip_id]
+                     LIMIT 1`, [row.trip_id]
                 )
 
                 if (hostRows.length) {
                     hostUserId = hostRows[0].host_user_id || null
                     hostContact = hostRows[0].host_contact || null
                     hostProfileImg = hostRows[0].host_profile_img || null
+                    groupLink = hostRows[0].group_link || null;
                 }
             }
 
@@ -574,7 +565,8 @@ router.get('/:user_id', async(req, res) => {
                 member_status: memberStatus,
                 host_user_id: hostUserId,
                 host_contact: hostContact,
-                host_profile_img: hostProfileImg
+                host_profile_img: hostProfileImg,
+                group_link: groupLink
             })
         }
 

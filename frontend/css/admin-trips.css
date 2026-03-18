@@ -18,6 +18,10 @@
     transition: all 0.2s;
 }
 
+.modal-title{
+    font-family: 'Poppins',sans-serif;
+}
+
 .tab-btn:hover { border-color: var(--rose); color: var(--rose); }
 
 .tab-btn.active {
@@ -89,9 +93,9 @@
 .trip-body     { padding: 20px; }
 
 .trip-name {
-    font-family: 'Playfair Display', serif;
+    font-family: 'Poppins', serif;
     font-size: 17px;
-    font-weight: 700;
+    font-weight: 600;
     margin-bottom: 6px;
 }
 

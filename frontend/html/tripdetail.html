@@ -1,85 +1,87 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Trip Detail – JoinJoy</title>
-  <link rel="icon" href="img/joinjoylogo.png" type="image/png" />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-  <link rel="stylesheet" href="../css/tripdetail.css" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Trip Detail – JoinJoy</title>
+    <link rel="icon" href="img/joinjoylogo.png" type="image/png" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="../css/tripdetail.css" />
 </head>
+
 <body>
 
-  <!-- ── BACK BUTTON ── -->
-  <button class="btn-back" onclick="history.back()" aria-label="Go back">
+    <!-- ── BACK BUTTON ── -->
+    <button class="btn-back" onclick="history.back()" aria-label="Go back">
     <svg width="9" height="16" viewBox="0 0 9 16" fill="none">
       <path d="M8 1L1 8L8 15" stroke="#2D1F26" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>
   </button>
 
-  <!-- ── LOGO ── -->
-  <div class="td-logo">
-    <img src="../img/joinjoylogo.png" alt="JoinJoy" />
-  </div>
+    <!-- ── LOGO ── -->
+    <div class="td-logo">
+        <img src="../img/joinjoylogo.png" alt="JoinJoy" />
+    </div>
 
-  <!-- ── LOADING STATE ── -->
-  <div id="loadingState" class="td-loading">
-    <div class="spinner"></div>
-    <span>Loading trip…</span>
-  </div>
+    <!-- ── LOADING STATE ── -->
+    <div id="loadingState" class="td-loading">
+        <div class="spinner"></div>
+        <span>Loading trip…</span>
+    </div>
 
-  <!-- ── MAIN CONTENT (hidden until data loads) ── -->
-  <div id="pageContent" class="td-hidden">
+    <!-- ── MAIN CONTENT (hidden until data loads) ── -->
+    <div id="pageContent" class="td-hidden">
 
-    <!-- HERO CARD -->
-    <div class="td-hero" id="heroCard">
-      <div class="td-hero-avatar" id="heroAvatar">
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#F06292" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <!-- HERO CARD -->
+        <div class="td-hero" id="heroCard">
+            <div class="td-hero-avatar" id="heroAvatar">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#F06292" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
           <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
         </svg>
-      </div>
-      <div class="td-hero-body">
-        <h1 class="td-trip-name" id="tripTitle">—</h1>
-        <p class="td-host-line">Host: <span class="td-host-name" id="tripHost">—</span></p>
-        <div class="td-tags" id="tripTags"></div>
-      </div>
-    </div>
+            </div>
+            <div class="td-hero-body">
+                <h1 class="td-trip-name" id="tripTitle">—</h1>
+                <p class="td-host-line">Host: <span class="td-host-name" id="tripHost">—</span></p>
+                <div class="td-tags" id="tripTags"></div>
+            </div>
+        </div>
 
-    <!-- DATE CHIPS -->
-    <div class="td-date-block">
-      <div class="td-dates">
-        <div class="td-date-chip">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#F06292" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <!-- DATE CHIPS -->
+        <div class="td-date-block">
+            <div class="td-dates">
+                <div class="td-date-chip">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#F06292" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
           </svg>
-          <span id="startDate">—</span>
-        </div>
-        <span class="td-date-arrow">→</span>
-        <div class="td-date-chip">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#F06292" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <span id="startDate">—</span>
+                </div>
+                <span class="td-date-arrow">→</span>
+                <div class="td-date-chip">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#F06292" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
           </svg>
-          <span id="endDate">—</span>
+                    <span id="endDate">—</span>
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
 
-    <!-- INFO BOX -->
-    <div class="td-infobox">
-      <!-- Location -->
-      <div class="td-info-row">
-        <span class="td-info-icon">
+        <!-- INFO BOX -->
+        <div class="td-infobox">
+            <!-- Location -->
+            <div class="td-info-row">
+                <span class="td-info-icon">
           <svg width="16" height="20" viewBox="0 0 16 20" fill="none">
             <path d="M8 0C4.686 0 2 2.686 2 6C2 10.5 8 19 8 19C8 19 14 10.5 14 6C14 2.686 11.314 0 8 0Z" stroke="#F06292" stroke-width="1.8"/>
             <circle cx="8" cy="6" r="2.2" stroke="#F06292" stroke-width="1.8"/>
           </svg>
         </span>
-        <span class="td-info-text" id="tripLocation">—</span>
-      </div>
-      <!-- Budget -->
-      <div class="td-info-row">
-        <span class="td-info-icon">
+                <span class="td-info-text" id="tripLocation">—</span>
+            </div>
+            <!-- Budget -->
+            <div class="td-info-row">
+                <span class="td-info-icon">
           <!-- Stack of coins icon -->
           <svg width="18" height="16" viewBox="0 0 20 18" fill="none">
             <ellipse cx="10" cy="4" rx="8" ry="3" stroke="#F06292" stroke-width="1.8"/>
@@ -87,11 +89,11 @@
             <path d="M2 8V13C2 14.657 5.582 16 10 16C14.418 16 18 14.657 18 13V8" stroke="#F06292" stroke-width="1.8"/>
           </svg>
         </span>
-        <span class="td-info-text" id="tripBudget">—</span>
-      </div>
-      <!-- Members count -->
-      <div class="td-info-row">
-        <span class="td-info-icon">
+                <span class="td-info-text" id="tripBudget">—</span>
+            </div>
+            <!-- Members count -->
+            <div class="td-info-row">
+                <span class="td-info-icon">
           <svg width="20" height="16" viewBox="0 0 22 18" fill="none">
             <path d="M15.5 1C17.433 1 19 2.567 19 4.5C19 6.433 17.433 8 15.5 8" stroke="#F06292" stroke-width="1.8" stroke-linecap="round"/>
             <path d="M17 11C19.21 11.5 21 12.8 21 15V17" stroke="#F06292" stroke-width="1.8" stroke-linecap="round"/>
@@ -99,70 +101,71 @@
             <path d="M1 17C1 13.686 4.134 11 8 11C11.866 11 15 13.686 15 17" stroke="#F06292" stroke-width="1.8" stroke-linecap="round"/>
           </svg>
         </span>
-        <span class="td-info-text" id="tripMembers">— Member</span>
-      </div>
-    </div>
+                <span class="td-info-text" id="tripMembers">— Member</span>
+            </div>
+        </div>
 
-    <!-- LAST DAY TO JOIN — standalone pink card -->
-    <div class="td-deadline-row" id="deadlineRow" style="display:none">
-      <span class="td-deadline-label">Last day to join</span>
-      <div class="td-deadline-value-row">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#e53935" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <!-- LAST DAY TO JOIN — standalone pink card -->
+        <div class="td-deadline-row" id="deadlineRow" style="display:none">
+            <span class="td-deadline-label">Last day to join</span>
+            <div class="td-deadline-value-row">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#e53935" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
         </svg>
-        <span class="td-deadline-value" id="limitDate">—</span>
-      </div>
+                <span class="td-deadline-value" id="limitDate">—</span>
+            </div>
+        </div>
+
+        <!-- DETAILS -->
+        <div class="td-section">
+            <h2 class="td-section-label">Details:</h2>
+            <div class="td-details-box">
+                <p id="tripDescription">—</p>
+            </div>
+        </div>
+
+        <!-- MEMBERS -->
+        <div class="td-section" id="membersSection">
+            <h2 class="td-section-label td-section-label--center">
+                Member <span class="td-member-badge" id="memberCount">0/0</span>
+            </h2>
+            <div class="td-members-list" id="membersList">
+                <!-- injected by JS -->
+            </div>
+        </div>
+
+
+        <button id="joinBtn" class="join-btn">Join Trip</button>
+    </div>
+    <!-- /pageContent -->
+
+    <!-- ── TOAST ── -->
+    <div class="td-toast" id="toast"></div>
+
+    <!-- ── JOIN CONFIRM MODAL ── -->
+    <div id="joinModal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-close" onclick="closeJoinModal()">✕</div>
+            <div class="modal-header">
+                <span class="warning-icon">⚠️</span>
+                <h2>ยืนยันการเข้าร่วมทริป</h2>
+            </div>
+            <hr>
+            <div class="modal-content">
+                <p>
+                    <span class="note">หมายเหตุ:</span> ค่าใช้จ่ายต่อคนอาจมีการเปลี่ยนแปลง<br> หากจำนวนผู้เข้าร่วมไม่ครบตามที่กำหนด
+                    <br><br> กรุณารับทราบเงื่อนไขก่อนยืนยันการเข้าร่วม
+                </p>
+            </div>
+            <hr>
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="closeJoinModal()">ยกเลิก</button>
+                <button class="btn-confirm" onclick="confirmJoin()">ยอมรับและเข้าร่วม</button>
+            </div>
+        </div>
     </div>
 
-    <!-- DETAILS -->
-    <div class="td-section">
-      <h2 class="td-section-label">Details:</h2>
-      <div class="td-details-box">
-        <p id="tripDescription">—</p>
-      </div>
-    </div>
-
-    <!-- MEMBERS -->
-    <div class="td-section" id="membersSection">
-      <h2 class="td-section-label td-section-label--center">
-        Member <span class="td-member-badge" id="memberCount">0/0</span>
-      </h2>
-      <div class="td-members-list" id="membersList">
-        <!-- injected by JS -->
-      </div>
-    </div>
-
-  
-<button id="joinBtn" class="join-btn">Join Trip</button>
-</div><!-- /pageContent -->
-
-  <!-- ── TOAST ── -->
-  <div class="td-toast" id="toast"></div>
-
-  <!-- ── JOIN CONFIRM MODAL ── -->
-  <div id="joinModal" class="modal-overlay">
-    <div class="modal-box">
-      <div class="modal-close" onclick="closeJoinModal()">✕</div>
-      <div class="modal-header">
-        <span class="warning-icon">⚠️</span>
-        <h2>ยืนยันการเข้าร่วมทริป</h2>
-      </div>
-      <hr>
-      <div class="modal-content">
-        <p>
-          <span class="note">หมายเหตุ:</span> ค่าใช้จ่ายต่อคนอาจมีการเปลี่ยนแปลง<br>
-          หากจำนวนผู้เข้าร่วมไม่ครบตามที่กำหนด<br><br>
-          กรุณารับทราบเงื่อนไขก่อนยืนยันการเข้าร่วม
-        </p>
-      </div>
-      <hr>
-      <div class="modal-actions">
-        <button class="btn-cancel" onclick="closeJoinModal()">ยกเลิก</button>
-        <button class="btn-confirm" onclick="confirmJoin()">ยอมรับและเข้าร่วม</button>
-      </div>
-    </div>
-  </div>
-
-  <script src="../js/tripdetail.js"></script>
+    <script src="../js/tripdetail.js"></script>
 </body>
+
 </html>
