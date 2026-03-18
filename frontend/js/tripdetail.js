@@ -258,32 +258,6 @@ function setJoinState(btn, state) {
   }
 }
 
-/* ── Join Trip button ─────────────────────────────────────── */
-function setupJoinButton(tripId) {
-  const btn = $('joinBtn');
-  if (!btn) return;
-
-  const pendingKey = `pending_${tripId}`;
-  const joinedKey  = `joined_${tripId}`;
-
-  // Restore saved state
-  if (localStorage.getItem(joinedKey)) {
-    setJoinState(btn, 'joined');
-  } else if (localStorage.getItem(pendingKey)) {
-    setJoinState(btn, 'pending');
-  } else {
-    setJoinState(btn, 'default');
-  }
-
-  // Open confirm modal instead of joining directly
-  btn.addEventListener('click', () => {
-    if (localStorage.getItem(pendingKey) || localStorage.getItem(joinedKey)) return;
-    const userId = localStorage.getItem('user_id');
-    if (!userId) { alert('Please log in to join a trip.'); return; }
-    openJoinModal();
-  });
-}
-
 /* ── Join Confirm Modal ───────────────────────────────────── */
 function openJoinModal() {
   const modal = $('joinModal');
@@ -346,37 +320,91 @@ function showSkeleton() {
   $('tripDescription').innerHTML = `<span style="display:block;width:100%;height:60px;background:#f5d5de;border-radius:6px"></span>`;
 }
 
-/* ── Init ─────────────────────────────────────────────────── */
+/* ── ฟังก์ชันอัปเดตสถานะปุ่ม Join (เพิ่มการเช็ค Last day to join) ── */
+function updateJoinButtonUI(trip) {
+  const btn = $('joinBtn');
+  if (!btn) return;
+
+  const joinedCount = trip.current_members ?? 0;
+  const maxMember = trip.max_member ?? 0;
+  const isFull = joinedCount >= maxMember;
+
+  // 🚩 1. เช็คสถานะ Closed จาก Database
+  const isStatusClosed = trip.trip_status && (trip.trip_status.toLowerCase() === 'closed');
+
+  // 🚩 2. เช็คจาก Last day to join (limit_date_accept)
+  let isTimeOver = false;
+  if (trip.limit_date_accept) {
+    const limitDate = new Date(trip.limit_date_accept);
+    const now = new Date();
+    if (now > limitDate) {
+      isTimeOver = true; // เลยกำหนดเวลาแล้ว
+    }
+  }
+
+  // ล้าง class เดิมและตั้งค่าเริ่มต้นเป็นกดไม่ได้
+  btn.className = 'join-btn'; 
+  btn.disabled = true;
+  btn.onclick = null; 
+
+  if (trip.is_host) {
+    // สถานะ Host
+    btn.innerHTML = `<i class="fas fa-user"></i> Host`;
+    btn.classList.add('btn-host');
+  } else if (trip.my_join_status === 'Joined') {
+    // สถานะเข้าร่วมแล้ว
+    btn.innerHTML = `<i class="fas fa-check"></i> Joined`;
+    btn.classList.add('btn-joined');
+  } else if (trip.my_join_status === 'Pending') {
+    // สถานะรอการตอบรับ
+    btn.innerHTML = `<i class="far fa-clock"></i> Pending`;
+    btn.classList.add('btn-pending');
+  } else if (isStatusClosed || isTimeOver) {
+    // 🚩 สถานะปิดรับสมัคร (เพราะตั้งใจปิด หรือ เพราะเลยวัน Last day to join)
+    btn.innerHTML = `<i class="fas fa-times-circle"></i> Entry Closed`;
+    btn.classList.add('btn-closed');
+    btn.disabled = true; 
+    // เพิ่ม CSS pointer-events: none ในคลาส btn-closed ด้วยจะชัวร์ที่สุด
+  } else if (isFull) {
+    // สถานะคนเต็ม
+    btn.innerHTML = `<i class="fas fa-user-friends"></i> Full`;
+    btn.classList.add('btn-full');
+  } else {
+    // สถานะปกติที่ Join ได้ (สีชมพู)
+    btn.textContent = 'Join Trip';
+    btn.disabled = false;
+    btn.classList.add('btn-join'); 
+    btn.onclick = openJoinModal;
+  }
+}
+
+/* ── ฟังก์ชัน init (ลบการเรียก setupJoinButton ออก) ── */
 async function init() {
   const tripId = getQueryParam('trip_id');
-
   if (!tripId) {
-    $('loadingState').style.display = 'none';
-    $('pageContent').classList.remove('td-hidden');
-    $('heroCard').innerHTML = `<div style="padding:32px;width:100%;text-align:center"><p style="font-size:20px">😕</p><p style="color:#B07A90;font-size:14px">No trip ID in URL.<br>Use <code>?trip_id=1</code></p></div>`;
+    // ... จัดการกรณีไม่มี ID ...
     return;
   }
 
   $('loadingState').style.display = 'none';
   $('pageContent').classList.remove('td-hidden');
   showSkeleton();
-  setupJoinButton(tripId);
 
   try {
-    const res = await fetch(`${API_BASE}/api/trip-detail/${tripId}`);
+    const res = await fetch(`${API_BASE}/api/trip-detail/${tripId}`, { credentials: 'include' });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const trip = await res.json();
 
     window.__currentTrip = trip;
     renderTrip(trip);
-    await renderMembers(tripId, trip.max_member ?? trip.max_members);
+    await renderMembers(tripId, trip.max_member);
+    
+    // 🚩 ใช้ฟังก์ชันนี้ควบคุมปุ่มแทน setupJoinButton เดิม
+    updateJoinButtonUI(trip);
 
   } catch (err) {
-    $('heroCard').innerHTML = `
-      <div style="padding:32px;width:100%;text-align:center">
-        <p style="font-size:20px">⚠️</p>
-        <p style="color:#B07A90;font-size:14px">Could not load trip details.<br><small>${err.message}</small></p>
-      </div>`;
+    console.error(err);
+    $('heroCard').innerHTML = `<div style="padding:32px;text-align:center">⚠️ Error loading trip</div>`;
   }
 }
 

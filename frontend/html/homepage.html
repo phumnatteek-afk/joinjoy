@@ -42,6 +42,107 @@
       opacity: 0.5;
       cursor: not-allowed;
     }
+
+    /* ── JOIN CONFIRM MODAL ── */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.55);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+      z-index: 9999;
+    }
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .modal-box {
+      background: #f5f6f7;
+      width: 88%;
+      max-width: 420px;
+      border-radius: 20px;
+      padding: 28px 28px 24px;
+      text-align: center;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+      position: relative;
+      transform: scale(0.9);
+      transition: transform 0.2s;
+    }
+    .modal-overlay.active .modal-box {
+      transform: scale(1);
+    }
+    .modal-close {
+      position: absolute;
+      right: 18px; top: 14px;
+      font-size: 20px;
+      cursor: pointer;
+      color: #666;
+      line-height: 1;
+    }
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 4px;
+    }
+    .warning-icon { font-size: 26px; }
+    .modal-header h2 {
+      font-size: 18px;
+      font-weight: 700;
+      color: #2D1F26;
+    }
+    .modal-box hr {
+      border: none;
+      border-top: 1px solid #ddd;
+      margin: 14px 0;
+    }
+    .modal-content {
+      font-size: 14px;
+      line-height: 1.7;
+      color: #444;
+    }
+    .note { color: #e74c3c; font-weight: 700; }
+    .modal-actions {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin-top: 8px;
+    }
+    .btn-cancel {
+      padding: 12px 28px;
+      border: none;
+      border-radius: 50px;
+      font-size: 14px;
+      font-weight: 600;
+      color: white;
+      background: #6c7a89;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .btn-cancel:hover { transform: translateY(-1px); }
+    .btn-confirm {
+      padding: 12px 28px;
+      border: none;
+      border-radius: 50px;
+      font-size: 14px;
+      font-weight: 600;
+      color: white;
+      background: linear-gradient(135deg, #ff7b87, #f56073);
+      box-shadow: 0 6px 16px rgba(245,96,115,0.35);
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .btn-confirm:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 22px rgba(245,96,115,0.4);
+    }
   </style>
 </head>
 <body>
@@ -59,6 +160,30 @@
     </div>
   </div>
 </div>
+<!-- ── JOIN CONFIRM POPUP ── -->
+<div id="joinModal" class="modal-overlay">
+  <div class="modal-box">
+    <div class="modal-close" onclick="closeJoinModal()">✕</div>
+    <div class="modal-header">
+      <span class="warning-icon">⚠️</span>
+      <h2>ยืนยันการเข้าร่วมทริป</h2>
+    </div>
+    <hr>
+    <div class="modal-content">
+      <p>
+        <span class="note">หมายเหตุ:</span> ค่าใช้จ่ายต่อคนอาจมีการเปลี่ยนแปลง<br>
+        หากจำนวนผู้เข้าร่วมไม่ครบตามที่กำหนด<br><br>
+        กรุณารับทราบเงื่อนไขก่อนยืนยันการเข้าร่วม
+      </p>
+    </div>
+    <hr>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeJoinModal()">ยกเลิก</button>
+      <button class="btn-confirm" onclick="confirmJoin()">ยอมรับและเข้าร่วม</button>
+    </div>
+  </div>
+</div>
+
 <!-- ── HEADER ── -->
 <header class="header">
   <div class="logo-row">
@@ -375,7 +500,7 @@ function tripCard(t) {
   } else if (full) {
     btnHtml = `<button class="join-btn joined" disabled><svg xmlns="http://www.w3.org/2000/svg" width="14px" height="14px" viewBox="0 0 24 24"><path fill="currentColor" d="M9.175 10.825Q8 9.65 8 8t1.175-2.825T12 4t2.825 1.175T16 8t-1.175 2.825T12 12t-2.825-1.175M4 18v-.8q0-.85.438-1.562T5.6 14.55q1.55-.775 3.15-1.162T12 13t3.25.388t3.15 1.162q.725.375 1.163 1.088T20 17.2v.8q0 .825-.587 1.413T18 20H6q-.825 0-1.412-.587T4 18"/></svg>Full</button>`;
   } else {
-    btnHtml = `<button class="join-btn" onclick="event.stopPropagation();joinTrip(${t.trip_id},this,${t.creator_id})">join</button>`;
+    btnHtml = `<button class="join-btn" onclick="event.stopPropagation();openJoinModal(${t.trip_id},this,${t.creator_id})">join</button>`;
   }
   return `
   <div class="card" onclick="window.location.href='tripdetail.html?trip_id=${t.trip_id}'" style="cursor:pointer">
@@ -392,7 +517,6 @@ function tripCard(t) {
   ${t.cover_image 
   ? `<img class="cimg" src="${MEDIA}/${t.cover_image}" alt="${t.trip_name}">` 
   : `<div class="cph" style="background:${gr(t.category)}">${em(t.category)}</div>`}
-      ${t.is_matched === 1 ? `<div class="tag-badge">✦ ${t.category}</div>` : ''}
       <div class="join-wrap">${btnHtml}</div>
     </div>
   </div>`;
@@ -606,6 +730,23 @@ async function loadNotif() {
   } catch (e) {
     // ไม่ต้อง log error — ถ้า 401 แค่ไม่แสดง dot
   }
+}
+
+/* ── JOIN MODAL ── */
+let _pendingTripId = null, _pendingBtn = null, _pendingCreatorId = null;
+
+function openJoinModal(tripId, btn, creatorId) {
+  _pendingTripId = tripId; _pendingBtn = btn; _pendingCreatorId = creatorId;
+  document.getElementById('joinModal').classList.add('active');
+}
+function closeJoinModal() {
+  document.getElementById('joinModal').classList.remove('active');
+  _pendingTripId = null; _pendingBtn = null; _pendingCreatorId = null;
+}
+function confirmJoin() {
+  const tripId = _pendingTripId, btn = _pendingBtn, creatorId = _pendingCreatorId;
+  closeJoinModal();
+  if (tripId !== null) joinTrip(tripId, btn, creatorId);
 }
 
 /* ── JOIN ── */

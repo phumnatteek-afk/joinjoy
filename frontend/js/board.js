@@ -148,8 +148,8 @@ function renderTrips(trips) {
         const budgetType = trip.budget_type === 'Person'
             ? ' / person'
             : trip.budget_type === 'Trip'
-            ? ' / trip'
-            : '';
+                ? ' / trip'
+                : '';
         const isFull = Number(trip.current_member || 0) >= Number(trip.max_member || 0);
         const now = new Date();
         const limitDate = trip.limit_date_accept ? new Date(trip.limit_date_accept) : null;
@@ -160,21 +160,33 @@ function renderTrips(trips) {
         const isHostById = Number(trip.is_host) === 1 || (effectiveUserId && Number(trip.creator_id) === Number(effectiveUserId));
         const isHostByName = effectiveUserName && normalizeName(trip.user_name) === normalizeName(effectiveUserName);
         const isHost = isHostById || isHostByName;
-       let joinButtonHtml = `
-<button class="joy-btn"
-onclick="event.stopPropagation(); openJoinModal(${trip.trip_id}, this, ${trip.creator_id}, ${trip.me_user_id || 'null'})">
-Join
-</button>`;
+        let joinButtonHtml = `
+            <button class="joy-btn"
+            onclick="event.stopPropagation(); openJoinModal(${trip.trip_id}, this, ${trip.creator_id}, ${trip.me_user_id || 'null'})">
+            Join
+            </button>`;
+            
         if (isHost) {
-            joinButtonHtml = `<button class="joy-btn" disabled>Host</button>`;
-        } else if (trip.my_join_status === 'Pending') {
-            joinButtonHtml = `<button class="joy-btn" disabled>⏳ Pending</button>`;
+            // 1. Host - สีน้ำเงิน
+            joinButtonHtml = `<button class="joy-btn btn-host" disabled><iconify-icon icon="mdi:account"></iconify-icon> Host</button>`;
         } else if (trip.my_join_status === 'Joined') {
-            joinButtonHtml = `<button class="joy-btn" disabled>✅ Joined</button>`;
+            // 2. Joined - สีเขียวเข้ม
+            joinButtonHtml = `<button class="joy-btn btn-joined" disabled><iconify-icon icon="mdi:check-circle"></iconify-icon> Joined</button>`;
+        } else if (trip.my_join_status === 'Pending') {
+            // 3. Pending - สีส้ม
+            joinButtonHtml = `<button class="joy-btn btn-pending" disabled><iconify-icon icon="mdi:clock-outline"></iconify-icon> Pending</button>`;
         } else if (isExpired) {
-            joinButtonHtml = `<button class="joy-btn" disabled style="background:#ccc;">Entry Closed</button>`;
+            // 4. Closed - สีเทา (ถ้าเลยเวลา Last day to join)
+            joinButtonHtml = `<button class="joy-btn btn-closed" disabled><iconify-icon icon="mdi:close-circle"></iconify-icon> Closed</button>`;
         } else if (isFull) {
-            joinButtonHtml = `<button class="joy-btn" disabled>Full</button>`;
+            // 5. Full - สีเขียวอ่อน
+            joinButtonHtml = `<button class="joy-btn btn-full" disabled><iconify-icon icon="mdi:account-group"></iconify-icon> Full</button>`;
+        } else {
+            // 6. Join - สีชมพู (ปกติ)
+            joinButtonHtml = `<button class="joy-btn btn-join" 
+        onclick="event.stopPropagation(); openJoinModal(${trip.trip_id}, this, ${trip.creator_id}, ${trip.me_user_id || 'null'})">
+        Join
+    </button>`;
         }
 
         const limitDisplay = limitDate
@@ -343,23 +355,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
 });
 
-function openJoinModal(tripId, btn, creatorId, meUserIdFromTrip){
+function openJoinModal(tripId, btn, creatorId, meUserIdFromTrip) {
 
-    pendingJoinData = {tripId, btn, creatorId, meUserIdFromTrip};
+    pendingJoinData = { tripId, btn, creatorId, meUserIdFromTrip };
 
     document.getElementById("joinModal").classList.add("active");
 }
 
-function closeJoinModal(){
+function closeJoinModal() {
 
     document.getElementById("joinModal").classList.remove("active");
 }
 
-function confirmJoin(){
+function confirmJoin() {
 
-    if(!pendingJoinData) return;
+    if (!pendingJoinData) return;
 
-    const {tripId, btn, creatorId, meUserIdFromTrip} = pendingJoinData;
+    const { tripId, btn, creatorId, meUserIdFromTrip } = pendingJoinData;
 
     closeJoinModal();
 
@@ -369,21 +381,21 @@ function confirmJoin(){
 
 function openJoinModal(tripId, btn, creatorId, meUserId) {
 
-  pendingJoinData = {
-    tripId,
-    btn,
-    creatorId,
-    meUserId
-  };
+    pendingJoinData = {
+        tripId,
+        btn,
+        creatorId,
+        meUserId
+    };
 
-  document.getElementById("joinModal").classList.add("active");
+    document.getElementById("joinModal").classList.add("active");
 }
 
 function closeJoinModal() {
-  document.getElementById("joinModal").classList.remove("active");
+    document.getElementById("joinModal").classList.remove("active");
 }
-document.getElementById("joinModal").addEventListener("click", (e)=>{
-  if(e.target.id === "joinModal"){
-    closeJoinModal();
-  }
+document.getElementById("joinModal").addEventListener("click", (e) => {
+    if (e.target.id === "joinModal") {
+        closeJoinModal();
+    }
 });

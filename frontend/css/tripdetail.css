@@ -2,7 +2,7 @@
    tripdetail.css  –  JoinJoy  |  Trip Detail Page
    ════════════════════════════════════════════════ */
 
-   @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
+   @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Kanit:wght@400;600;700&display=swap');
 
    /* ── DESIGN TOKENS (matches home.css) ─────────── */
    :root {
@@ -477,7 +477,7 @@
   height: 52px;
   border: none;
   border-radius: 50px;
-  font-family: 'Poppins', sans-serif;
+  font-family: 'Poppins', 'Kanit', sans-serif;
   font-size: 15px;
   font-weight: 700;
   cursor: pointer;
@@ -682,4 +682,56 @@
 .btn-confirm:hover {
   transform: translateY(-2px);
   box-shadow: 0 10px 22px rgba(245,96,115,0.4);
+}
+
+/* ── สถานะปุ่ม Join ── */
+
+/* ── สถานะปุ่ม Join ── */
+
+/* 0. Join - สีชมพู (default) */
+.join-btn.btn-join {
+    background: #F06292 !important; /* สีชมพูที่คุณต้องการ */
+    color: #fff !important;
+}
+
+/* 1. Host - สีน้ำเงิน */
+.join-btn.btn-host {
+    background: #5D87FF !important;
+    color: #fff !important;
+    opacity: 1;
+}
+
+/* 2. Joined - สีเขียวเข้ม */
+.join-btn.btn-joined {
+    background: #82D682 !important;
+    color: #fff !important;
+    opacity: 1;
+}
+
+/* 3. Pending - สีส้ม */
+.join-btn.btn-pending {
+    background: #F5B971 !important;
+    color: #fff !important;
+    opacity: 1;
+    border: 2px solid #fff;
+}
+
+/* 4. Full - สีเขียวอ่อน */
+.join-btn.btn-full {
+    background: #A0D695 !important;
+    color: #fff !important;
+    opacity: 1;
+}
+
+/* 5. Closed - สีเทา (entry closed) */
+.join-btn.btn-closed {
+    background: #bdc3c7 !important; /* สีเทา */
+    color: #fff !important;
+    opacity: 1;
+    cursor: not-allowed;
+}
+
+/* จัดระยะห่างไอคอนในปุ่ม */
+.join-btn i {
+    margin-right: 8px;
 }
