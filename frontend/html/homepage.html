@@ -429,14 +429,16 @@ function schCard(t) {
     ? `<img src="${MEDIA}/${t.cover_image}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`
     : em(t.category);
 
-  // ปุ่ม Cancel — แสดงเฉพาะ member ที่ไม่ใช่ host
- const cancelBtn = isHost ? '' : `
-    <button class="sch-cancel-btn" onclick="leaveTrip(${t.trip_id}, this)">
+  const cancelBtn = isHost ? '' : `
+    <button class="sch-cancel-btn" onclick="event.stopPropagation(); leaveTrip(${t.trip_id}, this)">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:middle;margin-right:3px"><path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10S22 17.53 22 12 17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"/></svg>Cancel
     </button>`;
 
+  //เพิ่ม onclick และ style cursor ให้กับ div.sch-card
   return `
-  <div class="sch-card" id="sch-${t.trip_id}">
+  <div class="sch-card" id="sch-${t.trip_id}" 
+       onclick="window.location.href='tripdetail.html?trip_id=${t.trip_id}'" 
+       style="cursor:pointer">
     <div class="sch-icon" style="background:${t.cover_image ? '#eee' : gr(t.category)}">${iconHtml}</div>
     <div class="sch-info">
       <div class="sch-mbadge"><span class="dot"></span>Member: ${joined}/${t.max_member}</div>
