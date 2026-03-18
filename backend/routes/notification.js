@@ -252,10 +252,12 @@ router.patch('/respond', async(req, res) => {
             '🎉 ได้รับการตอบรับแล้ว!' :
             '❌ คำขอถูกปฏิเสธ'
 
-            // ถ้าโฮสตอบรับ ให้แสดงลิงก์ไลน์แทนคอนแทค
-            const detail = isAccepted ?
-                `ได้รับการตอบรับเข้าร่วมทริป "${trip.trip_name}" ลิงก์ไลน์: ${trip.host_contact}` :
-                `คำขอเข้าร่วมทริป "${trip.trip_name}" ถูกปฏิเสธ ยังมีทริปอื่นให้ร่วมจอยอยู่นะ`
+        const lineLink = String(trip.group_link || '').trim()
+        const joinLinkText = lineLink || '-'
+
+        const detail = isAccepted ?
+            `ได้รับการตอบรับเข้าร่วมทริป "${trip.trip_name}" ลิงก์ไลน์: ${joinLinkText}` :
+            `คำขอเข้าร่วมทริป "${trip.trip_name}" ถูกปฏิเสธ ยังมีทริปอื่นให้ร่วมจอยอยู่นะ`
 
         // INSERT Notification ให้ User แจ้งผลการตอบรับ
         await ensureNotificationFromUserIdColumn()
