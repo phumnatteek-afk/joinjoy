@@ -2,7 +2,7 @@
    tripdetail.css  –  JoinJoy  |  Trip Detail Page
    ════════════════════════════════════════════════ */
 
-   @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
+   @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Kanit:wght@400;600;700&display=swap');
 
    /* ── DESIGN TOKENS (matches home.css) ─────────── */
    :root {
@@ -477,7 +477,7 @@
   height: 52px;
   border: none;
   border-radius: 50px;
-  font-family: 'Poppins', sans-serif;
+  font-family: 'Poppins', 'Kanit', sans-serif;
   font-size: 15px;
   font-weight: 700;
   cursor: pointer;
