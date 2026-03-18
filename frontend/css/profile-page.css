@@ -273,6 +273,53 @@ body.profile-screen {
   opacity: 0.85;
 }
 
+/* ── AUTH BUTTONS ROW ───────────────────────────────────── */
+.profile-auth-btns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.btn-logout,
+.btn-login {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  width: 100%;
+  padding: 13px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: 'Poppins', sans-serif;
+  cursor: pointer;
+  letter-spacing: 0.3px;
+  transition: background 0.2s, color 0.2s, opacity 0.2s;
+  position: relative;
+  z-index: 999;
+}
+
+.btn-logout {
+  border: 1.5px solid #ffd6de;
+  background: #fff;
+  color: #ff6f8f;
+}
+
+.btn-logout:hover {
+  background: #fff0f3;
+}
+
+.btn-login {
+  border: none;
+  background: linear-gradient(90deg, #ff6f8f, #ffb347);
+  color: #fff;
+}
+
+.btn-login:hover {
+  opacity: 0.85;
+}
+
 .profile-card-box {
   position: relative;
   z-index: 5;

@@ -1931,13 +1931,13 @@ textarea {
 
 .modal-box{
   background:#f5f6f7;
-  width:520px;
+  width:88%;
+  max-width:420px;
   border-radius:20px;
-  padding:28px 35px;
+  padding:28px 28px 24px;
   text-align:center;
   box-shadow:0 20px 40px rgba(0,0,0,0.25);
   position:relative;
-
   transform:scale(.9);
   transition:0.2s;
 }
@@ -1945,12 +1945,15 @@ textarea {
 .modal-overlay.active .modal-box{
   transform:scale(1);
 }
+
 .modal-close{
   position:absolute;
-  right:20px;
-  top:15px;
+  right:18px;
+  top:14px;
   font-size:20px;
   cursor:pointer;
+  color:#666;
+  line-height:1;
 }
 
 .modal-header{
@@ -1958,49 +1961,54 @@ textarea {
   align-items:center;
   justify-content:center;
   gap:10px;
+  margin-bottom:4px;
 }
 
 .warning-icon{
-  font-size:28px;
+  font-size:26px;
 }
 
 .modal-header h2{
-  font-size:24px;
+  font-size:18px;
+  font-weight:700;
+  color:var(--text);
 }
 
 .modal-box hr{
   border:none;
   border-top:1px solid #ddd;
-  margin:18px 0;
+  margin:14px 0;
 }
 
 .modal-content{
-  font-size:18px;
-  line-height:1.6;
+  font-size:14px;
+  line-height:1.7;
+  color:#444;
 }
 
 .note{
   color:#e74c3c;
   font-weight:700;
 }
+
 .modal-actions{
   display:flex;
   justify-content:center;
-  gap:22px;
-  margin-top:10px;
+  gap:16px;
+  margin-top:8px;
 }
+
 /* ปุ่มยกเลิก */
 .btn-cancel{
-  padding:14px 36px;
+  padding:12px 28px;
   border:none;
   border-radius:50px;
-  font-size:18px;
+  font-size:14px;
   font-weight:600;
   color:white;
   background:#6c7a89;
-  box-shadow:0 6px 12px rgba(0,0,0,0.18);
+  box-shadow:0 4px 10px rgba(0,0,0,0.15);
   cursor:pointer;
-
   transition:transform .15s ease, box-shadow .15s ease;
 }
 
@@ -2013,25 +2021,23 @@ textarea {
   transform:scale(.97);
 }
 
-
 /* ปุ่มเข้าร่วม */
 .btn-confirm{
-  padding:14px 40px;
+  padding:12px 28px;
   border:none;
   border-radius:50px;
-  font-size:18px;
+  font-size:14px;
   font-weight:600;
   color:white;
   background:linear-gradient(135deg,#ff7b87,#f56073);
-  box-shadow:0 8px 18px rgba(245,96,115,0.35);
+  box-shadow:0 6px 16px rgba(245,96,115,0.35);
   cursor:pointer;
-
   transition:transform .15s ease, box-shadow .15s ease;
 }
 
 .btn-confirm:hover{
   transform:translateY(-2px);
-  box-shadow:0 12px 24px rgba(245,96,115,0.4);
+  box-shadow:0 10px 22px rgba(245,96,115,0.4);
 }
 
 .btn-confirm:active{
