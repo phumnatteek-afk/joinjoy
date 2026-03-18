@@ -194,6 +194,7 @@
                                         const isRejected =
                                             String(item.notification_title || '').includes('ปฏิเสธ') ||
                                             String(item.notification_detail || '').includes('ปฏิเสธ');
+                                        const isReminder = String(item.notification_title || '').includes('แจ้งเตือน: ทริปพรุ่งนี้');
                                         const isUnread = Boolean(item.is_unread);
                                         const memberStatus = item.member_status || null;
                                         const hostUserId = Number(item.host_user_id || 0);
@@ -203,12 +204,14 @@
                                             (isAccepted && profileUserId > 0);
                                         const profileTargetId = item.notification_id;
                                         const statusTone =
+                                            isReminder ? 'reminder' :
                                             isAccepted || memberStatus === 'Joined' ?
                                             'accepted' :
                                             isRejected || memberStatus === 'Cancelled' ?
                                             'rejected' :
                                             'pending';
                                         const fallbackIcon =
+                                            isReminder ? '🗓️' :
                                             statusTone === 'accepted' ?
                                             '✅' :
                                             statusTone === 'rejected' ?
@@ -227,7 +230,22 @@
                                         const hostContact = extractHostContact(item);
                                         const detailCleaned = isAccepted ?
                                             String(item.notification_detail || '').replace(/\s*ติดต่อ\s*Host\s*:\s*.+$/i, '').trim() :
+                                            isReminder ?
+                                            String(item.notification_detail || '').replace(/\s*\[GROUP_LINK:[^\]]*\]/i, '').trim() :
                                             String(item.notification_detail || '');
+
+                                        // Extract group link from reminder detail
+                                        const reminderGroupLinkMatch = isReminder ?
+                                            String(item.notification_detail || '').match(/\[GROUP_LINK:([^\]]+)\]/i) : null;
+                                        const reminderGroupLink = reminderGroupLinkMatch ? reminderGroupLinkMatch[1].trim() : (item.group_link || '');
+
+                                        const reminderGroupChatHtml = isReminder && reminderGroupLink ?
+                                            `<div class="notif-group-chat-btn"
+                                                  onclick="window.open('${reminderGroupLink.startsWith('http') ? reminderGroupLink : 'https://' + reminderGroupLink}', '_blank')"
+                                                  style="margin-top:8px;background:#FFF0F5;color:#f18da4;padding:10px;border-radius:12px;text-align:center;cursor:pointer;font-weight:bold;border:1.5px solid #f18da4;font-size:13px;display:flex;align-items:center;justify-content:center;gap:8px;">
+                                                  🔗 Group Chat: เข้ากลุ่มที่นี่
+                                             </div>` : '';
+
                                         const hostContactHtml = isAccepted && hostContact ?
                                             `<div class="notif-host-contact">คอนแทค: ${escapeHtml(hostContact)}</div>` :
                                             '';
@@ -269,6 +287,7 @@
               <div class="notif-detail">${escapeHtml(detailCleaned)}</div>
               ${hostContactHtml}
               ${groupChatHtml}
+              ${reminderGroupChatHtml}
               ${actionHtml}
               ${canOpenProfile ? `<div class="notif-inline-profile" id="profile-${profileTargetId}"></div>` : ''}
             </div>
