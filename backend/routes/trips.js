@@ -70,4 +70,33 @@ router.put('/trips/:id', requireLogin, upload.single('cover_image'), async (req,
     }
 });
 
+
+// ── สมาชิกกดยกเลิกเข้าร่วมทริป ──
+router.delete('/trips/:id/leave', requireLogin, async (req, res) => {
+  const tripId = req.params.id;
+  const userId = (req.user && req.user.user_id) || req.session.userId;
+  try {
+    // ดึง creator_id และชื่อทริป
+    const [trips] = await db.query('SELECT creator_id, trip_name FROM Trip WHERE trip_id = ?', [tripId]);
+    if (!trips || trips.length === 0) return res.status(404).json({ success: false, error: 'ไม่พบทริป' });
+
+    // ลบสมาชิกออกจาก Trip_member
+    await db.query('DELETE FROM Trip_member WHERE trip_id = ? AND user_id = ?', [tripId, userId]);
+
+    // แจ้งเตือนโฮส
+    const title = '❌ สมาชิกยกเลิกเข้าร่วมทริป';
+    const detail = `สมาชิก user_id ${userId} ได้ยกเลิกเข้าร่วมทริป "${trips[0].trip_name}"`;
+    await db.query(
+      `INSERT INTO Notification (trip_id, user_id, notification_title, notification_detail, from_user_id, create_at)
+       VALUES (?, ?, ?, ?, ?, NOW())`,
+      [tripId, trips[0].creator_id, title, detail, userId]
+    );
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, error: 'Server error: ' + err.message });
+  }
+});
+
 module.exports = router;

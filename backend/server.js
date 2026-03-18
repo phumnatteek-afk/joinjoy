@@ -1,8 +1,8 @@
-require('dotenv').config();
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '.env') });
 
 const express = require('express');
 const cors = require('cors');
-const path = require('path');
 const passport = require('passport');
 const session = require('express-session');
 // ── Routes ที่ลี่สร้างเพิ่ม ─────────────────────────────────
@@ -48,11 +48,13 @@ const notificationRoutes = require('./routes/notification');
 const homepageRoute = require('./routes/homepage');
 const loginRoute = require('./routes/login');
 const googleAuth = require('./routes/googleAuth');
+const tripsRoute = require('./routes/trips');
 
 app.use('/api/board', boardRoute);
 app.use('/api/admin', adminRoutes);
 app.use('/api/notification', notificationRoutes);
 app.use('/api/user', homepageRoute); // GET /api/user/me
+app.use('/api', tripsRoute); // DELETE /api/trips/:id/leave
 
 // ── GET /api/user/:user_id — member profile (must be after /api/user/me) ──
 app.get('/api/user/:user_id', async(req, res) => {
