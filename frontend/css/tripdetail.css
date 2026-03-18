@@ -26,7 +26,7 @@
    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
    
    body {
-     font-family: 'Poppins', sans-serif;
+     font-family: 'Poppins', 'Kanit', sans-serif;
      color: var(--text);
      background: linear-gradient(180deg, #f7dada 0%, #f3cfcf 50%, #eed9c4 100%);
      max-width: 430px;
@@ -609,7 +609,6 @@
   position: relative;
   transform: scale(0.9);
   transition: transform 0.2s;
-  font-family: 'Poppins', sans-serif;
 }
 .modal-overlay.active .modal-box {
   transform: scale(1);
@@ -665,7 +664,6 @@
   background: #6c7a89;
   box-shadow: 0 4px 10px rgba(0,0,0,0.15);
   cursor: pointer;
-  font-family: 'Poppins', sans-serif;
   transition: transform 0.15s, box-shadow 0.15s;
 }
 .btn-cancel:hover { transform: translateY(-1px); }
@@ -679,7 +677,6 @@
   background: linear-gradient(135deg, #ff7b87, #f56073);
   box-shadow: 0 6px 16px rgba(245,96,115,0.35);
   cursor: pointer;
-  font-family: 'Poppins', sans-serif;
   transition: transform 0.15s, box-shadow 0.15s;
 }
 .btn-confirm:hover {
